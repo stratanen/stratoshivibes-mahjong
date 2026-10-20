@@ -2,7 +2,7 @@
 // Pages load network-first (players get updates when online), everything falls back to the cache offline.
 const CACHE = 'sv-mahjong-v1';
 const CORE = [
-  './', './index.html', './manifest.webmanifest', './privacy.html',
+  './', './index.html', './manifest.webmanifest', './privacy.html', './terms.html',
   './icons/icon-192.png', './icons/icon-512.png',
   './fonts/bungee-latin-400-normal.woff2',
   './fonts/commissioner-latin-400-normal.woff2',
