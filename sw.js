@@ -7,7 +7,8 @@ const CORE = [
   './fonts/bungee-latin-400-normal.woff2',
   './fonts/commissioner-latin-400-normal.woff2',
   './fonts/commissioner-latin-600-normal.woff2',
-  './fonts/commissioner-latin-800-normal.woff2'
+  './fonts/commissioner-latin-800-normal.woff2',
+  './wallet.bundle.js', './holder.js'
 ];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
