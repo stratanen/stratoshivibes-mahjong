@@ -151,6 +151,7 @@ header{flex-direction:column;align-items:stretch;gap:8px}
 .bars{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0}
 .hud-top .icon-btn+.icon-btn{margin-left:0}
 .card{box-sizing:border-box;max-height:calc(100% - 8px);overflow:auto}
+.hud>.chip{margin-top:0;white-space:nowrap;flex:none}
 </style>
 </head>
 <body>
@@ -161,7 +162,6 @@ header{flex-direction:column;align-items:stretch;gap:8px}
     <div class="hrow">
       <div class="logo"><small class="eyebrow">StratoshiVibes</small>MAHJONG</div>
       <div class="hbtns">
-        <button class="chip" id="layChip" aria-label="Change layout"><span id="layName">Pyramid</span></button>
         <button class="icon-btn" id="sndBtn" aria-label="Mute sound"></button>
         <button class="icon-btn" id="helpBtn" aria-label="How to play">?</button>
       </div>
@@ -176,6 +176,7 @@ header{flex-direction:column;align-items:stretch;gap:8px}
         <div class="prog" role="progressbar" aria-label="Board cleared" aria-valuemin="0" aria-valuemax="100" id="prog"><i id="progBar"></i></div>
         <div class="combo-bar" aria-hidden="true"><i id="comboBar"></i></div>
       </div>
+      <button class="chip" id="layChip" aria-label="Change layout"><span id="layName">Pyramid</span></button>
     </div>
   </header>
   <div id="boardWrap">
@@ -467,5 +468,7 @@ addEventListener('resize',()=>{measure();for(const t of st.tiles)place(t)});
 if(!resume())newGame();
 </script>
 
+<script src="wallet.bundle.js"></script>
+<script src="holder.js"></script>
 </body>
 </html>
