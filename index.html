@@ -470,5 +470,6 @@ if(!resume())newGame();
 
 <script src="wallet.bundle.js"></script>
 <script src="holder.js"></script>
+<script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}</script>
 </body>
 </html>
