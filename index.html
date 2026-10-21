@@ -99,17 +99,17 @@ footer .links{display:flex;gap:14px}
       </span>
     </a>
 
-    <div class="cab soon" aria-disabled="true">
+    <a class="cab" href="poker/">
       <span class="art" aria-hidden="true">
-        <span class="card" style="left:10px;top:18px;transform:rotate(-12deg)">?</span>
-        <span class="card" style="left:56px;top:14px;transform:rotate(10deg)">?</span>
+        <span class="card" style="left:6px;top:18px;transform:rotate(-12deg)">?</span>
+        <span class="p" style="left:50px;top:24px;width:56px;height:76px;border-radius:7px;border:2px solid var(--gold-2);transform:rotate(9deg)"><img src="arcade-art/tile_rugpuller.webp" alt=""></span>
       </span>
       <span>
         <h2>Rugpull Poker</h2><div class="genre">Bluff · Strategy</div>
-        <p>Hidden Degens, bluffs and reveals. Read your rival before they pull the rug.</p>
-        <span class="foot"><span class="status">Coming soon</span><span class="play">Soon</span></span>
+        <p>Hidden Degens, bluffs and tricks. Read your rival before they pull the rug.</p>
+        <span class="foot"><span class="status" id="stPoker">New</span><span class="play">Play</span></span>
       </span>
-    </div>
+    </a>
 
     <div class="cab soon" aria-disabled="true">
       <span class="art" aria-hidden="true">
@@ -141,6 +141,8 @@ footer .links{display:flex;gap:14px}
  // Battlegrounds: campaign progress
  const p=+(get('bg_progress')||0),b=document.getElementById('stBattle');
  if(p>=8)b.textContent='Campaign cleared';else if(p>0)b.textContent='Stage '+(p+1)+' of 8';
+ const rp=+(get('rp_beaten')||0),pk=document.getElementById('stPoker');
+ if(rp>=3)pk.textContent='All rivals beaten';else if(rp>0)pk.textContent=rp+' of 3 rivals beaten';
 })();
 </script>
 
