@@ -8,6 +8,12 @@
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" href="../icons/icon-192.png">
 <style>
+@font-face{font-family:"SVDisplay";src:url(../fonts/bungee-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"SVDisplay";src:url(../fonts/commissioner-greek-800-normal.woff2) format("woff2");unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(../fonts/commissioner-greek-400-normal.woff2) format("woff2");font-weight:400;unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(../fonts/commissioner-greek-600-normal.woff2) format("woff2");font-weight:600;unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(../fonts/commissioner-greek-800-normal.woff2) format("woff2");font-weight:800;unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
+
 @font-face{font-family:"Bungee";src:url(../fonts/bungee-latin-400-normal.woff2) format("woff2");font-display:swap}
 @font-face{font-family:"Commissioner";src:url(../fonts/commissioner-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
 @font-face{font-family:"Commissioner";src:url(../fonts/commissioner-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
@@ -18,7 +24,7 @@
 :root{
   --table:#141a2b; --table-2:#1d2540; --panel:#1b2238; --ink:#eef0f7; --muted:#9aa3c0; --line:#ffffff1c;
   --gold:#e3b54a; --gold-2:#b98a24; --ivory:#f4ecd8; --you:#3fbf7a; --foe:#e2574c; --buff:#7fb3ff;
-  --f-display:"Bungee","Arial Black",system-ui,sans-serif;
+  --f-display:"SVDisplay","Bungee","Arial Black",system-ui,sans-serif;
   --f-body:"Commissioner",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:dark;
 }
@@ -514,5 +520,6 @@ if(!store.get('er_seen_help')){store.set('er_seen_help','1');help()}
 </script>
 
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('../sw.js').catch(()=>{}))}</script>
+<script src="../i18n.js"></script>
 </body>
 </html>
