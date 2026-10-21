@@ -318,6 +318,7 @@ function enterRoom(type){
   const draw=()=>{let tot=opts.reduce((s,o)=>s+w[o],0),x=rnd()*tot;for(const o of opts){x-=w[o];if(x<0)return o}return 'fight'};
   let a=draw(),b=draw();let g=0;while(b===a&&g++<10)b=draw();doors=[{x:100,type:a},{x:260,type:b}];}
  roomCleared=!enemies.length;
+ if(run.room===0)store.set('er2_ckpt',JSON.stringify(run));   // checkpoint: start of each floor
  save();best(roomNo());renderHud();paused=false;}
 function blocked(x,y,r=12){return obstacles.some(o=>x>o.x-r&&x<o.x+o.w+r&&y>o.y-r&&y<o.y+o.h+r)}
 
@@ -460,9 +461,15 @@ function openShop(p){const draw=()=>{renderHud();showOv(`<h2>OTC Desk</h2><div c
  <button class="btn" id="s3">Leave</button>`);
  $('s1').onclick=()=>{run.hype-=12;closeOv();healParty();draw()};$('s2').onclick=()=>{run.hype-=22;offerUpgrade('Upgrade',draw)};$('s3').onclick=()=>{closeOv();p.reset=true;moveAway()}};draw();}
 function gameOver(){store.del('er2_run');sfx.rug();const n=roomNo();best(n);
- showOv(`<h2>Rugged</h2><p>Your whole party got liquidated in ${FLOORS[run.floor].name}, room ${run.room+1} of 4.</p>${statsHtml()}<button class="btn" id="re">New run</button>`);$('re').onclick=()=>{closeOv();startScreen()}}
-function victory(){store.del('er2_run');best(12);store.set('er_wins',+(store.get('er_wins')||0)+1);sfx.win();
- showOv(`<h2>You escaped the rug</h2><p>The Market Maker is down and your party walks out with its bags intact.</p>${statsHtml()}<button class="btn" id="re">New run</button>`);$('re').onclick=()=>{closeOv();startScreen()}}
+ const ck=store.get('er2_ckpt');const tries=(run.retries||0);
+ showOv(`<h2>Rugged</h2><p>Your whole party got liquidated in ${FLOORS[run.floor].name}, room ${run.room+1} of 4.</p>${statsHtml()}
+ <div class="col">${ck?`<button class="btn" id="ck">Retry floor ${run.floor+1}</button>`:''}
+ <button class="btn ${ck?'ghost':''}" id="re">New run</button><a class="btn ghost" href="../" style="text-align:center;text-decoration:none">Back to the Arcade</a></div>
+ ${ck?`<p class="sub">Retrying puts your party back as it was when this floor began.${tries?` Retries so far: ${tries}.`:''}</p>`:''}`);
+ $('re').onclick=()=>{store.del('er2_ckpt');closeOv();startScreen()};
+ const b=$('ck');if(b)b.onclick=()=>{try{const r=JSON.parse(ck);r.retries=tries+1;run=r;closeOv();enterRoom('fight')}catch(e){startScreen()}}}
+function victory(){store.del('er2_run');store.del('er2_ckpt');best(12);store.set('er_wins',+(store.get('er_wins')||0)+1);sfx.win();
+ showOv(`<h2>You escaped the rug</h2><p>The Market Maker is down and your party walks out with its bags intact.</p>${statsHtml()}<div class="col"><button class="btn" id="re">New run</button><a class="btn ghost" href="../" style="text-align:center;text-decoration:none">Back to the Arcade</a></div>`);$('re').onclick=()=>{closeOv();startScreen()}}
 function statsHtml(){return `<div class="stats"><div><b>${run.stats.kills}</b><span>knockouts</span></div><div><b>${run.hype}</b><span>Hype</span></div><div><b>${roomNo()}/12</b><span>rooms</span></div></div>
  <div class="lesson ${run.stats.fell?'bad':''}"><span>Scams</span>Avoided ${run.stats.safe}, fell for ${run.stats.fell}.</div>`}
 function startScreen(){paused=true;let offers=[];const pool=IDS.filter(i=>i!=='rugpuller');while(offers.length<4){const k=pickR(pool);if(!offers.includes(k))offers.push(k)}let chosen=[];
@@ -473,7 +480,7 @@ function startScreen(){paused=true;let offers=[];const pool=IDS.filter(i=>i!=='r
  <div class="grid">${offers.map(id=>{const r=ROSTER[id];return `<button class="pick${chosen.includes(id)?' on':''}" data-id="${id}"><img src="${FACE[id]}" alt=""><span class="m"><b>${r.name}</b><span class="ab">${r.ab}</span><span class="tx">${r.txt}</span></span></button>`}).join('')}</div>
  <button class="btn ${saved?'ghost':''}" id="go" ${chosen.length<2?'disabled':''}>${chosen.length<2?`Pick ${2-chosen.length} more`:'Start a new run'}</button>`);
  document.querySelectorAll('.pick').forEach(b=>b.onclick=()=>{const id=b.dataset.id;sfx.talk();if(chosen.includes(id))chosen=chosen.filter(x=>x!==id);else{if(chosen.length===2)chosen.shift();chosen.push(id)}draw()});
- $('go').onclick=()=>{newRun(chosen);closeOv();enterRoom('fight')};
+ $('go').onclick=()=>{store.del('er2_ckpt');newRun(chosen);closeOv();enterRoom('fight')};
  const c=$('cont');if(c)c.onclick=()=>{try{run=JSON.parse(saved);closeOv();enterRoom(run.next||'fight')}catch(e){store.del('er2_run');startScreen()}}};draw();}
 function help(){showOv(`<h2>How to play</h2>
  <p><b>Tap or drag</b> to walk. Your party follows in a line and attacks whatever is in reach.</p>
