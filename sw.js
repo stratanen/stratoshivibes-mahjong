@@ -1,8 +1,10 @@
 // Offline support: keeps a copy of the game on the device after the first online launch.
 // Pages load network-first (players get updates when online), everything falls back to the cache offline.
-const CACHE = 'sv-mahjong-v1';
+const CACHE = 'sv-arcade-v2';
 const CORE = [
   './', './index.html', './manifest.webmanifest', './privacy.html', './terms.html',
+  './mahjong/', './mahjong/index.html', './battlegrounds/', './battlegrounds/index.html',
+  './arcade-art/tile_bull.webp', './arcade-art/tile_bear.webp', './arcade-art/tile_whale.webp', './arcade-art/tile_maxi.webp', './arcade-art/tile_rugpuller.webp', './arcade-art/tile_paperhands.webp',
   './icons/icon-192.png', './icons/icon-512.png',
   './fonts/bungee-latin-400-normal.woff2',
   './fonts/commissioner-latin-400-normal.woff2',

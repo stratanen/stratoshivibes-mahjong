@@ -1,7 +1,7 @@
 {
-  "name": "StratoshiVibes Mahjong",
-  "short_name": "SV Mahjong",
-  "description": "Mahjong solitaire with the StratoshiVibes Vol.1 Degens characters.",
+  "name": "StratoshiVibes Arcade",
+  "short_name": "SV Arcade",
+  "description": "Free games starring the StratoshiVibes Vol.1 Degens.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
