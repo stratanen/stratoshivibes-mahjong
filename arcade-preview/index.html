@@ -111,16 +111,17 @@ footer .links{display:flex;gap:14px}
       </span>
     </a>
 
-    <div class="cab soon" aria-disabled="true">
+    <a class="cab" href="rug/">
       <span class="art" aria-hidden="true">
-        <span class="p" style="left:28px;top:20px;border:3px solid var(--gold-2)"><img src="arcade-art/tile_paperhands.webp" alt=""></span>
+        <span class="p" style="left:6px;top:30px;border:3px solid var(--you)"><img src="arcade-art/tile_paperhands.webp" alt=""></span>
+        <span class="p" style="left:52px;top:6px;border:3px solid var(--foe);width:54px;height:54px"><img src="arcade-art/tile_rugpuller.webp" alt=""></span>
       </span>
       <span>
         <h2>Escape the Rug</h2><div class="genre">Roguelike · Adventure</div>
-        <p>Room by room through bull runs, scams and airdrops. Every run is different.</p>
-        <span class="foot"><span class="status">Coming soon</span><span class="play">Soon</span></span>
+        <p>12 floors of fights, scam airdrops and bosses. Every run is different.</p>
+        <span class="foot"><span class="status" id="stRug">New</span><span class="play">Play</span></span>
       </span>
-    </div>
+    </a>
   </nav>
 
   <footer>
@@ -143,6 +144,8 @@ footer .links{display:flex;gap:14px}
  if(p>=8)b.textContent='Campaign cleared';else if(p>0)b.textContent='Stage '+(p+1)+' of 8';
  const rp=+(get('rp_beaten')||0),pk=document.getElementById('stPoker');
  if(rp>=3)pk.textContent='All rivals beaten';else if(rp>0)pk.textContent=rp+' of 3 rivals beaten';
+ const eb=+(get('er_best')||0),ew=+(get('er_wins')||0),er=document.getElementById('stRug');
+ if(ew)er.textContent='Escaped '+ew+'x · best floor 12';else if(eb)er.textContent='Best: floor '+eb+' of 12';
 })();
 </script>
 
