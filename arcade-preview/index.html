@@ -9,6 +9,12 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <style>
+@font-face{font-family:"SVDisplay";src:url(fonts/bungee-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"SVDisplay";src:url(fonts/commissioner-greek-800-normal.woff2) format("woff2");unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(fonts/commissioner-greek-400-normal.woff2) format("woff2");font-weight:400;unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(fonts/commissioner-greek-600-normal.woff2) format("woff2");font-weight:600;unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(fonts/commissioner-greek-800-normal.woff2) format("woff2");font-weight:800;unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
+
 @font-face{font-family:"Bungee";src:url(fonts/bungee-latin-400-normal.woff2) format("woff2");font-display:swap}
 @font-face{font-family:"Commissioner";src:url(fonts/commissioner-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
 @font-face{font-family:"Commissioner";src:url(fonts/commissioner-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
@@ -20,7 +26,7 @@
 :root{
   --table:#141a2b; --table-2:#1d2540; --panel:#1b2238; --ink:#eef0f7; --muted:#9aa3c0; --line:#ffffff1c;
   --gold:#e3b54a; --gold-2:#b98a24; --ivory:#f4ecd8; --edge:#cdb68a; --edge-2:#8c7346; --you:#3fbf7a; --foe:#e2574c;
-  --f-display:"Bungee","Arial Black",system-ui,sans-serif;
+  --f-display:"SVDisplay","Bungee","Arial Black",system-ui,sans-serif;
   --f-body:"Commissioner",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:dark;
 }
@@ -55,6 +61,11 @@ h1{margin:0;font:400 40px/0.95 var(--f-display);color:var(--gold);text-shadow:0 
 .p img{width:100%;height:100%;object-fit:cover}
 .vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:400 16px var(--f-display);color:#fff;text-shadow:0 2px 0 #000,0 0 12px var(--foe)}
 .card{position:absolute;width:56px;height:78px;border-radius:7px;background:linear-gradient(150deg,#2a3560,#151b30);border:2px solid var(--gold-2);display:grid;place-items:center;font:400 22px var(--f-display);color:var(--gold)}
+.langrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lang{display:flex;border:1px solid #ffffff2a;border-radius:99px;overflow:hidden}
+.lang button{border:0;background:transparent;color:var(--muted);font:800 12px var(--f-body);padding:6px 12px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--gold);color:#1a1405}
+.lang button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
 footer{display:flex;flex-direction:column;gap:6px;align-items:center;color:var(--muted);font-size:12px;text-align:center;padding-top:6px}
 footer a{color:var(--muted)}
 footer .links{display:flex;gap:14px}
@@ -67,7 +78,8 @@ footer .links{display:flex;gap:14px}
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">StratoshiVibes</span>
+    <div class="langrow"><span class="eyebrow">StratoshiVibes</span>
+      <div class="lang" role="group" aria-label="Language"><button id="lgEn" lang="en">EN</button><button id="lgEl" lang="el">ΕΛ</button></div></div>
     <h1>ARCADE</h1>
     <p class="tag">Games starring the Vol.1 Degens. Free to play, no ads, no purchases, no tokens.</p>
   </header>
@@ -113,12 +125,12 @@ footer .links{display:flex;gap:14px}
 
     <a class="cab" href="rug/">
       <span class="art" aria-hidden="true">
-        <span class="p" style="left:6px;top:30px;border:3px solid var(--you)"><img src="arcade-art/tile_paperhands.webp" alt=""></span>
+        <span class="p" style="left:6px;top:30px;border:3px solid var(--you)"><img src="arcade-art/tile_bull.webp" alt=""></span>
         <span class="p" style="left:52px;top:6px;border:3px solid var(--foe);width:54px;height:54px"><img src="arcade-art/tile_rugpuller.webp" alt=""></span>
       </span>
       <span>
-        <h2>Escape the Rug</h2><div class="genre">Roguelike · Adventure</div>
-        <p>12 floors of fights, scam airdrops and bosses. Every run is different.</p>
+        <h2>Escape the Rug</h2><div class="genre">Action · Roguelike</div>
+        <p>Walk your Degens through 3 floors of rooms. Dodge the bosses, skip the scams.</p>
         <span class="foot"><span class="status" id="stRug">New</span><span class="play">Play</span></span>
       </span>
     </a>
@@ -145,10 +157,17 @@ footer .links{display:flex;gap:14px}
  const rp=+(get('rp_beaten')||0),pk=document.getElementById('stPoker');
  if(rp>=3)pk.textContent='All rivals beaten';else if(rp>0)pk.textContent=rp+' of 3 rivals beaten';
  const eb=+(get('er_best')||0),ew=+(get('er_wins')||0),er=document.getElementById('stRug');
- if(ew)er.textContent='Escaped '+ew+'x · best floor 12';else if(eb)er.textContent='Best: floor '+eb+' of 12';
+ if(ew)er.textContent='Escaped '+ew+'x';else if(eb)er.textContent='Best: room '+eb+' of 12';
+ if(get('er2_run'))er.textContent='Run in progress · tap to resume';
 })();
 </script>
 
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}</script>
+<script src="i18n.js"></script>
+<script>
+(function(){const en=document.getElementById('lgEn'),el=document.getElementById('lgEl');
+ const cur=window.SVI18N?SVI18N.lang:'en';en.setAttribute('aria-pressed',cur==='en');el.setAttribute('aria-pressed',cur==='el');
+ en.onclick=()=>{if(cur!=='en')SVI18N.set('en')};el.onclick=()=>{if(cur!=='el')SVI18N.set('el')};})();
+</script>
 </body>
 </html>
