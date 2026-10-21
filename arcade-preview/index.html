@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>StratoshiVibes Arcade</title>
+<meta name="description" content="Free games starring the StratoshiVibes Vol.1 Degens.">
+<meta name="theme-color" content="#141a2b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<style>
+@font-face{font-family:"Bungee";src:url(fonts/bungee-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Commissioner";src:url(fonts/commissioner-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(fonts/commissioner-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(fonts/commissioner-latin-800-normal.woff2) format("woff2");font-weight:800;font-display:swap}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+</style>
+<style>
+/* Layout: arcade lobby. One column of game "cabinets"; each cabinet = art strip + title + live status from the player's saves. Same night-desk palette and type as the games. */
+:root{
+  --table:#141a2b; --table-2:#1d2540; --panel:#1b2238; --ink:#eef0f7; --muted:#9aa3c0; --line:#ffffff1c;
+  --gold:#e3b54a; --gold-2:#b98a24; --ivory:#f4ecd8; --edge:#cdb68a; --edge-2:#8c7346; --you:#3fbf7a; --foe:#e2574c;
+  --f-display:"Bungee","Arial Black",system-ui,sans-serif;
+  --f-body:"Commissioner",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100%;background:radial-gradient(120% 70% at 50% 0%,var(--table-2),var(--table) 70%);background-color:var(--table);color:var(--ink);font-family:var(--f-body);-webkit-tap-highlight-color:transparent}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 28px;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-direction:column;gap:6px}
+.eyebrow{font:600 11px var(--f-body);letter-spacing:.22em;text-transform:uppercase;color:var(--ink)}
+h1{margin:0;font:400 40px/0.95 var(--f-display);color:var(--gold);text-shadow:0 3px 0 #5a3d06,0 0 30px #e3b54a33}
+.tag{margin:0;color:var(--muted);font-size:14px;line-height:1.45}
+.games{display:flex;flex-direction:column;gap:12px}
+.cab{position:relative;display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center;padding:12px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(160deg,#232c4a,#171d31);color:var(--ink);text-decoration:none;box-shadow:0 10px 24px #0006;overflow:hidden}
+.cab:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.cab:active{transform:scale(.99)}
+.cab .art{position:relative;height:110px}
+.cab h2{margin:0;font:400 18px var(--f-display);color:var(--gold)}
+.cab .genre{font:800 10px var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.cab p{margin:6px 0 0;font-size:13px;line-height:1.4;color:#d6dae8}
+.cab .status{margin-top:8px;display:inline-flex;align-items:center;gap:6px;font:700 12px var(--f-body);color:var(--you)}
+.cab .status::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.cab .foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.cab .foot .status{margin-top:0}
+.cab .play{flex:none;font:800 11px var(--f-body);letter-spacing:.1em;text-transform:uppercase;background:var(--gold);color:#1a1405;border-radius:99px;padding:5px 10px}
+.cab.soon{opacity:.6;box-shadow:none;background:#ffffff08}
+.cab.soon .play{background:#ffffff18;color:var(--muted)}
+.cab.soon .status{color:var(--muted)}
+/* mini tiles */
+.t{position:absolute;width:62px;height:80px;border-radius:8px;background:var(--ivory);overflow:hidden;box-shadow:1px 1px 0 var(--edge),2px 2px 0 var(--edge),3px 3px 0 var(--edge-2),4px 5px 10px #0009}
+.t i{position:absolute;inset:0 0 auto;height:6px}
+.t img{position:absolute;left:4%;bottom:3%;width:92%}
+.p{position:absolute;width:62px;height:62px;border-radius:14px;overflow:hidden;background:var(--ivory)}
+.p img{width:100%;height:100%;object-fit:cover}
+.vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:400 16px var(--f-display);color:#fff;text-shadow:0 2px 0 #000,0 0 12px var(--foe)}
+.card{position:absolute;width:56px;height:78px;border-radius:7px;background:linear-gradient(150deg,#2a3560,#151b30);border:2px solid var(--gold-2);display:grid;place-items:center;font:400 22px var(--f-display);color:var(--gold)}
+footer{display:flex;flex-direction:column;gap:6px;align-items:center;color:var(--muted);font-size:12px;text-align:center;padding-top:6px}
+footer a{color:var(--muted)}
+footer .links{display:flex;gap:14px}
+@media (prefers-reduced-motion:no-preference){.cab:not(.soon) .art{animation:float 4s ease-in-out infinite}.cab:nth-child(2) .art{animation-delay:-2s}}
+@keyframes float{50%{transform:translateY(-3px)}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">StratoshiVibes</span>
+    <h1>ARCADE</h1>
+    <p class="tag">Games starring the Vol.1 Degens. Free to play, no ads, no purchases, no tokens.</p>
+  </header>
+
+  <nav class="games" aria-label="Games">
+    <a class="cab" href="mahjong/">
+      <span class="art" aria-hidden="true">
+        <span class="t" style="left:4px;top:22px;transform:rotate(-10deg)"><i style="background:#8e2a2f"></i><img src="arcade-art/tile_bear.webp" alt=""></span>
+        <span class="t" style="left:50px;top:20px;transform:rotate(9deg)"><i style="background:#1d3f8f"></i><img src="arcade-art/tile_whale.webp" alt=""></span>
+        <span class="t" style="left:26px;top:10px"><i style="background:#2f7d3a"></i><img src="arcade-art/tile_bull.webp" alt=""></span>
+      </span>
+      <span>
+        <h2>Mahjong</h2><div class="genre">Puzzle · Solo</div>
+        <p>Match the Degens tile by tile. 3 layouts, combos, hints and undo.</p>
+        <span class="foot"><span class="status" id="stMahjong">New</span><span class="play">Play</span></span>
+      </span>
+    </a>
+
+    <a class="cab" href="battlegrounds/">
+      <span class="art" aria-hidden="true">
+        <span class="p" style="left:0;top:8px;border:3px solid var(--you)"><img src="arcade-art/tile_maxi.webp" alt=""></span>
+        <span class="p" style="left:56px;top:40px;border:3px solid var(--foe)"><img src="arcade-art/tile_rugpuller.webp" alt=""></span>
+        <span class="vs">VS</span>
+      </span>
+      <span>
+        <h2>Battlegrounds</h2><div class="genre">Auto-battle · Campaign</div>
+        <p>Pick 3 Degens, set the lineup, and beat 8 teams up to the Market Maker.</p>
+        <span class="foot"><span class="status" id="stBattle">New</span><span class="play">Play</span></span>
+      </span>
+    </a>
+
+    <div class="cab soon" aria-disabled="true">
+      <span class="art" aria-hidden="true">
+        <span class="card" style="left:10px;top:18px;transform:rotate(-12deg)">?</span>
+        <span class="card" style="left:56px;top:14px;transform:rotate(10deg)">?</span>
+      </span>
+      <span>
+        <h2>Rugpull Poker</h2><div class="genre">Bluff · Strategy</div>
+        <p>Hidden Degens, bluffs and reveals. Read your rival before they pull the rug.</p>
+        <span class="foot"><span class="status">Coming soon</span><span class="play">Soon</span></span>
+      </span>
+    </div>
+
+    <div class="cab soon" aria-disabled="true">
+      <span class="art" aria-hidden="true">
+        <span class="p" style="left:28px;top:20px;border:3px solid var(--gold-2)"><img src="arcade-art/tile_paperhands.webp" alt=""></span>
+      </span>
+      <span>
+        <h2>Escape the Rug</h2><div class="genre">Roguelike · Adventure</div>
+        <p>Room by room through bull runs, scams and airdrops. Every run is different.</p>
+        <span class="foot"><span class="status">Coming soon</span><span class="play">Soon</span></span>
+      </span>
+    </div>
+  </nav>
+
+  <footer>
+    <div class="links"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div>
+    <div>Made by StratoshiVibes · crypto education since 2017</div>
+  </footer>
+</div>
+
+<script>
+(function(){
+ const get=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+ const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+ // Mahjong: resume a saved game, or show the best result
+ const m=document.getElementById('stMahjong');
+ if(get('dm_save_v1')){m.textContent='Game in progress · tap to resume'}
+ else{let best=null;for(const k of ['pyramid','bull','vault']){try{const b=JSON.parse(get('dm_best_'+k)||'null');if(b&&b.score&&(!best||b.score>best.score))best=b}catch(e){}}
+  if(best)m.textContent='Best '+best.score.toLocaleString('en-US')+' pts · '+fmt(best.time)}
+ // Battlegrounds: campaign progress
+ const p=+(get('bg_progress')||0),b=document.getElementById('stBattle');
+ if(p>=8)b.textContent='Campaign cleared';else if(p>0)b.textContent='Stage '+(p+1)+' of 8';
+})();
+</script>
+
+<script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}</script>
+</body>
+</html>
