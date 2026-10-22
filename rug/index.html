@@ -390,8 +390,10 @@ function step(dt){
  for(const e of alive(enemies)){const t=nearest(e,alive(party));const d=t?dist(e,t):1e9;const sp=(e.boss?55:58)*dt;
   if(e.boss)bossAI(e,dt,t);
   if(t&&(d<220||e.aggro)){e.aggro=true;const want=e.ranged?120:44;
-   if(d>want+6){moveTo(e,e.x+(t.x-e.x)/d*sp,e.y+(t.y-e.y)/d*sp);e.moving=true}else if(e.ranged&&d<want-30){moveTo(e,e.x-(t.x-e.x)/d*sp,e.y-(t.y-e.y)/d*sp);e.moving=true}else e.moving=false;e.face=t.x<e.x?-1:1}
+   if(d>want+6){moveTo(e,e.x+(t.x-e.x)/d*sp,e.y+(t.y-e.y)/d*sp);e.moving=true}else if(e.ranged&&d<want-30&&d>0){moveTo(e,e.x-(t.x-e.x)/d*sp,e.y-(t.y-e.y)/d*sp);e.moving=true}else e.moving=false;e.face=t.x<e.x?-1:1}
   else{e.wt-=dt;if(e.wt<=0){e.wt=1+rnd()*2;const a=rnd()*6.28;e.vx=Math.cos(a)*28;e.vy=Math.sin(a)*28}moveTo(e,e.x+e.vx*dt,e.y+e.vy*dt);e.moving=true;if(Math.abs(e.vx)>3)e.face=e.vx<0?-1:1}}
+ // safety: a unit with a broken position comes back into the room (otherwise the room never clears)
+ for(const u of [...party,...enemies])if(!isFinite(u.x)||!isFinite(u.y)){u.x=W/2;u.y=TOP+120}
  // keep bodies apart
  const all=[...alive(party),...alive(enemies)];
  for(let i=0;i<all.length;i++)for(let j=i+1;j<all.length;j++){const a=all[i],b=all[j],d=dist(a,b),min=a.boss||b.boss?44:24;if(d<min&&d>0){const p=(min-d)/2,nx=(a.x-b.x)/d,ny=(a.y-b.y)/d;if(a!==lead)moveTo(a,a.x+nx*p,a.y+ny*p);if(b!==lead)moveTo(b,b.x-nx*p,b.y-ny*p)}}
@@ -421,7 +423,7 @@ function step(dt){
  if(roomCleared)for(const dr of doors)if(Math.abs(lead.x-dr.x)<34&&lead.y<TOP+26){leave(dr);break}
  fx=fx.filter(f=>(f.t-=dt)>0);for(const f of fx)f.y-=dt*30;if(shake>0)shake-=dt;
 }
-function moveTo(u,x,y){x=Math.max(28,Math.min(W-28,x));y=Math.max(TOP+14,Math.min(H-16,y));
+function moveTo(u,x,y){if(!isFinite(x)||!isFinite(y))return;x=Math.max(28,Math.min(W-28,x));y=Math.max(TOP+14,Math.min(H-16,y));
  if(!blocked(x,y))(u.x=x,u.y=y);else if(!blocked(x,u.y))u.x=x;else if(!blocked(u.x,y))u.y=y;}
 function shoot(u,t){const d=dist(u,t)||1;const s=140;shots.push({x:u.x,y:u.y-34,vx:(t.x-u.x)/d*s,vy:(t.y-u.y)/d*s,side:u.side,src:u,dmg:atkOf(u)*.9,life:2,c:u.id==='fudster'?'#9b7cff':u.id==='shiller'?'#ffb84a':'#c9d1e6'});u.lunge=.1}
 function atkOf(u){let a=u.atk*(u.side==='A'&&pump.t>0?T.pumpAtk:1)*u.momentum+u.stack;return a}
