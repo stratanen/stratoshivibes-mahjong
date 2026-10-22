@@ -101,7 +101,7 @@ footer .links{display:flex;gap:14px}
       </span>
       <span>
         <h2>Mahjong</h2><div class="genre">Puzzle · Solo</div>
-        <p>Match the Degens tile by tile. 3 layouts, combos, hints and undo.</p>
+        <p>Match the Degens tile by tile. 24 levels in 4 chapters, earn up to 3 stars on each.</p>
         <span class="foot"><span class="status" id="stMahjong">New</span><span class="play">Play</span></span>
       </span>
     </a>
@@ -157,6 +157,7 @@ footer .links{display:flex;gap:14px}
  // Mahjong: resume a saved game, or show the best result
  const m=document.getElementById('stMahjong');
  if(get('dm_save_v1')){m.textContent='Game in progress · tap to resume'}
+ else if(get('dm_lv')&&get('dm_lv')!=='{}'){let lv={};try{lv=JSON.parse(get('dm_lv'))}catch(e){}const n=Object.keys(lv).length,st=Object.values(lv).reduce((a,b)=>a+b,0);m.textContent=`Level ${Math.min(24,n+1)} of 24 · ${st} ★`}
  else{let best=null;for(const k of ['pyramid','bull','vault']){try{const b=JSON.parse(get('dm_best_'+k)||'null');if(b&&b.score&&(!best||b.score>best.score))best=b}catch(e){}}
   if(best)m.textContent='Best '+best.score.toLocaleString('en-US')+' pts · '+fmt(best.time)}
  // Battlegrounds: campaign progress
@@ -182,7 +183,7 @@ footer .links{display:flex;gap:14px}
 (function(){const H=window.SVHolder,el=document.getElementById('holder');if(!H)return;
 function paintHolder(){const ids=Object.keys(H.owned());
  if(!H.address||!ids.length){el.hidden=true;return}
- el.hidden=false;el.innerHTML=`<span class="av">${ids.slice(0,5).map(id=>`<img src="${H.img(id)}" alt="">`).join('')}</span><span>Holder: ${H.total} Degens<small>Your Degens shine gold in every game</small></span>`;}
+ el.hidden=false;el.innerHTML=`<span class="av">${ids.slice(0,5).map(id=>`<img src="${H.img(id)}" alt="">`).join('')}</span><span>Holder: ${H.total} Degens<small>Gold in every game. +10% in Mahjong, Battlegrounds and Escape the Rug.</small></span>`;}
 el.onclick=()=>H.openAccount();H.onChange(paintHolder);paintHolder();})();
 </script>
 </body>

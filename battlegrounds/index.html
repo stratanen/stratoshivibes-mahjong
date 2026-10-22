@@ -419,7 +419,7 @@ function renderTeam(){
 function charInfo(id){const r=ROSTER[id];
  showOv(`<img class="big" src="${IMG[id]}" alt=""><h2 style="text-align:center">${r.name}</h2>
  <div class="stats3"><div><b>${r.hp}</b><span>HP</span></div><div><b>${r.atk}</b><span>Attack</span></div><div><b>${r.def}</b><span>Defense</span></div><div><b>${r.spd.toFixed(2)}</b><span>Speed</span></div></div>
- <div class="abbox"><span>${r.ab} · passive</span>${r.txt}</div><div class="abbox"><span>${r.sp} · special</span>${r.sptxt}</div>${window.SVHolder&&SVHolder.has(id)?'<p class="sub" style="color:var(--gold);font-weight:800">★ You hold this Degen</p>':''}<p class="sub">Rarity in the Vol.1 collection: ${r.rar}. In the game every character is free to use.</p>
+ <div class="abbox"><span>${r.ab} · passive</span>${r.txt}</div><div class="abbox"><span>${r.sp} · special</span>${r.sptxt}</div>${window.SVHolder&&SVHolder.has(id)?'<p class="sub" style="color:var(--gold);font-weight:800">★ You hold this Degen: +10% HP and attack</p>':''}<p class="sub">Rarity in the Vol.1 collection: ${r.rar}. In the game every character is free to use.</p>
  <button class="btn ghost" id="cl">Close</button>`);$('cl').onclick=closeOv;}
 $('backMap').onclick=()=>{sfx.tap();renderMap()};
 $('fight').onclick=()=>{sfx.tap();startBattle()};
@@ -432,6 +432,8 @@ function unitHTML(u){const foe=u.side==='B';return `<div class="u ${foe?'foe':''
  ${foe?'<div class="enb"><i></i></div>':`<button class="spb" data-slot="${u.slot}" aria-label="${ROSTER[u.id].sp}: ${ROSTER[u.id].sptxt}"><i></i><span>${ROSTER[u.id].sp}</span></button>`}</div>`}
 function startBattle(){const s=CAMPAIGN[stageIdx];
  bt=Battle(team.slice(),s.team,{seed:(Date.now()^stageIdx*7919)>>>0,multB:s.mult});
+ // holder perk: your own Vol.1 Degens fight with +10% HP and attack
+ for(const u of bt.A)if(window.SVHolder&&SVHolder.has(u.id)){u.maxHp=Math.round(u.maxHp*1.1);u.hp=u.maxHp;u.atk*=1.1;u.holder=true}
  $('sideA').innerHTML=bt.A.map(unitHTML).join('');$('sideB').innerHTML=bt.B.map(unitHTML).join('');
  uEl=new Map(bt.all.map(u=>[u,$('u'+u.side+u.slot)]));
  document.querySelectorAll('#sideA .spb').forEach(b=>b.onclick=()=>{const u=bt.A[+b.dataset.slot];if(bt.special(u)){sfx.special()}});

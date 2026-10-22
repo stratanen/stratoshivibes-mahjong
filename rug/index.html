@@ -310,7 +310,8 @@ const EVENTS=[
 let run=null;           // persistent between rooms
 let party=[],enemies=[],props=[],shots=[],hazards=[],fx=[],obstacles=[],doors=[];
 let target=null,trail=[],paused=true,shake=0,pump={cd:0,t:0},roomCleared=false,room=null,time=0;
-const maxHp=p=>Math.round(ROSTER[p.id].hp*T.partyHp*(1+run.b.hp));
+const HOLD=id=>window.SVHolder&&SVHolder.has(id)?1.1:1;   // holder perk: +10% HP and attack for your own Vol.1 Degens
+const maxHp=p=>Math.round(ROSTER[p.id].hp*T.partyHp*(1+run.b.hp)*HOLD(p.id));
 function newRun(ids){run={seed:Date.now()>>>0,floor:0,room:0,hype:0,b:{hp:0,atk:0,def:0,spd:0,pumpDur:0,pumpCd:T.pumpCd,lifesteal:0,move:0},
   party:ids.map(id=>({id,hp:0,down:false})),next:'fight',stats:{kills:0,safe:0,fell:0,rooms:0},taken:[]};
  run.party.forEach(p=>p.hp=maxHp(p));}
@@ -323,7 +324,7 @@ function best(n){store.set('er_best',Math.max(+(store.get('er_best')||0),n))}
 // ---------------- building a room ----------------
 function makeUnit(id,side,x,y,mult=1,extra={}){const r=ROSTER[id];
  const u={id,side,x,y,face:1,alive:true,cd:.3+rnd()*.6,flash:0,lunge:0,moving:false,wt:0,vx:0,vy:0,hits:0,stack:0,momentum:1,saved:false,ranged:RANGED.has(id),...extra};
- if(side==='A'){const p=extra.ref;u.maxHp=maxHp(p);u.hp=p.hp;u.atk=r.atk*(1+run.b.atk);u.def=r.def+run.b.def;u.spd=r.spd*(1+run.b.spd)}
+ if(side==='A'){const p=extra.ref;u.maxHp=maxHp(p);u.hp=p.hp;u.atk=r.atk*(1+run.b.atk)*HOLD(p.id);u.def=r.def+run.b.def;u.spd=r.spd*(1+run.b.spd)}
  else{u.maxHp=Math.round(r.hp*T.enemyHp*mult*(extra.boss?1:1));u.hp=u.maxHp;u.atk=r.atk*T.enemyAtk*Math.sqrt(mult);u.def=r.def;u.spd=r.spd}
  return u;}
 function enterRoom(type){
@@ -485,7 +486,7 @@ function openEvent(p){const ev=p.ev;run.taken.push(ev.id);sfx.talk();
 function offerUpgrade(head,onDone){const pool=UPS.slice();const three=[];while(three.length<3)three.push(pool.splice(Math.floor(rnd()*pool.length),1)[0]);sfx.win();
  showOv(`<h2>${head}</h2><p class="sub">Choose one upgrade for the rest of the run.</p><div class="col">${three.map((u,i)=>`<button class="up" data-i="${i}"><span class="ic">${u.ic}</span><span><b>${u.name}</b><span>${u.txt}</span></span></button>`).join('')}</div>`);
  document.querySelectorAll('.up').forEach(b=>b.onclick=()=>{three[+b.dataset.i].f(run);refreshParty();closeOv();save();onDone&&onDone();hint('The exits are open')});}
-function refreshParty(){for(const u of party){const p=u.ref;const r=ROSTER[p.id];const m=maxHp(p);u.maxHp=m;u.hp=Math.min(m,p.hp);u.atk=r.atk*(1+run.b.atk);u.def=r.def+run.b.def;u.spd=r.spd*(1+run.b.spd)}renderHud()}
+function refreshParty(){for(const u of party){const p=u.ref;const r=ROSTER[p.id];const m=maxHp(p);u.maxHp=m;u.hp=Math.min(m,p.hp);u.atk=r.atk*(1+run.b.atk)*HOLD(p.id);u.def=r.def+run.b.def;u.spd=r.spd*(1+run.b.spd)}renderHud()}
 function openRecruit(p){const r=ROSTER[p.id];const full=run.party.length>=4;const can=run.hype>=T.recruitCost;sfx.talk();
  showOv(`<h2>${r.name} wants in</h2><div class="who"><img src="${FACE[p.id]}" alt=""><div><b>${r.ab}</b><p class="sub">${r.txt}</p></div></div>
  <p>${can?`Free them for ${T.recruitCost} Hype.${full?' Your party is full, so someone has to leave.':''}`:`You need ${T.recruitCost} Hype to free them.`}</p>
@@ -517,7 +518,7 @@ function startScreen(){paused=true;let offers=[];const pool=IDS.filter(i=>i!=='r
  const draw=()=>{showOv(`<h2>Escape the Rug</h2><p class="sub">Walk your Degens through 3 floors of rooms. Tap to move, the party follows and fights on its own. Hit PUMP IT when it matters.</p>
  ${saved?`<button class="btn" id="cont">Continue your run</button>`:''}
  <p class="sub">${saved?'Or start over: ':''}Choose 2 Degens.</p>
- <div class="grid">${offers.map(id=>{const r=ROSTER[id];return `<button class="pick${chosen.includes(id)?' on':''}" data-id="${id}" data-hid="${id}"><img src="${FACE[id]}" alt=""><span class="m"><b>${r.name}</b><span class="ab">${r.ab}</span><span class="tx">${r.txt}</span></span></button>`}).join('')}</div>
+ <div class="grid">${offers.map(id=>{const r=ROSTER[id];return `<button class="pick${chosen.includes(id)?' on':''}" data-id="${id}" data-hid="${id}"><img src="${FACE[id]}" alt=""><span class="m"><b>${r.name}</b><span class="ab">${r.ab}</span><span class="tx">${r.txt}</span>${HOLD(id)>1?'<span class="tx" style="color:var(--gold);font-weight:800">★ Holder: +10% HP and attack</span>':''}</span></button>`}).join('')}</div>
  <button class="btn ${saved?'ghost':''}" id="go" ${chosen.length<2?'disabled':''}>${chosen.length<2?`Pick ${2-chosen.length} more`:'Start a new run'}</button>`);
  document.querySelectorAll('.pick').forEach(b=>b.onclick=()=>{const id=b.dataset.id;sfx.talk();if(chosen.includes(id))chosen=chosen.filter(x=>x!==id);else{if(chosen.length===2)chosen.shift();chosen.push(id)}draw()});
  $('go').onclick=()=>{store.del('er2_ckpt');newRun(chosen);closeOv();enterRoom('fight')};
