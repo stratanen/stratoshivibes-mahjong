@@ -327,7 +327,7 @@ function renderLadder(){
 
 // ---- card rendering
 function cardHTML(id,cls='',extra=''){const c=CARDS[id];
- return `<div class="card ${cls}" data-id="${id}">${extra}<span class="pw">${c.pow}</span><img src="${IMG[id]}" alt=""><span class="nm">${c.name}</span><span class="tk">${TRICK_LABEL[c.trick]}</span></div>`}
+ return `<div class="card ${cls}" data-id="${id}" data-hid="${id}">${extra}<span class="pw">${c.pow}</span><img src="${IMG[id]}" alt=""><span class="nm">${c.name}</span><span class="tk">${TRICK_LABEL[c.trick]}</span></div>`}
 const back=(cls='')=>`<div class="card back ${cls}"></div>`;
 const empty=(cls='')=>`<div class="card empty ${cls}"></div>`;
 const slot=(inner,label)=>`<div class="slotw">${inner}<div class="lbl">${label}</div></div>`;
@@ -446,6 +446,7 @@ if(!store.get('rp_seen_help')){store.set('rp_seen_help','1');help()}
 </script>
 
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('../sw.js').catch(()=>{}))}</script>
+<script src="../holder.js"></script>
 <script src="../i18n.js"></script>
 </body>
 </html>

@@ -517,7 +517,7 @@ function startScreen(){paused=true;let offers=[];const pool=IDS.filter(i=>i!=='r
  const draw=()=>{showOv(`<h2>Escape the Rug</h2><p class="sub">Walk your Degens through 3 floors of rooms. Tap to move, the party follows and fights on its own. Hit PUMP IT when it matters.</p>
  ${saved?`<button class="btn" id="cont">Continue your run</button>`:''}
  <p class="sub">${saved?'Or start over: ':''}Choose 2 Degens.</p>
- <div class="grid">${offers.map(id=>{const r=ROSTER[id];return `<button class="pick${chosen.includes(id)?' on':''}" data-id="${id}"><img src="${FACE[id]}" alt=""><span class="m"><b>${r.name}</b><span class="ab">${r.ab}</span><span class="tx">${r.txt}</span></span></button>`}).join('')}</div>
+ <div class="grid">${offers.map(id=>{const r=ROSTER[id];return `<button class="pick${chosen.includes(id)?' on':''}" data-id="${id}" data-hid="${id}"><img src="${FACE[id]}" alt=""><span class="m"><b>${r.name}</b><span class="ab">${r.ab}</span><span class="tx">${r.txt}</span></span></button>`}).join('')}</div>
  <button class="btn ${saved?'ghost':''}" id="go" ${chosen.length<2?'disabled':''}>${chosen.length<2?`Pick ${2-chosen.length} more`:'Start a new run'}</button>`);
  document.querySelectorAll('.pick').forEach(b=>b.onclick=()=>{const id=b.dataset.id;sfx.talk();if(chosen.includes(id))chosen=chosen.filter(x=>x!==id);else{if(chosen.length===2)chosen.shift();chosen.push(id)}draw()});
  $('go').onclick=()=>{store.del('er2_ckpt');newRun(chosen);closeOv();enterRoom('fight')};
@@ -532,7 +532,7 @@ $('helpBtn').onclick=()=>{const wasPaused=paused;help();$('cl').onclick=()=>{$('
 
 // ---------------- HUD & fx ----------------
 function renderHud(){if(!run)return;$('hype').textContent=run.hype;$('where').innerHTML=`${FLOORS[run.floor].name}<br>Room ${run.room+1}/4`;
- $('party').innerHTML=[0,1,2,3].map(i=>{const p=run.party[i];if(!p)return '<div class="pm empty"></div>';const m=maxHp(p);return `<div class="pm${p.down?' down':''}"><img src="${FACE[p.id]}" alt="${ROSTER[p.id].name}"><div class="b"><i style="width:${p.down?0:Math.round(100*p.hp/m)}%"></i></div></div>`}).join('')}
+ $('party').innerHTML=[0,1,2,3].map(i=>{const p=run.party[i];if(!p)return '<div class="pm empty"></div>';const m=maxHp(p);return `<div class="pm${p.down?' down':''}" data-hid="${p.id}" style="--svh-s:13px;--svh-t:-3px;--svh-r:auto;--svh-l:-3px"><img src="${FACE[p.id]}" alt="${ROSTER[p.id].name}"><div class="b"><i style="width:${p.down?0:Math.round(100*p.hp/m)}%"></i></div></div>`}).join('')}
 const L=s=>{try{return window.SVI18N&&SVI18N.lang==='el'?(SVI18N.tr(s)||s):s}catch(e){return s}};  // canvas text goes through the same dictionary
 function float(x,y,txt,c){fx.push({x,y,txt:L(txt),c,t:.9})}
 let hintT;function hint(t){const h=$('hint');h.textContent=t;h.style.opacity=1;clearTimeout(hintT);hintT=setTimeout(()=>h.style.opacity=0,3000)}
@@ -580,8 +580,11 @@ function drawSprite(u,t,H0){const im=imgs[u.id];if(!im||!im.complete||!im.width)
 function drawUnit(u,t){const H0=u.boss?100:u.elite?78:u.t==='npc'?70:66;const im=imgs[u.id];const w=im&&im.width?im.width*H0/im.height:40;
  ctx.fillStyle='#00000066';ctx.beginPath();ctx.ellipse(u.x,u.y,w*.35,6,0,0,6.28);ctx.fill();
  if(u.side){ctx.strokeStyle=u.side==='A'?(pump.t>0?'#e3b54a':'#3fbf7a99'):'#e2574c99';ctx.lineWidth=u.side==='A'&&pump.t>0?3:2;ctx.beginPath();ctx.ellipse(u.x,u.y,w*.38,7,0,0,6.28);ctx.stroke()}
+ const own=u.side==='A'&&window.SVHolder&&SVHolder.has(u.id);
+ if(own){ctx.strokeStyle='#e3b54a';ctx.globalAlpha=.55+.25*Math.sin(t*3);ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(u.x,u.y,w*.5,10,0,0,6.28);ctx.stroke();ctx.globalAlpha=1}
  const bob=drawSprite(u,t,H0);
  if(u.side){const bw=u.boss?70:40,x=u.x-bw/2,y=u.y-H0-12-bob;ctx.fillStyle='#0009';ctx.fillRect(x-1,y-1,bw+2,6);ctx.fillStyle=u.side==='A'?'#3fbf7a':'#e2574c';ctx.fillRect(x,y,bw*Math.max(0,u.hp/u.maxHp),4);
+  if(own){ctx.font='900 11px system-ui, sans-serif';ctx.fillStyle='#e3b54a';ctx.textAlign='center';ctx.fillText('★',x-8,y+5)}
   if(u.boss||u.elite){ctx.font='400 10px Bungee, Commissioner, sans-serif';ctx.fillStyle='#e3b54a';ctx.textAlign='center';ctx.fillText(u.boss?L(u.name).toUpperCase():L('ELITE'),u.x,y-6)}}
  else if(!u.used){ctx.font='800 18px Commissioner, sans-serif';ctx.fillStyle='#fff';ctx.textAlign='center';ctx.fillText(u.shop?'$':'…',u.x,u.y-H0-8+Math.sin(t*3)*2)}}
 
@@ -596,6 +599,7 @@ if(!store.get('er2_seen_help')){store.set('er2_seen_help','1');setTimeout(()=>{h
 </script>
 
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('../sw.js').catch(()=>{}))}</script>
+<script src="../holder.js"></script>
 <script src="../i18n.js"></script>
 </body>
 </html>
