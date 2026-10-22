@@ -109,6 +109,8 @@ h2{margin:0;font:400 18px var(--f-display);color:var(--gold);text-wrap:balance}
 .btns{display:flex;gap:8px}.btns .btn{flex:1}
 @media (prefers-reduced-motion:reduce){.card{transition:none}.swap .card{animation:none}}
 </style>
+<script src="../holder.js"></script>
+<script src="../passport.js"></script>
 </head>
 <body>
 
@@ -411,6 +413,7 @@ function calcText(sd){const n=k=>CARDS[sd.finalBag[k]].name;
   +(sd.tricks[ME]==='whale'||sd.tricks[AI]==='whale'?'<br>Whale Move: a winner with it takes 4 extra':'');}
 
 function endMatch(){const w=G.winner();const idx=ORDER.indexOf(persona);
+ try{window.SVPass&&SVPass.record(w===ME?'rp_win':'rp_loss',{opp:persona})}catch(e){}
  if(w===ME&&idx===beaten){beaten=Math.min(ORDER.length,beaten+1);store.set('rp_beaten',beaten)}
  const last=idx===ORDER.length-1;
  w===ME?sfx.win():sfx.lose();
@@ -446,7 +449,6 @@ if(!store.get('rp_seen_help')){store.set('rp_seen_help','1');help()}
 </script>
 
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('../sw.js').catch(()=>{}))}</script>
-<script src="../holder.js"></script>
 <script src="../i18n.js"></script>
 </body>
 </html>

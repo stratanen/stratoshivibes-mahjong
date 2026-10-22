@@ -82,6 +82,8 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .stats b{display:block;font-size:17px}.stats span{font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
 .sub{font-size:13px;color:var(--muted);margin:0;line-height:1.45}
 </style>
+<script src="../holder.js"></script>
+<script src="../passport.js"></script>
 </head>
 <body>
 
@@ -317,7 +319,10 @@ function newRun(ids){run={seed:Date.now()>>>0,floor:0,room:0,hype:0,b:{hp:0,atk:
  run.party.forEach(p=>p.hp=maxHp(p));}
 const rnd=()=>Math.random();
 const pickR=a=>a[Math.floor(rnd()*a.length)];
-function save(){if(run)store.set('er2_run',JSON.stringify(run))}
+const DAILY=new URLSearchParams(location.search).has('daily')&&!!window.SVPass;
+const RUNK=DAILY?'er2_daily_run':'er2_run', CKK=DAILY?'er2_daily_ckpt':'er2_ckpt';
+const PASS=(t,d)=>{try{window.SVPass&&SVPass.record(t,d)}catch(e){}};
+function save(){if(run)store.set(RUNK,JSON.stringify(run))}
 function roomNo(){return run.floor*4+run.room+1}
 function best(n){store.set('er_best',Math.max(+(store.get('er_best')||0),n))}
 
@@ -327,7 +332,8 @@ function makeUnit(id,side,x,y,mult=1,extra={}){const r=ROSTER[id];
  if(side==='A'){const p=extra.ref;u.maxHp=maxHp(p);u.hp=p.hp;u.atk=r.atk*(1+run.b.atk)*HOLD(p.id);u.def=r.def+run.b.def;u.spd=r.spd*(1+run.b.spd)}
  else{u.maxHp=Math.round(r.hp*T.enemyHp*mult*(extra.boss?1:1));u.hp=u.maxHp;u.atk=r.atk*T.enemyAtk*Math.sqrt(mult);u.def=r.def;u.spd=r.spd}
  return u;}
-function enterRoom(type){
+function enterRoom(type){const _rand=Math.random;if(run.daily&&window.SVPass)Math.random=SVPass.rng('rug'+run.daily+'-'+run.floor+'-'+run.room+'-'+type);try{enterRoom2(type)}finally{Math.random=_rand}}
+function enterRoom2(type){
  room={type,floor:run.floor,idx:run.room};time=0;
  enemies=[];props=[];shots=[];hazards=[];fx=[];obstacles=[];trail=[];target=null;roomCleared=false;
  const F=FLOORS[run.floor];const lvl=T.base+T.step*(run.floor*4+run.room);
@@ -357,7 +363,7 @@ function enterRoom(type){
   const draw=()=>{let tot=opts.reduce((s,o)=>s+w[o],0),x=rnd()*tot;for(const o of opts){x-=w[o];if(x<0)return o}return 'fight'};
   let a=draw(),b=draw();let g=0;while(b===a&&g++<10)b=draw();doors=[{x:100,type:a},{x:260,type:b}];}
  roomCleared=!enemies.length;
- if(run.room===0)store.set('er2_ckpt',JSON.stringify(run));   // checkpoint: start of each floor
+ if(run.room===0)store.set(CKK,JSON.stringify(run));   // checkpoint: start of each floor
  save();best(roomNo());renderHud();paused=false;}
 function blocked(x,y,r=12){return obstacles.some(o=>x>o.x-r&&x<o.x+o.w+r&&y>o.y-r&&y<o.y+o.h+r)}
 
@@ -462,7 +468,7 @@ function healParty(){sfx.win();for(const p of run.party){const m=maxHp(p);if(p.d
  // bring revived Degens into the room
  const lead=alive(party)[0];for(const p of run.party){let u=party.find(x=>x.ref===p);if(u){u.hp=p.hp;u.maxHp=maxHp(p);if(!u.alive){u.alive=true;u.x=lead.x;u.y=lead.y}}else party.push(makeUnit(p.id,'A',lead.x,lead.y,1,{ref:p}))}
  float(W/2,220,'BULL RUN! +45% HP','#3fbf7a');renderHud();save()}
-function onCleared(){sfx.door();run.stats.rooms++;
+function onCleared(){sfx.door();run.stats.rooms++;PASS('rug_room');if(room.type==='boss')PASS('rug_boss',{floor:run.floor});
  if(room.type==='elite'||room.type==='boss')setTimeout(()=>offerUpgrade(room.type==='boss'?'Boss down!':'Elite crew cleared'),500);
  else hint('The exits are open');
  if(room.type==='fight')run.hype+=4+run.floor*2;renderHud();}
@@ -492,7 +498,7 @@ function openRecruit(p){const r=ROSTER[p.id];const full=run.party.length>=4;cons
  <p>${can?`Free them for ${T.recruitCost} Hype.${full?' Your party is full, so someone has to leave.':''}`:`You need ${T.recruitCost} Hype to free them.`}</p>
  <div class="col">${full&&can?run.party.map((m,i)=>`<button class="btn ghost" data-i="${i}">Swap out ${ROSTER[m.id].name}</button>`).join(''):`<button class="btn" id="hire" ${can?'':'disabled'}>Free ${r.name}</button>`}<button class="btn ghost" id="no">Not now</button></div>`);
  const join=i=>{run.hype-=T.recruitCost;const np={id:p.id,hp:0,down:false};np.hp=maxHp(np);
-  if(i==null)run.party.push(np);else{const old=run.party[i];const u=party.find(x=>x.ref===old);if(u){u.alive=false}run.party[i]=np}
+  if(i==null){run.party.push(np);PASS('rug_party',{n:run.party.length})}else{const old=run.party[i];const u=party.find(x=>x.ref===old);if(u){u.alive=false}run.party[i]=np}
   const lead=alive(party)[0];party=party.filter(u=>u.alive);party.push(makeUnit(np.id,'A',lead?lead.x:W/2,lead?lead.y+20:H-60,1,{ref:np}));p.gone=true;sfx.win();closeOv();renderHud();save()};
  const h=$('hire');if(h)h.onclick=()=>join(null);document.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>join(+b.dataset.i));$('no').onclick=()=>{closeOv();p.reset=true;moveAway()};}
 function moveAway(){const l=alive(party)[0];if(l){l.y=Math.min(H-30,l.y+50);trail=[]}}
@@ -501,28 +507,42 @@ function openShop(p){const draw=()=>{renderHud();showOv(`<h2>OTC Desk</h2><div c
  <button class="up" id="s2" ${run.hype<22?'disabled':''}><span class="ic">?</span><span><b>Upgrade · 22 Hype</b><span>Choose 1 of 3 upgrades</span></span></button></div>
  <button class="btn" id="s3">Leave</button>`);
  $('s1').onclick=()=>{run.hype-=12;closeOv();healParty();draw()};$('s2').onclick=()=>{run.hype-=22;offerUpgrade('Upgrade',draw)};$('s3').onclick=()=>{closeOv();p.reset=true;moveAway()}};draw();}
-function gameOver(){store.del('er2_run');sfx.rug();const n=roomNo();best(n);
- const ck=store.get('er2_ckpt');const tries=(run.retries||0);
- showOv(`<h2>Rugged</h2><p>Your whole party got liquidated in ${FLOORS[run.floor].name}, room ${run.room+1} of 4.</p>${statsHtml()}
+function gameOver(){store.del(RUNK);sfx.rug();const n=roomNo();best(n);const dr=dailyEnd(false);
+ const ck=store.get(CKK);const tries=(run.retries||0);
+ showOv(`<h2>Rugged</h2><p>Your whole party got liquidated in ${FLOORS[run.floor].name}, room ${run.room+1} of 4.</p>${statsHtml()}${dr}
  <div class="col">${ck?`<button class="btn" id="ck">Retry floor ${run.floor+1}</button>`:''}
  <button class="btn ${ck?'ghost':''}" id="re">New run</button><a class="btn ghost" href="../" style="text-align:center;text-decoration:none">Back to the Arcade</a></div>
  ${ck?`<p class="sub">Retrying puts your party back as it was when this floor began.${tries?` Retries so far: ${tries}.`:''}</p>`:''}`);
- $('re').onclick=()=>{store.del('er2_ckpt');closeOv();startScreen()};
+ $('re').onclick=()=>{store.del(CKK);closeOv();startScreen()};if(run.daily)$('re').textContent='New normal run';
  const b=$('ck');if(b)b.onclick=()=>{try{const r=JSON.parse(ck);r.retries=tries+1;run=r;closeOv();enterRoom('fight')}catch(e){startScreen()}}}
-function victory(){store.del('er2_run');store.del('er2_ckpt');best(12);store.set('er_wins',+(store.get('er_wins')||0)+1);sfx.win();
- showOv(`<h2>You escaped the rug</h2><p>The Market Maker is down and your party walks out with its bags intact.</p>${statsHtml()}<div class="col"><button class="btn" id="re">New run</button><a class="btn ghost" href="../" style="text-align:center;text-decoration:none">Back to the Arcade</a></div>`);$('re').onclick=()=>{closeOv();startScreen()}}
+function victory(){store.del(RUNK);store.del(CKK);best(12);store.set('er_wins',+(store.get('er_wins')||0)+1);sfx.win();PASS('rug_escape');const dr=dailyEnd(true);
+ showOv(`<h2>You escaped the rug</h2><p>The Market Maker is down and your party walks out with its bags intact.</p>${statsHtml()}${dr}<div class="col"><button class="btn" id="re">New run</button><a class="btn ghost" href="../" style="text-align:center;text-decoration:none">Back to the Arcade</a></div>`);$('re').onclick=()=>{closeOv();startScreen()}}
 function statsHtml(){return `<div class="stats"><div><b>${run.stats.kills}</b><span>knockouts</span></div><div><b>${run.hype}</b><span>Hype</span></div><div><b>${roomNo()}/12</b><span>rooms</span></div></div>
  <div class="lesson ${run.stats.fell?'bad':''}"><span>Scams</span>Avoided ${run.stats.safe}, fell for ${run.stats.fell}.</div>`}
-function startScreen(){paused=true;let offers=[];const pool=IDS.filter(i=>i!=='rugpuller');while(offers.length<4){const k=pickR(pool);if(!offers.includes(k))offers.push(k)}let chosen=[];
- const saved=store.get('er2_run');
+function dailyEnd(escaped){if(!run.daily||!window.SVPass||run.daily!==SVPass.today())return '';
+ const r=SVPass.finishDaily('rug',{score:escaped?13:roomNo(),escaped},false);const best=SVPass.dailyResult('rug').best;
+ return `<div class="lesson"><span>Daily run</span>${escaped?'You escaped today\'s run.':`You reached room ${roomNo()} of 12.`} Best today: ${best>12?'escaped':'room '+best}. Streak: ${r.streak} 🔥</div>`}
+function dailyHeroes(){const r=SVPass.rng('rugheroes'+SVPass.today());const pool=IDS.filter(i=>i!=='rugpuller');const a=pool.splice(Math.floor(r()*pool.length),1)[0];const b=pool[Math.floor(r()*pool.length)];return[a,b]}
+function dailyScreen(){paused=true;const t=SVPass.today();let saved=null;try{saved=JSON.parse(store.get(RUNK)||'null')}catch(e){}
+ if(saved&&saved.daily!==t){store.del(RUNK);store.del(CKK);saved=null}
+ const hs=dailyHeroes();const done=SVPass.dailyResult('rug');
+ showOv(`<h2>Daily run</h2><p class="sub">Same heroes and the same rooms for every player today. Get as far as you can, or escape all 3 floors.</p>
+ <div class="grid">${hs.map(id=>{const r=ROSTER[id];return `<div class="pick on" data-hid="${id}"><img src="${FACE[id]}" alt=""><span class="m"><b>${r.name}</b><span class="ab">${r.ab}</span><span class="tx">${r.txt}</span></span></div>`}).join('')}</div>
+ ${done?`<p class="sub">Today so far: ${done.best>12?'escaped':'room '+done.best+' of 12'} · ${done.tries} ${done.tries>1?'tries':'try'}</p>`:''}
+ <div class="col">${saved?'<button class="btn" id="cont">Continue today\'s run</button>':''}<button class="btn ${saved?'ghost':''}" id="go">${done?'Try again':'Start the daily run'}</button>
+ <a class="btn ghost" href="./" style="text-align:center;text-decoration:none">Normal run instead</a></div>`);
+ $('go').onclick=()=>{store.del(CKK);newRun(hs);run.daily=t;closeOv();enterRoom('fight')};
+ const c=$('cont');if(c)c.onclick=()=>{run=saved;closeOv();enterRoom(run.next||'fight')};}
+function startScreen(){if(DAILY)return dailyScreen();paused=true;let offers=[];const pool=IDS.filter(i=>i!=='rugpuller');while(offers.length<4){const k=pickR(pool);if(!offers.includes(k))offers.push(k)}let chosen=[];
+ const saved=store.get(RUNK);
  const draw=()=>{showOv(`<h2>Escape the Rug</h2><p class="sub">Walk your Degens through 3 floors of rooms. Tap to move, the party follows and fights on its own. Hit PUMP IT when it matters.</p>
  ${saved?`<button class="btn" id="cont">Continue your run</button>`:''}
  <p class="sub">${saved?'Or start over: ':''}Choose 2 Degens.</p>
  <div class="grid">${offers.map(id=>{const r=ROSTER[id];return `<button class="pick${chosen.includes(id)?' on':''}" data-id="${id}" data-hid="${id}"><img src="${FACE[id]}" alt=""><span class="m"><b>${r.name}</b><span class="ab">${r.ab}</span><span class="tx">${r.txt}</span>${HOLD(id)>1?'<span class="tx" style="color:var(--gold);font-weight:800">★ Holder: +10% HP and attack</span>':''}</span></button>`}).join('')}</div>
  <button class="btn ${saved?'ghost':''}" id="go" ${chosen.length<2?'disabled':''}>${chosen.length<2?`Pick ${2-chosen.length} more`:'Start a new run'}</button>`);
  document.querySelectorAll('.pick').forEach(b=>b.onclick=()=>{const id=b.dataset.id;sfx.talk();if(chosen.includes(id))chosen=chosen.filter(x=>x!==id);else{if(chosen.length===2)chosen.shift();chosen.push(id)}draw()});
- $('go').onclick=()=>{store.del('er2_ckpt');newRun(chosen);closeOv();enterRoom('fight')};
- const c=$('cont');if(c)c.onclick=()=>{try{run=JSON.parse(saved);closeOv();enterRoom(run.next||'fight')}catch(e){store.del('er2_run');startScreen()}}};draw();}
+ $('go').onclick=()=>{store.del(CKK);newRun(chosen);closeOv();enterRoom('fight')};
+ const c=$('cont');if(c)c.onclick=()=>{try{run=JSON.parse(saved);closeOv();enterRoom(run.next||'fight')}catch(e){store.del(RUNK);startScreen()}}};draw();}
 function help(){showOv(`<h2>How to play</h2>
  <p><b>Tap or drag</b> to walk. Your party follows in a line and attacks whatever is in reach.</p>
  <p><b>PUMP IT</b> boosts attack and speed for a few seconds, then recharges.</p>
@@ -600,7 +620,6 @@ if(!store.get('er2_seen_help')){store.set('er2_seen_help','1');setTimeout(()=>{h
 </script>
 
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('../sw.js').catch(()=>{}))}</script>
-<script src="../holder.js"></script>
 <script src="../i18n.js"></script>
 </body>
 </html>

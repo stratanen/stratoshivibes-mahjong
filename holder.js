@@ -7,6 +7,7 @@
 (function(){
 const CFG={
   rpc:'https://mainnet.helius-rpc.com/?api-key=b9b945b9-2831-4343-aab8-9d8a62c5719f', // key restricted to stratanen.github.io
+  skrMint:'SKRbvo6Gf7GondiT3BbTfuRDPqLWei4j2Qy2NPGZhW3',                                  // Seeker token (SKR)
   collection:'DDERmEEpPv5wuWNbNyiNQu5uVVVea6xmUdw6JcECGG6p'                           // StratoshiVibes Vol.1 Degens
 };
 // Words found in each card's on-chain name or attributes -> character id
@@ -30,6 +31,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const api={
   get address(){return st.addr||null},
   get total(){return st.total||0},
+  get skr(){return st.skr||0},
   get loading(){return loading},
   get status(){return st.status||''},
   owned(){return Object.assign({},st.owned)},
@@ -58,7 +60,14 @@ async function refresh(force){
     for(const it of items){const md=(it.content&&it.content.metadata)||{};
       const hit=MATCH.find(([,re])=>re.test(md.name||''))||MATCH.find(([,re])=>re.test((md.attributes||[]).map(x=>x.value).join(' ')));
       if(hit){owned[hit[0]]=(owned[hit[0]]||0)+1;total++}}
-    st.owned=owned;st.total=total;st.status='ok';st.t=Date.now();
+    st.owned=owned;st.total=total;
+    // SKR in the wallet (read-only balance; SKR staked with a Guardian is not counted)
+    try{const r=await fetch(CFG.rpc,{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({jsonrpc:'2.0',id:'skr',method:'getTokenAccountsByOwner',params:[st.addr,{mint:CFG.skrMint},{encoding:'jsonParsed'}]})});
+      const j=await r.json();const acc=(j.result&&j.result.value)||[];
+      st.skr=acc.reduce((a,x)=>a+(+((((x.account||{}).data||{}).parsed||{}).info||{}).tokenAmount?.uiAmount||0),0);
+    }catch(e){console.warn(e)}
+    st.status='ok';st.t=Date.now();
   }catch(e){console.warn(e);st.status='error'}
   finally{loading=false;persist();emit()}
   return st.status;}

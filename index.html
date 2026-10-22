@@ -73,6 +73,17 @@ h1{margin:0;font:400 40px/0.95 var(--f-display);color:var(--gold);text-shadow:0 
 .holder .av img:first-child{margin-left:0}
 .holder small{display:block;font-weight:400;color:var(--muted);font-size:11px}
 .holder:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.pass{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:16px;border:1px solid #e3b54a88;background:linear-gradient(150deg,#2b2a40,#171d31);color:var(--ink);text-align:left;cursor:pointer;font-family:var(--f-body)}
+.pass img{width:54px;height:54px;border-radius:14px;border:2px solid var(--gold);background:var(--ivory);object-fit:cover;flex:none}
+.pass .pm{flex:1;min-width:0}.pass small{display:block;font:800 10px var(--f-body);letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.pass b{display:block;font:800 15px var(--f-body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pass .rk{font-size:12px;color:var(--muted)}
+.pass .xp{display:block;height:5px;border-radius:99px;background:#ffffff14;margin-top:6px;overflow:hidden}.pass .xp i{display:block;height:100%;background:var(--gold)}
+.pass .ps{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font:800 13px var(--f-body);flex:none}
+.pass:focus-visible,.dly:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.dailies{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dly{display:flex;align-items:center;gap:8px;padding:10px;border-radius:14px;border:1px solid var(--line);background:#ffffff08;color:var(--ink);text-decoration:none;font:800 13px var(--f-body);min-width:0}
+.dly .ic{font-size:20px;flex:none}.dly small{display:block;font-weight:400;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dly.done{border-color:#3fbf7a88}.dly.done small{color:var(--you)}
 footer{display:flex;flex-direction:column;gap:6px;align-items:center;color:var(--muted);font-size:12px;text-align:center;padding-top:6px}
 footer a{color:var(--muted)}
 footer .links{display:flex;gap:14px}
@@ -90,6 +101,8 @@ footer .links{display:flex;gap:14px}
     <h1>ARCADE</h1>
     <p class="tag">Games starring the Vol.1 Degens. Free to play, no ads, no purchases, no tokens.</p>
     <button class="holder" id="holder" hidden></button>
+    <button class="pass" id="pass" aria-label="Open your Degen Passport"></button>
+    <div class="dailies" id="dailies"></div>
   </header>
 
   <nav class="games" aria-label="Games">
@@ -179,12 +192,23 @@ footer .links{display:flex;gap:14px}
  en.onclick=()=>{if(cur!=='en')SVI18N.set('en')};el.onclick=()=>{if(cur!=='el')SVI18N.set('el')};})();
 </script>
 <script src="holder.js"></script>
+<script src="passport.js"></script>
 <script>
 (function(){const H=window.SVHolder,el=document.getElementById('holder');if(!H)return;
 function paintHolder(){const ids=Object.keys(H.owned());
  if(!H.address||!ids.length){el.hidden=true;return}
  el.hidden=false;el.innerHTML=`<span class="av">${ids.slice(0,5).map(id=>`<img src="${H.img(id)}" alt="">`).join('')}</span><span>Holder: ${H.total} Degens<small>Gold in every game. +10% in Mahjong, Battlegrounds and Escape the Rug.</small></span>`;}
 el.onclick=()=>H.openAccount();H.onChange(paintHolder);paintHolder();})();
+(function(){const P=window.SVPass;if(!P)return;const pe=document.getElementById('pass'),de=document.getElementById('dailies');
+ const f=x=>Math.floor(x/60)+':'+String(x%60).padStart(2,'0');
+ function paint(){const l=P.level,r=P.rank,lo=P.xpFor(l),hi=P.xpFor(l+1),got=P.badges().filter(b=>b.got).length;
+  pe.innerHTML=`<img src="${P.img(r.id)}" alt=""><span class="pm"><small>Degen Passport</small><b></b><span class="rk">Level ${l} · ${r.name}</span><span class="xp"><i style="width:${Math.round(100*(P.xp-lo)/(hi-lo))}%"></i></span></span><span class="ps"><span>${P.streak().now} 🔥</span><span>🏅 ${got}</span></span>`;
+  pe.querySelector('b').textContent=P.name;
+  const dm=P.dailyResult('mahjong'),dr=P.dailyResult('rug');
+  de.innerHTML=`<a class="dly${dm?' done':''}" href="mahjong/?daily"><span class="ic">📅</span><span>Daily Mahjong<small>${dm?`Done · best ${f(dm.best)}`:'New board today'}</small></span></a>
+   <a class="dly${dr?' done':''}" href="rug/?daily"><span class="ic">📅</span><span>Daily Escape<small>${dr?`Done · ${dr.best>12?'escaped':'room '+dr.best}`:'New run today'}</small></span></a>`;}
+ pe.onclick=()=>P.open();P.onChange(paint);paint();})();
+addEventListener('pageshow',e=>{if(e.persisted)location.reload()});
 </script>
 </body>
 </html>

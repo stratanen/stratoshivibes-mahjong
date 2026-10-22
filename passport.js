@@ -77,7 +77,7 @@ function record(type,d){d=d||{};const before=levelOf(P.xp);const c=P.c;
   else if(type==='rug_party')c.rug_party=Math.max(c.rug_party||0,d.n||0);
   P.xp+=(XP[type]||(()=>0))(d);
   check(false);
-  const after=levelOf(P.xp);if(after>before){const r=rankOf(after);notify('⬆️',`Level ${after}`,r.name)}
+  const after=levelOf(P.xp);if(after>before){const r=rankOf(after);notify('⬆️',`Level up · ${after}`,r.name)}
   save();emit();}
 
 // daily challenges: one per game per day; finishing any of them keeps the streak alive
@@ -121,6 +121,91 @@ const api={
   today,dailyDone,dailyResult,finishDaily,rng,withSeed,img:id=>BASE+'arcade-art/tile_'+id+'.webp',
   onChange(f){subs.add(f);return()=>subs.delete(f)}};
 window.SVPass=api;
+// ---------- the Passport screen (opened from the Arcade lobby) ----------
+const T=t=>{const I=window.SVI18N;return I&&I.lang==='el'&&I.tr(t)||t};
+const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const css2=document.createElement('style');css2.textContent=`
+.svp-top{display:flex;gap:14px;align-items:center;margin-bottom:12px}
+.svp-top img{width:84px;height:84px;border-radius:18px;border:3px solid #e3b54a;background:#f4ecd8;object-fit:cover;flex:none}
+.svp-top .nm{font:800 20px "Commissioner",system-ui,sans-serif;color:#fff;display:flex;align-items:center;gap:6px}
+.svp-top .nm button{border:0;background:#ffffff14;color:#9aa3c0;border-radius:8px;width:28px;height:28px;cursor:pointer}
+.svp-top .rk{color:#e3b54a;font-weight:800;font-size:14px;margin-top:2px}
+.svp-xp{height:8px;border-radius:99px;background:#ffffff14;overflow:hidden;margin-top:8px}.svp-xp i{display:block;height:100%;background:linear-gradient(90deg,#b98a24,#e3b54a)}
+.svp-top small{display:block;color:#9aa3c0;font-size:11px;margin-top:4px}
+.svp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.svp-chips span{font:800 11px "Commissioner",system-ui,sans-serif;padding:5px 10px;border-radius:99px;border:1px solid #ffffff2a;color:#d6dae8}
+.svp-chips .g{border-color:#e3b54a;color:#e3b54a}
+.svp-h{font:800 11px "Commissioner",system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#9aa3c0;margin:14px 0 8px}
+.svp-badges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.svp-badge{border-radius:12px;border:1px solid #ffffff1f;background:#ffffff08;padding:8px 6px;text-align:center}
+.svp-badge .i{font-size:24px;line-height:1.2}.svp-badge b{display:block;font-size:11px;line-height:1.2;color:#fff;margin-top:2px}
+.svp-badge small{display:block;font-size:9.5px;line-height:1.25;color:#9aa3c0;margin-top:3px}
+.svp-badge.off{opacity:.42}.svp-badge.off .i{filter:grayscale(1)}
+.svp-badge.on{border-color:#e3b54a88;background:#e3b54a14}
+.svp-rec{display:grid;grid-template-columns:1fr auto;gap:6px 10px;font-size:13px}
+.svp-rec span{color:#9aa3c0}.svp-rec b{color:#fff;text-align:right}
+.svp-name{display:flex;gap:6px}.svp-name input{flex:1;min-width:0;height:36px;border-radius:10px;border:1px solid #e3b54a88;background:#0b0f1b;color:#fff;padding:0 10px;font:700 15px "Commissioner",system-ui,sans-serif}
+.svp-shot{width:100%;border-radius:12px;display:block;margin-bottom:10px}`;
+document.head.appendChild(css2);
+function records(){const s=stats(),c=P.c,dm=dailyResult('mahjong'),dr=dailyResult('rug');const f=x=>Math.floor(x/60)+':'+String(x%60).padStart(2,'0');
+ return [['Mahjong levels',`${s.mjCleared}/24`],['Mahjong stars',`${s.mjStars}/72 ★`],['Best combo',`x${c.mj_combo||0}`],
+  ['Battlegrounds campaign',`${Math.min(s.bg,8)}/8`],['Battles won',c.bg_wins||0],['Poker rivals beaten',`${Math.min(s.rp,3)}/3`],['Poker matches won',c.rp_wins||0],
+  ['Escape the Rug: furthest room',`${Math.min(s.erBest,12)}/12`],['Escapes',s.erWins],['Bosses defeated',c.rug_bosses||0],
+  ['Daily challenges finished',c.dailies||0],['Best streak',`${P.streak.best||0} 🔥`],
+  ['Daily Mahjong today',dm?f(dm.best):'–'],['Daily run today',dr?(dr.best>12?'escaped':`room ${dr.best}`):'–']];}
+function openPassport(){
+ const l=levelOf(P.xp),r=rankOf(l),lo=xpFor(l),hi=xpFor(l+1),pct=Math.round(100*(P.xp-lo)/(hi-lo));
+ const h=H(),tier=skrTier(),bs=api.badges(),got=bs.filter(b=>b.got).length;
+ const o=document.createElement('div');o.className='svh-ov';
+ o.innerHTML=`<div class="svh-box" role="dialog" aria-modal="true" aria-label="Degen Passport">
+ <h2>Degen Passport</h2>
+ <div class="svp-top"><img src="${api.img(r.id)}" alt=""><div style="flex:1;min-width:0">
+  <div class="nm"><span id="svpName">${esc(api.name)}</span><button id="svpEdit" aria-label="Edit name">✎</button></div>
+  <div class="rk">Level ${l} · ${r.name}</div><div class="svp-xp"><i style="width:${pct}%"></i></div><small>${P.xp} / ${hi} XP</small></div></div>
+ <div class="svp-chips"><span class="g">${streakNow()} 🔥 day streak</span><span>🏅 ${got}/${bs.length} badges</span><span>${stats().mjStars} ★</span>
+  ${h&&h.total?`<span class="g">✨ Vol.1 Holder · ${h.total}</span>`:''}${tier?`<span class="g">📱 SKR ${tier}</span>`:''}</div>
+ ${h&&h.address?'':'<p class="note" style="margin-top:-4px">Connect a wallet on the Arcade screen to show your Vol.1 Degens and your SKR badge.</p>'}
+ ${tier?'<p class="note" style="margin-top:-4px">The SKR badge counts SKR in your wallet. SKR staked with a Guardian is not counted.</p>':''}
+ <div class="svp-h">Badges</div><div class="svp-badges">${bs.map(b=>`<div class="svp-badge ${b.got?'on':'off'}"><div class="i">${b.ic}</div><b>${b.name}</b><small>${b.txt}</small></div>`).join('')}</div>
+ <div class="svp-h">Records</div><div class="svp-rec">${records().map(([k,v])=>`<span>${k}</span><b>${v}</b>`).join('')}</div>
+ <p class="note" style="margin-top:12px">Your Passport is saved on this device only. Clearing the app's data resets it.</p>
+ <div class="svh-btns"><button class="svh-b gold" id="svpShare">Share</button><button class="svh-b" id="svpClose">Close</button></div></div>`;
+ o.addEventListener('click',e=>{if(e.target===o)o.remove()});document.body.appendChild(o);
+ o.querySelector('#svpClose').onclick=()=>o.remove();o.querySelector('#svpShare').onclick=()=>share(o);
+ o.querySelector('#svpEdit').onclick=()=>{const w=o.querySelector('.nm');w.innerHTML=`<div class="svp-name"><input id="svpIn" maxlength="18" value="${esc(P.name||'')}" placeholder="${esc(T('Your name'))}"><button class="svh-b gold" id="svpOk" style="min-width:0;height:36px;flex:none;padding:0 12px">OK</button></div>`;
+  const i=o.querySelector('#svpIn');i.focus();const ok=()=>{api.setName(i.value);o.remove();openPassport()};o.querySelector('#svpOk').onclick=ok;i.onkeydown=e=>{if(e.key==='Enter')ok()}};}
+api.open=openPassport;
+
+// share card: a 1080x1350 picture of the Passport
+async function share(o){const btn=o.querySelector('#svpShare');btn.disabled=true;
+ try{const blob=await cardImage();const file=new File([blob],'degen-passport.png',{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'Degen Passport',text:T('My Degen Passport in StratoshiVibes Arcade')})}catch(e){}btn.disabled=false;return}
+  const url=URL.createObjectURL(blob);const box=o.querySelector('.svh-box');
+  box.innerHTML=`<h2>Share</h2><img class="svp-shot" src="${url}" alt="Degen Passport"><p class="note">Long-press the picture to save or share it.</p>
+   <div class="svh-btns"><a class="svh-b gold" href="${url}" download="degen-passport.png" style="display:grid;place-items:center;text-decoration:none">Save picture</a><button class="svh-b" id="svpBack">Back</button></div>`;
+  box.querySelector('#svpBack').onclick=()=>{o.remove();openPassport()};
+ }catch(e){console.warn(e);btn.disabled=false}}
+function loadImg(src){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src})}
+async function cardImage(){const W=1080,Hh=1350,c=document.createElement('canvas');c.width=W;c.height=Hh;const g=c.getContext('2d');
+ try{await document.fonts.load('80px Bungee');await document.fonts.load('800 40px Commissioner')}catch(e){}
+ const l=levelOf(P.xp),r=rankOf(l),lo=xpFor(l),hi=xpFor(l+1);const h=H(),tier=skrTier(),bs=api.badges().filter(b=>b.got),st=stats();
+ const bg=g.createRadialGradient(W/2,300,50,W/2,500,1100);bg.addColorStop(0,'#26315a');bg.addColorStop(1,'#0b0f1b');g.fillStyle=bg;g.fillRect(0,0,W,Hh);
+ g.strokeStyle='#e3b54a';g.lineWidth=6;g.strokeRect(30,30,W-60,Hh-60);
+ g.textAlign='center';g.fillStyle='#aeb6d1';g.font='800 30px Commissioner, sans-serif';g.fillText('STRATOSHIVIBES ARCADE',W/2,110);
+ g.fillStyle='#e3b54a';g.font='86px Bungee, Impact, sans-serif';g.fillText(T('DEGEN PASSPORT').toUpperCase(),W/2,205);
+ try{const im=await loadImg(api.img(r.id));g.save();g.beginPath();g.roundRect?g.roundRect(W/2-150,260,300,300,40):g.rect(W/2-150,260,300,300);g.clip();g.fillStyle='#f4ecd8';g.fillRect(W/2-150,260,300,300);g.drawImage(im,W/2-150,260,300,300);g.restore();
+  g.strokeStyle='#e3b54a';g.lineWidth=8;g.beginPath();g.roundRect?g.roundRect(W/2-150,260,300,300,40):g.rect(W/2-150,260,300,300);g.stroke()}catch(e){}
+ g.fillStyle='#fff';g.font='800 58px Commissioner, sans-serif';g.fillText(api.name,W/2,640);
+ g.fillStyle='#e3b54a';g.font='800 40px Commissioner, sans-serif';g.fillText(T(`Level ${l} · ${r.name}`),W/2,700);
+ g.fillStyle='#ffffff22';g.fillRect(240,730,600,16);g.fillStyle='#e3b54a';g.fillRect(240,730,600*Math.min(1,(P.xp-lo)/(hi-lo)),16);
+ const box=(x,y,big,small)=>{g.fillStyle='#ffffff10';g.fillRect(x,y,300,150);g.fillStyle='#fff';g.font='800 56px Commissioner, sans-serif';g.fillText(big,x+150,y+75);g.fillStyle='#9aa3c0';g.font='600 26px Commissioner, sans-serif';g.fillText(T(small),x+150,y+120)};
+ box(75,790,`${streakNow()} 🔥`,'day streak');box(390,790,`${bs.length}/${BADGES.length}`,'badges');box(705,790,`${st.mjStars} ★`,'Mahjong stars');
+ g.font='54px sans-serif';const icons=bs.slice(0,10).map(b=>b.ic);icons.forEach((ic,i)=>g.fillText(ic,W/2+(i-(icons.length-1)/2)*84,1040));
+ const tags=[];if(h&&h.total)tags.push('Vol.1 Holder');if(tier)tags.push('SKR '+tier);
+ if(tags.length){g.fillStyle='#e3b54a';g.font='800 36px Commissioner, sans-serif';g.fillText(tags.join('  ·  '),W/2,1130)}
+ g.fillStyle='#aeb6d1';g.font='600 30px Commissioner, sans-serif';g.fillText(T('Play free on Solana Seeker'),W/2,1250);
+ return await new Promise(res=>c.toBlob(res,'image/png'));}
+
 // badges that come from older saves or from the wallet are granted quietly on load
 if(check(true))save();
 if(window.SVHolder)SVHolder.onChange(()=>{if(check(false)){save();emit()}});
