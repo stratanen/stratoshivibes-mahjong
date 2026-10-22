@@ -130,7 +130,7 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeOv()});
 
 function openPicker(){const ws=window.SVWallet?SVWallet.list():[];
   const o=ov(`<h2>Connect wallet</h2>
-  <p>Degens holders see their characters in gold in every game. The game only reads your public address. It never asks you to sign or send anything.</p>
+  <p>Degens holders see their characters in gold in every game, with a +10% bonus. The game only reads your public address. It never asks you to sign or send anything.</p>
   ${ws.length?`<div class="svh-list">${ws.map((w,i)=>`<button class="svh-item" data-i="${i}"><img src="${esc(w.icon)}" alt="">
     <span>${w.mwa?'Seeker / Android wallet':esc(w.name)}<small>${w.mwa?'Seed Vault, Phantom, Solflare and more':'Browser wallet'}</small></span></button>`).join('')}</div>`
   :`<p>No wallet found. On Seeker, open the game from the dApp Store. On other phones, install a Solana wallet such as Phantom or Solflare.</p>`}
@@ -146,7 +146,7 @@ function openAccount(){const ids=Object.keys(st.owned);
   const o=ov(`<h2>Your wallet</h2><div class="svh-addr">${esc(st.addr)}</div>
   ${loading?'<p>Checking your Degens…</p>':
     st.status==='error'?'<p>Could not check your Degens right now. Check your internet connection and try again.</p>':
-    st.total?`<p>You hold ${st.total} Vol.1 Degens. They shine gold in every game.</p><div class="svh-grid">${ids.map(id=>`<figure><img src="${api.img(id)}" alt=""><b>${st.owned[id]}</b><figcaption>${NAME[id]}</figcaption></figure>`).join('')}</div>`
+    st.total?`<p>You hold ${st.total} Vol.1 Degens. They shine gold in every game and get +10% in Mahjong, Battlegrounds and Escape the Rug.</p><div class="svh-grid">${ids.map(id=>`<figure><img src="${api.img(id)}" alt=""><b>${st.owned[id]}</b><figcaption>${NAME[id]}</figcaption></figure>`).join('')}</div>`
     :'<p>No Vol.1 Degens found in this wallet yet.</p>'}
   <div class="svh-btns">${st.status==='error'?'<button class="svh-b gold" data-r>Try again</button>':''}<button class="svh-b" data-x>Back to game</button><button class="svh-b" data-d>Disconnect</button></div>`);
   o.querySelector('[data-x]').onclick=closeOv;

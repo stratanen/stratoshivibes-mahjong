@@ -90,10 +90,30 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .legend figure{margin:0;text-align:center;font-size:9px;color:var(--muted);line-height:1.15}
 .legend img{width:100%;border-radius:6px;background:var(--ivory);display:block;margin-bottom:3px}
 
-.lays{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.lays{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.lay{min-width:0}
+.lay span{max-width:100%;font-size:12px;text-align:center;overflow-wrap:anywhere}
 .lay{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:12px;border:1px solid #ffffff1f;background:#ffffff0a;color:var(--ink);font:700 13px var(--f-body);cursor:pointer}
 .lay.on{border-color:var(--gold);background:#e3b54a1a}
 .lay svg{width:100%;max-width:90px}
+.tabs{display:flex;gap:6px;margin:0 0 10px}
+.tb{flex:1;height:36px;border-radius:99px;border:1px solid #ffffff2a;background:#ffffff0a;color:var(--muted);font:800 12px var(--f-body);cursor:pointer}
+.tb.on{background:var(--gold);color:#1a1405;border-color:var(--gold)}
+.scrollbox{max-height:min(58vh,520px);overflow:auto;margin:0 -4px 12px;padding:0 4px}
+.chap{margin-bottom:14px}.chh{display:flex;justify-content:space-between;align-items:baseline;font:800 14px var(--f-body)}
+.chh span{color:var(--gold);font-size:12px}.chap>small{display:block;color:var(--muted);font-size:11px;margin:2px 0 8px}
+.lvs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.lv{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px 6px;border-radius:12px;border:1px solid #ffffff1f;background:#ffffff0a;color:var(--ink);cursor:pointer}
+.lv svg{width:100%;max-width:70px;height:46px}
+.lv b{font:400 15px var(--f-display);color:var(--gold)}
+.lv.on{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.lv.locked{opacity:.45;cursor:default}
+.lv .lock{font-size:12px;height:14px}
+.stars{display:inline-flex;gap:1px;font-size:12px;line-height:1;color:#ffffff30}.stars i{font-style:normal}.stars i.on{color:var(--gold);text-shadow:0 0 6px #e3b54a88}
+.stars.big{font-size:34px;gap:6px;display:flex;justify-content:center;margin:4px 0 10px}
+.lvtag{font:800 11px var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-align:center}
+.newch{color:var(--you);font-weight:800}
+.warn{color:var(--muted);font-size:12px}
 .lay small{font-weight:400;font-size:10px;color:var(--muted);text-align:center;line-height:1.25}
 .lay:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 label.opt{display:flex;gap:8px;align-items:center;font-size:13px;color:#d6dae8}
@@ -186,7 +206,7 @@ a.logo:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-rad
         <div class="prog" role="progressbar" aria-label="Board cleared" aria-valuemin="0" aria-valuemax="100" id="prog"><i id="progBar"></i></div>
         <div class="combo-bar" aria-hidden="true"><i id="comboBar"></i></div>
       </div>
-      <button class="chip" id="layChip" aria-label="Change layout"><span id="layName">Pyramid</span></button>
+      <button class="chip" id="layChip" aria-label="Levels and boards"><span id="layName">Pyramid</span></button>
     </div>
   </header>
   <div id="boardWrap">
@@ -237,14 +257,25 @@ const TIPS=[
 // 13 characters + 4 coins + 1 event group = 18 groups × 4 tiles = 72
 const GROUPS=[...CHARS.map(c=>({kind:'char',...c})),...COINS.map(c=>({kind:'coin',...c})),{kind:'event',id:'event',name:'Market Event'}];
 const LAYOUTS={"pyramid": {"name": "Pyramid", "rows": [[0, 0, [2, 4, 6, 8]], [0, 2, [0, 2, 4, 6, 8, 10]], [0, 4, [0, 2, 4, 6, 8, 10]], [0, 6, [0, 2, 4, 6, 8, 10]], [0, 8, [0, 2, 4, 6, 8, 10]], [0, 10, [0, 2, 4, 6, 8, 10]], [0, 12, [0, 2, 4, 6, 8, 10]], [0, 14, [2, 4, 6, 8]], [1, 2, [4, 6]], [1, 4, [2, 4, 6, 8]], [1, 6, [2, 4, 6, 8]], [1, 8, [2, 4, 6, 8]], [1, 10, [2, 4, 6, 8]], [1, 12, [4, 6]], [2, 4, [4, 6]], [2, 6, [4, 6]], [2, 8, [4, 6]], [2, 10, [4, 6]]], "note": "The classic start"}, "bull": {"name": "Bull Horns", "rows": [[0, 0, [0, 10]], [0, 2, [0, 2, 8, 10]], [0, 4, [0, 2, 4, 6, 8, 10]], [0, 6, [0, 2, 4, 6, 8, 10]], [0, 8, [0, 2, 4, 6, 8, 10]], [0, 10, [0, 2, 4, 6, 8, 10]], [0, 12, [2, 4, 6, 8]], [0, 14, [4, 6]], [1, 0, [0, 10]], [1, 2, [0, 10]], [1, 4, [2, 4, 6, 8]], [1, 6, [2, 4, 6, 8]], [1, 8, [2, 4, 6, 8]], [1, 10, [2, 4, 6, 8]], [1, 12, [4, 6]], [2, 2, [0, 10]], [2, 4, [4, 6]], [2, 6, [4, 6]], [2, 8, [4, 6]], [2, 10, [4, 6]], [3, 6, [4, 6]], [3, 8, [4, 6]]], "note": "Two horns, one peak"}, "vault": {"name": "Vault", "rows": [[0, 0, [0, 2, 4, 6, 8, 10]], [0, 2, [0, 2, 4, 6, 8, 10]], [0, 4, [0, 2, 4, 6, 8, 10]], [0, 6, [0, 2, 4, 6, 8, 10]], [0, 8, [0, 2, 4, 6, 8, 10]], [0, 10, [0, 2, 4, 6, 8, 10]], [0, 12, [0, 2, 4, 6, 8, 10]], [0, 14, [0, 2, 4, 6, 8, 10]], [1, 0, [0, 2, 4, 6, 8, 10]], [1, 2, [0, 10]], [1, 4, [0, 10]], [1, 6, [0, 10]], [1, 8, [0, 10]], [1, 10, [0, 10]], [1, 12, [0, 10]], [1, 14, [0, 2, 4, 6, 8, 10]]], "note": "Break the walls first"}};
+Object.assign(LAYOUTS,{"first":{"name":"First Trade","note":"A gentle start","rows":[[0,2,[2,4,6,8]],[0,4,[2,4,6,8]],[0,6,[2,4,6,8]],[0,8,[2,4,6,8]],[0,10,[2,4,6,8]],[0,12,[2,4,6,8]],[1,6,[4,6]],[1,8,[4,6]]]},"candle":{"name":"Candle","note":"One green candle","rows":[[0,0,[2,4,6,8]],[0,2,[2,4,6,8]],[0,4,[2,4,6,8]],[0,6,[2,4,6,8]],[0,8,[2,4,6,8]],[0,10,[2,4,6,8]],[0,12,[2,4,6,8]],[0,14,[2,4,6,8]],[1,6,[4,6]],[1,8,[4,6]]]},"wallet":{"name":"Cold Wallet","note":"Keep it closed","rows":[[0,2,[0,2,4,6,8,10]],[0,4,[0,2,4,6,8,10]],[0,6,[0,2,4,6,8,10]],[0,8,[0,2,4,6,8,10]],[0,10,[0,2,4,6,8,10]],[0,12,[0,2,4,6,8,10]],[1,6,[4,6]],[1,8,[4,6]]]},"moon":{"name":"Moon","note":"Round trip to the moon","rows":[[0,0,[2,4,6,8]],[0,2,[0,2,4,6,8,10]],[0,4,[0,2,4,6,8,10]],[0,6,[0,2,8,10]],[0,8,[0,2,8,10]],[0,10,[0,2,4,6,8,10]],[0,12,[0,2,4,6,8,10]],[0,14,[2,4,6,8]]]},"diamond":{"name":"Diamond","note":"Diamond hands only","rows":[[0,0,[4,6]],[0,2,[2,4,6,8]],[0,4,[0,2,4,6,8,10]],[0,6,[0,2,4,6,8,10]],[0,8,[0,2,4,6,8,10]],[0,10,[0,2,4,6,8,10]],[0,12,[2,4,6,8]],[0,14,[4,6]],[1,4,[4,6]],[1,6,[4,6]],[1,8,[4,6]],[1,10,[4,6]]]},"ladder":{"name":"Ladder","note":"Climb one rung at a time","rows":[[0,0,[0,2,8,10]],[0,2,[0,2,8,10]],[0,4,[0,2,4,6,8,10]],[0,6,[0,2,8,10]],[0,8,[0,2,8,10]],[0,10,[0,2,4,6,8,10]],[0,12,[0,2,8,10]],[0,14,[0,2,8,10]],[1,2,[0,10]],[1,4,[0,10]],[1,6,[0,10]],[1,8,[0,10]],[1,10,[0,10]],[1,12,[0,10]]]},"bridge":{"name":"Bridge","note":"Two sides, one way across","rows":[[0,0,[0,2,4,6,8,10]],[0,2,[0,2,4,6,8,10]],[0,4,[0,10]],[0,6,[0,10]],[0,8,[0,10]],[0,10,[0,10]],[0,12,[0,2,4,6,8,10]],[0,14,[0,2,4,6,8,10]],[1,0,[0,2,4,6,8,10]],[1,14,[0,2,4,6,8,10]],[2,0,[4,6]],[2,14,[4,6]]]},"rocket":{"name":"Rocket","note":"Fuel up and launch","rows":[[0,0,[4,6]],[0,2,[2,4,6,8]],[0,4,[2,4,6,8]],[0,6,[2,4,6,8]],[0,8,[2,4,6,8]],[0,10,[0,2,4,6,8,10]],[0,12,[0,2,8,10]],[0,14,[0,10]],[1,0,[4,6]],[1,2,[4,6]],[1,4,[4,6]],[1,6,[4,6]],[1,8,[4,6]],[1,10,[4,6]],[2,2,[4,6]],[2,4,[4,6]],[2,6,[4,6]],[2,8,[4,6]],[3,4,[4,6]],[3,6,[4,6]]]},"halving":{"name":"Halving","note":"Half the supply, twice the fun","rows":[[0,0,[0,2,4,6,8,10]],[0,2,[0,2,4,6,8,10]],[0,4,[0,2,4,6,8,10]],[0,6,[0,2,4,6,8,10]],[0,8,[0,2,4,6,8,10]],[0,10,[0,2,4,6,8,10]],[0,12,[0,2,4,6,8,10]],[0,14,[0,2,4,6,8,10]],[1,4,[2,8]],[1,6,[2,8]],[1,8,[2,8]],[1,10,[2,8]]]},"hourglass":{"name":"Hourglass","note":"Time in the market","rows":[[0,0,[0,2,4,6,8,10]],[0,2,[2,4,6,8]],[0,4,[4,6]],[0,6,[4,6]],[0,8,[4,6]],[0,10,[4,6]],[0,12,[2,4,6,8]],[0,14,[0,2,4,6,8,10]],[1,0,[0,2,4,6,8,10]],[1,2,[2,4,6,8]],[1,12,[2,4,6,8]],[1,14,[0,2,4,6,8,10]],[2,0,[2,4,6,8]],[2,14,[2,4,6,8]]]},"cross":{"name":"Crossroads","note":"Pick your direction","rows":[[0,0,[4,6]],[0,2,[4,6]],[0,4,[0,2,4,6,8,10]],[0,6,[0,2,4,6,8,10]],[0,8,[0,2,4,6,8,10]],[0,10,[0,2,4,6,8,10]],[0,12,[4,6]],[0,14,[4,6]],[1,4,[2,4,6,8]],[1,6,[2,4,6,8]],[1,8,[2,4,6,8]],[1,10,[2,4,6,8]],[2,6,[2,4,6,8]],[2,8,[2,4,6,8]]]},"stairs":{"name":"Staircase","note":"Higher highs","rows":[[0,0,[0,2]],[0,2,[0,2,4]],[0,4,[0,2,4,6]],[0,6,[0,2,4,6,8]],[0,8,[0,2,4,6,8,10]],[0,10,[0,2,4,6,8,10]],[0,12,[0,2,4,6,8,10]],[0,14,[0,2,4,6,8,10]],[1,8,[0,2,4,6,8]],[1,10,[0,2,4,6,8]],[1,12,[0,2,4,6,8]],[1,14,[0,2,4,6,8]]]},"fortress":{"name":"Fortress","note":"Walls on both ends","rows":[[0,0,[0,2,4,6,8,10]],[0,2,[0,2,4,6,8,10]],[0,4,[0,2,4,6,8,10]],[0,6,[0,2,4,6,8,10]],[0,8,[0,2,4,6,8,10]],[0,10,[0,2,4,6,8,10]],[0,12,[0,2,4,6,8,10]],[0,14,[0,2,4,6,8,10]],[1,0,[0,2,4,6,8,10]],[1,14,[0,2,4,6,8,10]],[2,0,[0,10]],[2,14,[0,10]]]},"twin":{"name":"Twin Peaks","note":"Double top","rows":[[0,0,[0,2,4,6,8,10]],[0,2,[0,2,4,6,8,10]],[0,4,[0,2,4,6,8,10]],[0,6,[0,2,4,6,8,10]],[0,8,[0,2,4,6,8,10]],[0,10,[0,2,4,6,8,10]],[0,12,[0,2,4,6,8,10]],[0,14,[0,2,4,6,8,10]],[1,4,[0,2,8,10]],[1,6,[0,2,8,10]],[1,8,[0,2,8,10]],[1,10,[0,2,8,10]]]},"chart":{"name":"Chart","note":"Number go up","rows":[[0,0,[0,2,4,6,8,10]],[0,2,[0,2,4,6,8,10]],[0,4,[0,2,4,6,8,10]],[0,6,[0,2,4,6,8,10]],[0,8,[0,2,4,6,8,10]],[0,10,[0,2,4,6,8,10]],[0,12,[0,2,4,6,8,10]],[0,14,[0,2,4,6,8,10]],[1,2,[8]],[1,4,[6,8]],[1,6,[4,6,8]],[1,8,[4,6,8]],[1,10,[4,6,8]],[1,12,[2,4,6,8]],[1,14,[2,4,6,8]]]},"storage":{"name":"Cold Storage","note":"Deep in the vault","rows":[[0,0,[0,2,4,6,8,10]],[0,2,[0,2,4,6,8,10]],[0,4,[0,2,4,6,8,10]],[0,6,[0,2,4,6,8,10]],[0,8,[0,2,4,6,8,10]],[0,10,[0,2,4,6,8,10]],[0,12,[0,2,4,6,8,10]],[0,14,[0,2,4,6,8,10]],[1,2,[2,4,6,8]],[1,4,[2,4,6,8]],[1,6,[2,4,6,8]],[1,8,[2,4,6,8]],[1,10,[2,4,6,8]],[1,12,[2,4,6,8]]]},"tower":{"name":"Tower","note":"Four floors up","rows":[[0,2,[0,2,4,6,8,10]],[0,4,[0,2,4,6,8,10]],[0,6,[0,2,4,6,8,10]],[0,8,[0,2,4,6,8,10]],[0,10,[0,2,4,6,8,10]],[0,12,[0,2,4,6,8,10]],[1,2,[2,4,6,8]],[1,4,[2,4,6,8]],[1,6,[2,4,6,8]],[1,8,[2,4,6,8]],[1,10,[2,4,6,8]],[1,12,[2,4,6,8]],[2,4,[4,6]],[2,6,[4,6]],[2,8,[4,6]],[2,10,[4,6]],[3,6,[4,6]],[3,8,[4,6]]]},"mm":{"name":"Market Maker","note":"The house always stacks","rows":[[0,0,[0,2,4,6,8,10]],[0,2,[0,2,4,6,8,10]],[0,4,[0,2,4,6,8,10]],[0,6,[0,2,4,6,8,10]],[0,8,[0,2,4,6,8,10]],[0,10,[0,2,4,6,8,10]],[0,12,[0,2,4,6,8,10]],[0,14,[0,2,4,6,8,10]],[1,4,[2,4,6,8]],[1,6,[2,4,6,8]],[1,8,[2,4,6,8]],[1,10,[2,4,6,8]],[2,6,[2,4,6,8]],[2,8,[2,4,6,8]]]},"rug":{"name":"The Rug","note":"Pull one thread at a time","rows":[[0,0,[0,2,4,6,8,10]],[0,2,[0,2,4,6,8,10]],[0,4,[0,2,4,6,8,10]],[0,6,[0,2,4,6,8,10]],[0,8,[0,2,4,6,8,10]],[0,10,[0,2,4,6,8,10]],[0,12,[0,2,4,6,8,10]],[0,14,[0,2,4,6,8,10]],[1,0,[0,2,4,6,8,10]],[1,4,[0,2,4,6,8,10]],[1,8,[0,2,4,6,8,10]],[1,12,[0,2,4,6,8,10]]]},"range":{"name":"Range","note":"Support and resistance","rows":[[0,0,[0,2,4,6,8,10]],[0,2,[0,2,4,6,8,10]],[0,4,[0,2,4,6,8,10]],[0,6,[0,2,4,6,8,10]],[0,8,[0,2,4,6,8,10]],[0,10,[0,2,4,6,8,10]],[0,12,[0,2,4,6,8,10]],[0,14,[0,2,4,6,8,10]],[1,0,[0,2,4,6,8,10]],[1,2,[0,2,4,6,8,10]],[1,12,[0,2,4,6,8,10]],[1,14,[0,2,4,6,8,10]]]},"exit":{"name":"Exit Liquidity","note":"Find the way out","rows":[[0,0,[0,2,4,6,8,10]],[0,2,[0,2,4,6,8,10]],[0,4,[0,2,8,10]],[0,6,[0,2,8,10]],[0,8,[0,2,8,10]],[0,10,[0,2,8,10]],[0,12,[0,2,4,6,8,10]],[0,14,[0,2,4,6,8,10]],[1,0,[0,2,4,6,8,10]],[1,2,[0,2,4,6,8,10]],[1,12,[0,2,4,6,8,10]],[1,14,[0,2,4,6,8,10]],[2,0,[2,4,6,8]],[2,14,[2,4,6,8]]]}});
+// Levels: 4 chapters x 6 boards. Stars: 1 = cleared, 2 = within par time, 3 = within par and no hints.
+const CHAPTERS=[{name:'Bull Market',note:'Learn the ropes'},{name:'Altseason',note:'Bigger boards, more layers'},{name:'Bear Market',note:'Full boards, 2 shuffles'},{name:'Market Maker',note:'Tall stacks, 1 shuffle'}];
+const LEVELS=[['first','candle','wallet','moon','diamond','ladder'],['bridge','halving','cross','rocket','stairs','hourglass'],
+ ['twin','fortress','pyramid','chart','storage','vault'],['range','rug','bull','exit','tower','mm']]
+ .flatMap((ks,c)=>ks.map(k=>{const n=LAYOUTS[k].rows.reduce((a,r)=>a+r[2].length,0);return{k,ch:c,n,shuf:[3,3,2,1][c],par:Math.round(n*[3.4,3.4,3.2,3][c]/5)*5}}));
 const SND_ON='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
 const SND_OFF='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
 const SAVE_KEY='dm_save_v1', COMBO_MS=5000, PTS=100, HINT_COST=50, UNDO_COST=25, SHUFFLES=3;
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 let layoutKey=LAYOUTS[store.get('dm_layout')]?store.get('dm_layout'):'pyramid';
+let lvStars={};try{lvStars=JSON.parse(store.get('dm_lv')||'{}')||{}}catch(e){}
+const unlocked=()=>{let i=0;while(i<LEVELS.length-1&&lvStars[i])i++;return i};   // first level not yet cleared
+let mode=store.get('dm_mode')==='free'?'free':'level', lvl=Math.min(unlocked(),LEVELS.length-1);
+if(store.get('dm_lvl')!=null){const v=+store.get('dm_lvl');if(v>=0&&v<=unlocked())lvl=v}
 let dim=store.get('dm_dim')!=='0';
 const $=id=>document.getElementById(id);
 const st={tiles:[],sel:null,hist:[],shuf:SHUFFLES,elapsed:0,running:false,t0:0,moves:0,score:0,combo:0,bestCombo:0,lastMatch:0,hints:0,over:false};
+const total=()=>st.tiles.length||72;
 let timer=null, idleT=null, comboT=null;
 
 function layout(){const p=[];for(const [z,y,xs] of LAYOUTS[layoutKey].rows)for(const x of xs)p.push({x,y,z});return p;}
@@ -271,19 +302,26 @@ function assign(positions,pairs,dry){
 function resetState(){stopClock();Object.assign(st,{sel:null,hist:[],shuf:SHUFFLES,elapsed:0,running:false,moves:0,score:0,combo:0,bestCombo:0,lastMatch:0,hints:0,over:false});}
 function newGame(){
  resetState();
- const pos=layout().map((p,i)=>({...p,i,gone:false}));const pairs=[];
- GROUPS.forEach((g,gi)=>{ if(g.kind==='event'){const v=shuffleArr([0,1,2,3]);pairs.push([{g:gi,v:v[0]},{g:gi,v:v[1]}],[{g:gi,v:v[2]},{g:gi,v:v[3]}])}
-   else pairs.push([{g:gi,v:0},{g:gi,v:0}],[{g:gi,v:0},{g:gi,v:0}])});
+ if(mode==='level'){const L=LEVELS[lvl];layoutKey=L.k;st.shuf=L.shuf;store.set('dm_lvl',lvl)}
+ store.set('dm_mode',mode);
+ const pos=layout().map((p,i)=>({...p,i,gone:false}));
+ // smaller boards use fewer kinds of tiles: whole groups of 4, plus one extra pair when needed
+ const need=pos.length/2;let order=shuffleArr(GROUPS.map((g,gi)=>gi));const pairs=[];
+ for(const gi of order){if(pairs.length>=need)break;const g=GROUPS[gi];
+   if(g.kind==='event'){const v=shuffleArr([0,1,2,3]);pairs.push([{g:gi,v:v[0]},{g:gi,v:v[1]}]);if(pairs.length<need)pairs.push([{g:gi,v:v[2]},{g:gi,v:v[3]}])}
+   else{pairs.push([{g:gi,v:0},{g:gi,v:0}]);if(pairs.length<need)pairs.push([{g:gi,v:0},{g:gi,v:0}])}}
  assign(pos,pairs);st.tiles=pos;store.del(SAVE_KEY);
- closeOv();hideStuck();render();updHud();armIdle();}
+ closeOv();hideStuck();render();updHud();armIdle();
+ if(mode==='level'){const L=LEVELS[lvl];setTimeout(()=>toast(`<span>Level ${lvl+1}</span> · <span>${LAYOUTS[L.k].name}</span> · <span>par ${fmt(L.par)}</span>`,true),250)}}
 
 // ---- save / resume
 function save(){ if(st.over||!st.moves){store.del(SAVE_KEY);return}
- store.set(SAVE_KEY,JSON.stringify({v:1,layoutKey,tiles:st.tiles.map(t=>[t.x,t.y,t.z,t.g,t.v,t.gone?1:0]),
+ store.set(SAVE_KEY,JSON.stringify({v:1,mode,lvl,layoutKey,tiles:st.tiles.map(t=>[t.x,t.y,t.z,t.g,t.v,t.gone?1:0]),
   hist:st.hist.map(h=>[h.a.i,h.b.i,h.score,h.combo]),shuf:st.shuf,elapsed:st.elapsed,moves:st.moves,score:st.score,bestCombo:st.bestCombo,hints:st.hints}));}
 function resume(){const raw=store.get(SAVE_KEY);if(!raw)return false;
- try{const d=JSON.parse(raw);if(d.v!==1||!LAYOUTS[d.layoutKey]||d.tiles.length!==72)throw 0;
-  resetState();layoutKey=d.layoutKey;
+ try{const d=JSON.parse(raw);const n=LAYOUTS[d.layoutKey]&&LAYOUTS[d.layoutKey].rows.reduce((a,r)=>a+r[2].length,0);
+  if(d.v!==1||!n||d.tiles.length!==n)throw 0;
+  resetState();layoutKey=d.layoutKey;mode=d.mode==='level'&&LEVELS[d.lvl]&&LEVELS[d.lvl].k===d.layoutKey?'level':'free';if(mode==='level')lvl=d.lvl;
   st.tiles=d.tiles.map((a,i)=>({x:a[0],y:a[1],z:a[2],g:a[3],v:a[4],gone:!!a[5],i}));
   st.hist=d.hist.map(h=>({a:st.tiles[h[0]],b:st.tiles[h[1]],score:h[2],combo:h[3]}));
   Object.assign(st,{shuf:d.shuf,elapsed:d.elapsed,moves:d.moves,score:d.score,bestCombo:d.bestCombo,hints:d.hints});
@@ -322,7 +360,7 @@ const center=t=>({x:parseFloat(t.el.style.left)+geo.w/2,y:parseFloat(t.el.style.
 function refresh(){$('app').classList.toggle('dim',dim);
  const a=alive();for(const t of st.tiles){if(t.gone)continue;t.el.classList.toggle('blocked',!freeIn(t,a));t.el.classList.toggle('sel',st.sel===t)}}
 
-let toastT;function toast(m){const e=$('toast');e.textContent=m;e.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('on'),1800)}
+let toastT;function toast(m,html){const e=$('toast');if(html)e.innerHTML=m;else e.textContent=m;e.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('on'),1800)}
 
 
 // ---- sound: synthesized with Web Audio, no files needed
@@ -366,7 +404,8 @@ function tap(t){ if(st.over||t.gone||t.el.classList.contains('match'))return;
 function match(a,b){st.sel=null;
  const now=Date.now();st.combo=(now-st.lastMatch<COMBO_MS&&st.combo>0)?st.combo+1:1;st.lastMatch=now;
  st.bestCombo=Math.max(st.bestCombo,st.combo);
- const gain=PTS*Math.min(st.combo,5);st.hist.push({a,b,score:st.score,combo:st.combo-1});st.score+=gain;st.moves++;
+ const g0=GROUPS[a.g];const own=g0.kind==='char'&&window.SVHolder&&SVHolder.has(g0.id);   // holder perk: +10% points for your own Degens
+ const gain=Math.round(PTS*Math.min(st.combo,5)*(own?1.1:1));st.hist.push({a,b,score:st.score,combo:st.combo-1});st.score+=gain;st.moves++;
  a.gone=b.gone=true;
  const ca=center(a),cb=center(b),m={x:(ca.x+cb.x)/2,y:(ca.y+cb.y)/2};
  [[a,ca,-1],[b,cb,1]].forEach(([t,c,s])=>{const el=t.el;el.style.setProperty('--mx',(m.x-c.x)+'px');el.style.setProperty('--my',(m.y-c.y)+'px');el.style.setProperty('--rot',(s*12)+'deg');
@@ -421,18 +460,20 @@ function checkStuck(){if(st.over||!alive().length)return;if(freePairs().length){
  p.innerHTML=`<p><b>No moves left</b>${left} pair${left>1?'s':''} remain, but none are free. ${why}</p><div class="acts">
   ${cs?`<button class="btn" id="stShuf">Shuffle ×${st.shuf}</button>`:''}
   ${st.hist.length?`<button class="btn ${cs?'ghost':''}" id="stUndo">Undo</button>`:''}
-  <button class="btn ${cs||st.hist.length?'ghost':''}" id="stNew">New game</button></div>`;
+  <button class="btn ${cs||st.hist.length?'ghost':''}" id="stNew">${mode==='level'?'Restart level':'New game'}</button></div>`;
  if(p.hidden)sfx.stuck();p.hidden=false;
  const s=$('stShuf'),u=$('stUndo');s&&(s.onclick=doShuffle);u&&(u.onclick=doUndo);$('stNew').onclick=()=>{hideStuck();newGame()};}
 function hideStuck(){$('stuck').hidden=true;}
 
 function updHud(){const left=alive().length;$('sLeft').textContent=left;$('sScore').textContent=st.score.toLocaleString('en-US');
- const pct=Math.round((72-left)/72*100);$('progBar').style.width=pct+'%';$('prog').setAttribute('aria-valuenow',pct);
+ const pct=Math.round((total()-left)/total()*100);$('progBar').style.width=pct+'%';$('prog').setAttribute('aria-valuenow',pct);
  $('nShuf').textContent=st.shuf+' left';$('pShuf').disabled=st.shuf<=0;$('pUndo').disabled=!st.hist.length;
- $('sTime').textContent=fmt(st.elapsed);$('layName').textContent=LAYOUTS[layoutKey].name;$('nLay').textContent=LAYOUTS[layoutKey].name;}
+ $('sTime').textContent=fmt(st.elapsed);const lab=mode==='level'?`Level ${lvl+1}`:LAYOUTS[layoutKey].name;$('layName').textContent=lab;$('nLay').textContent=lab;}
 
 // ---- end of game
 function win(){if(st.over)return;st.over=true;stopClock();breakCombo();clearTimeout(idleT);store.del(SAVE_KEY);sfx.win();
+ $('combo').classList.remove('on');
+ if(mode==='level')return winLevel();
  const key='dm_best_'+layoutKey;let best={};try{best=JSON.parse(store.get(key)||'{}')}catch(e){}
  const newTime=!best.time||st.elapsed<best.time, newScore=!best.score||st.score>best.score;
  if(newTime)best.time=st.elapsed;if(newScore)best.score=st.score;store.set(key,JSON.stringify(best));
@@ -443,21 +484,44 @@ function win(){if(st.over)return;st.over=true;stopClock();breakCombo();clearTime
   <p>Best on ${LAYOUTS[layoutKey].name}: ${best.score.toLocaleString('en-US')} pts · ${fmt(best.time)}${st.hints?` · ${st.hints} hint${st.hints>1?'s':''} used`:''}</p>
   <p class="tip"><span>Security tip</span>${TIPS[Math.random()*TIPS.length|0]}</p>
   <div class="btns"><button class="btn" id="again">Play again</button><button class="btn ghost" id="other">Change layout</button></div>`);
- $('again').onclick=newGame;$('other').onclick=chooser;}
+ $('again').onclick=newGame;$('other').onclick=()=>chooser();}
+
+function starRow(n,big){return `<span class="stars${big?' big':''}" aria-label="${n} ★">${[0,1,2].map(i=>`<i class="${i<n?'on':''}">★</i>`).join('')}</span>`}
+function winLevel(){const L=LEVELS[lvl];const stars=1+(st.elapsed<=L.par?1:0)+(st.elapsed<=L.par&&!st.hints?1:0);
+ const prev=lvStars[lvl]||0;if(stars>prev){lvStars[lvl]=stars;store.set('dm_lv',JSON.stringify(lvStars))}
+ const last=lvl>=LEVELS.length-1,chEnd=(lvl+1)%6===0;
+ const key='dm_best_'+layoutKey;let best={};try{best=JSON.parse(store.get(key)||'{}')}catch(e){}
+ if(!best.time||st.elapsed<best.time)best.time=st.elapsed;if(!best.score||st.score>best.score)best.score=st.score;store.set(key,JSON.stringify(best));
+ const how=stars<2?`Clear it within ${fmt(L.par)} for a second star.`:stars<3?'Clear it within par without hints for the third star.':'Perfect run.';
+ showOv(`<div class="lvtag"><span>Level ${lvl+1}</span> · <span>${CHAPTERS[L.ch].name}</span></div><h2>${LAYOUTS[L.k].name}</h2><div class="lvtag">Board cleared</div>${starRow(stars,true)}
+  <div class="row3"><div><b>${st.score.toLocaleString('en-US')}</b><span>score</span></div><div><b>${fmt(st.elapsed)}</b><span>time</span><span>par ${fmt(L.par)}</span></div><div><b>x${st.bestCombo}</b><span>best combo</span></div></div>
+  <p>${how}</p>${chEnd&&!last?`<p class="newch"><span>Chapter ${L.ch+2} unlocked</span>: <span>${CHAPTERS[L.ch+1].name}</span></p>`:''}${last?'<p class="newch">You cleared all 24 levels. Respect.</p>':''}
+  <p class="tip"><span>Security tip</span>${TIPS[Math.random()*TIPS.length|0]}</p>
+  <div class="btns">${last?'':'<button class="btn" id="nextLv">Next level</button>'}<button class="btn ghost" id="again">Replay</button><button class="btn ghost" id="other">Levels</button></div>`);
+ const n=$('nextLv');if(n)n.onclick=()=>{lvl++;newGame()};$('again').onclick=newGame;$('other').onclick=()=>chooser();}
 
 // ---- dialogs
 function showOv(h){$('ovCard').innerHTML=h;$('ov').hidden=false;const c=$('closeOv');c&&(c.onclick=closeOv);}
 function closeOv(){$('ov').hidden=true;}
 function restart(){ if(st.moves>0&&!st.over){
-  showOv(`<h2>Start a new game?</h2><p>You have cleared ${72-alive().length} of 72 tiles. This game will be lost.</p>
+  showOv(`<h2>Start a new game?</h2><p>You have cleared ${total()-alive().length} of ${total()} tiles. This game will be lost.</p>
    <div class="btns"><button class="btn" id="yes">New game</button><button class="btn ghost" id="closeOv">Keep playing</button></div>`);
   $('yes').onclick=newGame;} else newGame();}
-function chooser(){const inGame=st.moves>0&&!st.over;
- showOv(`<h2>Choose a layout</h2><p>Every layout has 72 tiles and can always be solved.${inGame?' Your current game will be lost.':''}</p>
- <div class="lays">${Object.entries(LAYOUTS).map(([k,l])=>`<button class="lay${k===layoutKey?' on':''}" data-k="${k}">${mini(l)}<span>${l.name}</span><small>${l.note}</small></button>`).join('')}</div>
+function chooser(tab){const inGame=st.moves>0&&!st.over;tab=tab||'levels';const un=unlocked();
+ const allStars=Object.values(lvStars).reduce((a,b)=>a+b,0);
+ const lvHTML=CHAPTERS.map((c,ci)=>{const ls=LEVELS.map((L,i)=>({L,i})).filter(o=>o.L.ch===ci);const got=ls.reduce((a,o)=>a+(lvStars[o.i]||0),0);
+  return `<div class="chap"><div class="chh"><b>${c.name}</b><span>${got}/18 ★</span></div><small>${c.note}</small><div class="lvs">${ls.map(({L,i})=>{const open=i<=un;
+   return `<button class="lv${mode==='level'&&i===lvl?' on':''}${open?'':' locked'}" data-i="${i}" ${open?'':'disabled'} aria-label="Level ${i+1}${open?'':' (locked)'}">${mini(LAYOUTS[L.k])}<b>${i+1}</b>${open?starRow(lvStars[i]||0):'<span class="lock">🔒</span>'}</button>`}).join('')}</div></div>`}).join('');
+ const frHTML=`<p>Play any board with no stars or par time. Every board can always be solved.</p><div class="lays">${LEVELS.map(L=>[L.k,LAYOUTS[L.k]]).map(([k,l])=>`<button class="lay${mode==='free'&&k===layoutKey?' on':''}" data-k="${k}">${mini(l)}<span>${l.name}</span><small>${l.note}</small></button>`).join('')}</div>`;
+ showOv(`<h2>${tab==='levels'?'Levels':'Free play'}</h2><div class="tabs"><button class="tb${tab==='levels'?' on':''}" id="tLv">Levels · ${allStars}/72 ★</button><button class="tb${tab==='free'?' on':''}" id="tFr">Free play</button></div>
+ ${inGame?'<p class="warn">Starting another board ends your current game.</p>':''}
+ <div class="scrollbox">${tab==='levels'?lvHTML:frHTML}</div>
  <button class="btn ghost" id="closeOv">${st.over?'Close':'Keep playing'}</button>`);
- document.querySelectorAll('.lay').forEach(b=>b.onclick=()=>{layoutKey=b.dataset.k;store.set('dm_layout',layoutKey);newGame()});}
-function mini(l){const r=[];for(const [z,y,xs] of l.rows)for(const x of xs)r.push(`<rect x="${x*5-z*1.2+2}" y="${y*3.3-z*1.2+2}" width="9" height="6" rx="1" fill="var(--ivory)" stroke="var(--edge-2)" stroke-width=".6" opacity="${.55+z*.15}"/>`);
+ $('tLv').onclick=()=>chooser('levels');$('tFr').onclick=()=>chooser('free');
+ document.querySelectorAll('.lv:not(.locked)').forEach(b=>b.onclick=()=>{mode='level';lvl=+b.dataset.i;newGame()});
+ document.querySelectorAll('.lay').forEach(b=>b.onclick=()=>{mode='free';layoutKey=b.dataset.k;store.set('dm_layout',layoutKey);newGame()});
+ const cur=document.querySelector('.lv.on');if(cur)cur.scrollIntoView({block:'center'});}
+function mini(l){const r=[];const zs=Math.max(...l.rows.map(r=>r[0]));for(const [z,y,xs] of l.rows)for(const x of xs)r.push(`<rect x="${x*5-z*1.2+2}" y="${y*3.3-z*1.2+2}" width="9" height="6" rx="1" fill="var(--ivory)" stroke="var(--edge-2)" stroke-width=".6" opacity="${.55+z*(.45/Math.max(1,zs))}"/>`);
  return `<svg viewBox="0 0 66 58" aria-hidden="true">${r.join('')}</svg>`}
 function help(){showOv(`<h2>How to play</h2>
  <p>Tap two matching tiles to clear them. A tile is free when nothing sits on top of it and its left or right side is open. The gold event tiles all match each other.</p>
@@ -472,7 +536,7 @@ $('pHint').onclick=doHint;$('pShuf').onclick=doShuffle;$('pUndo').onclick=doUndo
 $('helpBtn').onclick=help;
 const sndIcon=()=>{const b=$('sndBtn');b.innerHTML=sfx.on?SND_ON:SND_OFF;b.setAttribute('aria-label',sfx.on?'Mute sound':'Turn sound on');b.setAttribute('aria-pressed',sfx.on)};
 $('sndBtn').onclick=()=>{sfx.toggle();sndIcon()};sndIcon();
-$('layChip').onclick=chooser;
+$('layChip').onclick=()=>chooser();
 $('ov').addEventListener('click',e=>{if(e.target.id==='ov'&&!st.over)closeOv()});
 addEventListener('resize',()=>{measure();for(const t of st.tiles)place(t)});
 if(!resume())newGame();
