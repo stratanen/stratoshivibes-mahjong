@@ -169,6 +169,8 @@ h2{margin:0;font:400 18px var(--f-display);color:var(--gold);text-wrap:balance}
 .bd .out{color:var(--muted);font-size:10px}
 @media (prefers-reduced-motion:reduce){.u{transition:none}.fx,.banner.on{animation-duration:.01s}}
 </style>
+<script src="../holder.js"></script>
+<script src="../passport.js"></script>
 </head>
 <body>
 
@@ -483,6 +485,7 @@ $('spd').onclick=()=>{speed=speed===1?2:speed===2?4:1;store.set('bg_speed',speed
 $('skip').onclick=()=>{if(!bt||bt.done)return;skipping=true;while(!bt.done){for(const u of bt.A)if(u.en>=100)bt.special(u);bt.step(0.05)}drain();paint()};  // skipping fires your specials for you
 
 function endBattle(){cancelAnimationFrame(raf);const won=bt.done==='A';const s=CAMPAIGN[stageIdx];
+ try{window.SVPass&&SVPass.record(won?'bg_win':'bg_loss',{stage:stageIdx,flawless:won&&bt.A.every(u=>u.alive)})}catch(e){}
  if(won&&stageIdx===progress){progress=Math.min(CAMPAIGN.length,progress+1);store.set('bg_progress',progress)}
  const mvp=bt.A.slice().sort((a,b)=>b.dmgDone-a.dmgDone)[0];
  const alive=bt.A.filter(u=>u.alive).length;
@@ -524,7 +527,6 @@ if(!store.get('bg_seen_help')){store.set('bg_seen_help','1');help()}
 </script>
 
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('../sw.js').catch(()=>{}))}</script>
-<script src="../holder.js"></script>
 <script src="../i18n.js"></script>
 </body>
 </html>

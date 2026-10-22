@@ -96,6 +96,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .lay{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:12px;border:1px solid #ffffff1f;background:#ffffff0a;color:var(--ink);font:700 13px var(--f-body);cursor:pointer}
 .lay.on{border-color:var(--gold);background:#e3b54a1a}
 .lay svg{width:100%;max-width:90px}
+.daily{display:flex;align-items:center;gap:10px;width:100%;margin:0 0 10px;padding:10px 12px;border-radius:14px;border:1px solid #e3b54a88;background:linear-gradient(90deg,#e3b54a26,#e3b54a08);color:var(--ink);text-align:left;cursor:pointer;font:700 14px var(--f-body)}
+.daily .ic{font-size:22px}.daily small{display:block;font-weight:400;font-size:11px;color:var(--muted)}.daily .st{margin-left:auto;font-weight:800;color:var(--gold)}
 .tabs{display:flex;gap:6px;margin:0 0 10px}
 .tb{flex:1;height:36px;border-radius:99px;border:1px solid #ffffff2a;background:#ffffff0a;color:var(--muted);font:800 12px var(--f-body);cursor:pointer}
 .tb.on{background:var(--gold);color:#1a1405;border-color:var(--gold)}
@@ -183,6 +185,8 @@ a.logo:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-rad
 .hud>.chip{margin-top:0;white-space:nowrap;flex:none;margin-left:auto}
 .hud>.bars{flex:1 1 100%;order:3}
 </style>
+<script src="../holder.js"></script>
+<script src="../passport.js"></script>
 </head>
 <body>
 
@@ -265,16 +269,19 @@ const LEVELS=[['first','candle','wallet','moon','diamond','ladder'],['bridge','h
  .flatMap((ks,c)=>ks.map(k=>{const n=LAYOUTS[k].rows.reduce((a,r)=>a+r[2].length,0);return{k,ch:c,n,shuf:[3,3,2,1][c],par:Math.round(n*[3.4,3.4,3.2,3][c]/5)*5}}));
 const SND_ON='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
 const SND_OFF='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
-const SAVE_KEY='dm_save_v1', COMBO_MS=5000, PTS=100, HINT_COST=50, UNDO_COST=25, SHUFFLES=3;
+const COMBO_MS=5000, PTS=100, HINT_COST=50, UNDO_COST=25, SHUFFLES=3;
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 let layoutKey=LAYOUTS[store.get('dm_layout')]?store.get('dm_layout'):'pyramid';
+const sk=()=>mode==='daily'?'dm_save_daily':'dm_save_v1';
+const DAILY_PARAM=new URLSearchParams(location.search).has('daily')&&!!window.SVPass;
+const dailyLevel=()=>{const r=SVPass.rng('mjboard'+SVPass.today());return LEVELS[6+Math.floor(r()*18)]};
 let lvStars={};try{lvStars=JSON.parse(store.get('dm_lv')||'{}')||{}}catch(e){}
 const unlocked=()=>{let i=0;while(i<LEVELS.length-1&&lvStars[i])i++;return i};   // first level not yet cleared
 let mode=store.get('dm_mode')==='free'?'free':'level', lvl=Math.min(unlocked(),LEVELS.length-1);
 if(store.get('dm_lvl')!=null){const v=+store.get('dm_lvl');if(v>=0&&v<=unlocked())lvl=v}
 let dim=store.get('dm_dim')!=='0';
 const $=id=>document.getElementById(id);
-const st={tiles:[],sel:null,hist:[],shuf:SHUFFLES,elapsed:0,running:false,t0:0,moves:0,score:0,combo:0,bestCombo:0,lastMatch:0,hints:0,over:false};
+const st={tiles:[],sel:null,hist:[],shuf:SHUFFLES,elapsed:0,running:false,t0:0,moves:0,score:0,combo:0,bestCombo:0,lastMatch:0,hints:0,over:false,date:null};
 const total=()=>st.tiles.length||72;
 let timer=null, idleT=null, comboT=null;
 
@@ -299,34 +306,36 @@ function assign(positions,pairs,dry){
   if(ok){if(!dry)for(const [t,f] of out){t.g=f.g;t.v=f.v}return true}}
  return false;}
 
-function resetState(){stopClock();Object.assign(st,{sel:null,hist:[],shuf:SHUFFLES,elapsed:0,running:false,moves:0,score:0,combo:0,bestCombo:0,lastMatch:0,hints:0,over:false});}
+function resetState(){stopClock();Object.assign(st,{date:null,sel:null,hist:[],shuf:SHUFFLES,elapsed:0,running:false,moves:0,score:0,combo:0,bestCombo:0,lastMatch:0,hints:0,over:false});}
 function newGame(){
  resetState();
  if(mode==='level'){const L=LEVELS[lvl];layoutKey=L.k;st.shuf=L.shuf;store.set('dm_lvl',lvl)}
- store.set('dm_mode',mode);
+ if(mode==='daily'){layoutKey=dailyLevel().k;st.shuf=2;st.date=SVPass.today()}else store.set('dm_mode',mode);
+ const _rand=Math.random;if(mode==='daily')Math.random=SVPass.rng('mjdeal'+st.date);try{
  const pos=layout().map((p,i)=>({...p,i,gone:false}));
  // smaller boards use fewer kinds of tiles: whole groups of 4, plus one extra pair when needed
  const need=pos.length/2;let order=shuffleArr(GROUPS.map((g,gi)=>gi));const pairs=[];
  for(const gi of order){if(pairs.length>=need)break;const g=GROUPS[gi];
    if(g.kind==='event'){const v=shuffleArr([0,1,2,3]);pairs.push([{g:gi,v:v[0]},{g:gi,v:v[1]}]);if(pairs.length<need)pairs.push([{g:gi,v:v[2]},{g:gi,v:v[3]}])}
    else{pairs.push([{g:gi,v:0},{g:gi,v:0}]);if(pairs.length<need)pairs.push([{g:gi,v:0},{g:gi,v:0}])}}
- assign(pos,pairs);st.tiles=pos;store.del(SAVE_KEY);
+ assign(pos,pairs);st.tiles=pos;}finally{Math.random=_rand}store.del(sk());
  closeOv();hideStuck();render();updHud();armIdle();
+ if(mode==='daily')setTimeout(()=>toast(`<span>Daily challenge</span> · <span>${LAYOUTS[layoutKey].name}</span>`,true),250);
  if(mode==='level'){const L=LEVELS[lvl];setTimeout(()=>toast(`<span>Level ${lvl+1}</span> · <span>${LAYOUTS[L.k].name}</span> · <span>par ${fmt(L.par)}</span>`,true),250)}}
 
 // ---- save / resume
-function save(){ if(st.over||!st.moves){store.del(SAVE_KEY);return}
- store.set(SAVE_KEY,JSON.stringify({v:1,mode,lvl,layoutKey,tiles:st.tiles.map(t=>[t.x,t.y,t.z,t.g,t.v,t.gone?1:0]),
+function save(){ if(st.over||!st.moves){store.del(sk());return}
+ store.set(sk(),JSON.stringify({v:1,mode,lvl,date:st.date,layoutKey,tiles:st.tiles.map(t=>[t.x,t.y,t.z,t.g,t.v,t.gone?1:0]),
   hist:st.hist.map(h=>[h.a.i,h.b.i,h.score,h.combo]),shuf:st.shuf,elapsed:st.elapsed,moves:st.moves,score:st.score,bestCombo:st.bestCombo,hints:st.hints}));}
-function resume(){const raw=store.get(SAVE_KEY);if(!raw)return false;
- try{const d=JSON.parse(raw);const n=LAYOUTS[d.layoutKey]&&LAYOUTS[d.layoutKey].rows.reduce((a,r)=>a+r[2].length,0);
+function resume(){const raw=store.get(sk());if(!raw)return false;
+ try{const d=JSON.parse(raw);if(mode==='daily'&&d.date!==SVPass.today())throw 0;const n=LAYOUTS[d.layoutKey]&&LAYOUTS[d.layoutKey].rows.reduce((a,r)=>a+r[2].length,0);
   if(d.v!==1||!n||d.tiles.length!==n)throw 0;
-  resetState();layoutKey=d.layoutKey;mode=d.mode==='level'&&LEVELS[d.lvl]&&LEVELS[d.lvl].k===d.layoutKey?'level':'free';if(mode==='level')lvl=d.lvl;
+  resetState();layoutKey=d.layoutKey;if(d.mode==='daily'){mode='daily';st.date=d.date}else{mode=d.mode==='level'&&LEVELS[d.lvl]&&LEVELS[d.lvl].k===d.layoutKey?'level':'free';if(mode==='level')lvl=d.lvl;}
   st.tiles=d.tiles.map((a,i)=>({x:a[0],y:a[1],z:a[2],g:a[3],v:a[4],gone:!!a[5],i}));
   st.hist=d.hist.map(h=>({a:st.tiles[h[0]],b:st.tiles[h[1]],score:h[2],combo:h[3]}));
   Object.assign(st,{shuf:d.shuf,elapsed:d.elapsed,moves:d.moves,score:d.score,bestCombo:d.bestCombo,hints:d.hints});
   render();updHud();toast('Welcome back. Your game was restored.');armIdle();setTimeout(checkStuck,400);return true;
- }catch(e){store.del(SAVE_KEY);return false}}
+ }catch(e){store.del(sk());return false}}
 
 // ---- clock (pauses when the app is in the background)
 function startClock(){if(st.running||st.over)return;st.running=true;st.t0=Date.now()-st.elapsed*1000;
@@ -468,11 +477,14 @@ function hideStuck(){$('stuck').hidden=true;}
 function updHud(){const left=alive().length;$('sLeft').textContent=left;$('sScore').textContent=st.score.toLocaleString('en-US');
  const pct=Math.round((total()-left)/total()*100);$('progBar').style.width=pct+'%';$('prog').setAttribute('aria-valuenow',pct);
  $('nShuf').textContent=st.shuf+' left';$('pShuf').disabled=st.shuf<=0;$('pUndo').disabled=!st.hist.length;
- $('sTime').textContent=fmt(st.elapsed);const lab=mode==='level'?`Level ${lvl+1}`:LAYOUTS[layoutKey].name;$('layName').textContent=lab;$('nLay').textContent=lab;}
+ $('sTime').textContent=fmt(st.elapsed);const lab=mode==='daily'?'Daily':mode==='level'?`Level ${lvl+1}`:LAYOUTS[layoutKey].name;$('layName').textContent=lab;$('nLay').textContent=lab;}
 
 // ---- end of game
-function win(){if(st.over)return;st.over=true;stopClock();breakCombo();clearTimeout(idleT);store.del(SAVE_KEY);sfx.win();
+function win(){if(st.over)return;st.over=true;stopClock();breakCombo();clearTimeout(idleT);store.del(sk());sfx.win();
  $('combo').classList.remove('on');
+ const lvStarsNow=mode==='level'?1+(st.elapsed<=LEVELS[lvl].par?1:0)+(st.elapsed<=LEVELS[lvl].par&&!st.hints?1:0):0;
+ try{window.SVPass&&SVPass.record('mj_clear',{tiles:total(),stars:lvStarsNow,combo:st.bestCombo})}catch(e){}
+ if(mode==='daily')return winDaily();
  if(mode==='level')return winLevel();
  const key='dm_best_'+layoutKey;let best={};try{best=JSON.parse(store.get(key)||'{}')}catch(e){}
  const newTime=!best.time||st.elapsed<best.time, newScore=!best.score||st.score>best.score;
@@ -487,6 +499,13 @@ function win(){if(st.over)return;st.over=true;stopClock();breakCombo();clearTime
  $('again').onclick=newGame;$('other').onclick=()=>chooser();}
 
 function starRow(n,big){return `<span class="stars${big?' big':''}" aria-label="${n} ★">${[0,1,2].map(i=>`<i class="${i<n?'on':''}">★</i>`).join('')}</span>`}
+function winDaily(){const r=SVPass.finishDaily('mahjong',{score:st.elapsed,points:st.score},true);const best=SVPass.dailyResult('mahjong').best;
+ const faces=shuffleArr(CHARS.slice()).slice(0,5).map(c=>`<img src="${IMG[c.id]}" alt="">`).join('');
+ showOv(`<div class="win-faces">${faces}</div><div class="lvtag">Daily challenge</div><h2>${LAYOUTS[layoutKey].name}</h2><div class="lvtag">Board cleared</div>
+  <div class="row3"><div><b>${fmt(st.elapsed)}</b><span>time</span></div><div><b>${fmt(best)}</b><span>best today</span></div><div><b>${r.streak} 🔥</b><span>day streak</span></div></div>
+  <p>A new daily board arrives tomorrow. Same board for every player, so compare your time with friends.</p>
+  <div class="btns"><button class="btn" id="again">Try for a better time</button><button class="btn ghost" id="other">Levels</button></div>`);
+ $('again').onclick=newGame;$('other').onclick=()=>chooser();}
 function winLevel(){const L=LEVELS[lvl];const stars=1+(st.elapsed<=L.par?1:0)+(st.elapsed<=L.par&&!st.hints?1:0);
  const prev=lvStars[lvl]||0;if(stars>prev){lvStars[lvl]=stars;store.set('dm_lv',JSON.stringify(lvStars))}
  const last=lvl>=LEVELS.length-1,chEnd=(lvl+1)%6===0;
@@ -513,11 +532,13 @@ function chooser(tab){const inGame=st.moves>0&&!st.over;tab=tab||'levels';const 
   return `<div class="chap"><div class="chh"><b>${c.name}</b><span>${got}/18 ★</span></div><small>${c.note}</small><div class="lvs">${ls.map(({L,i})=>{const open=i<=un;
    return `<button class="lv${mode==='level'&&i===lvl?' on':''}${open?'':' locked'}" data-i="${i}" ${open?'':'disabled'} aria-label="Level ${i+1}${open?'':' (locked)'}">${mini(LAYOUTS[L.k])}<b>${i+1}</b>${open?starRow(lvStars[i]||0):'<span class="lock">🔒</span>'}</button>`}).join('')}</div></div>`}).join('');
  const frHTML=`<p>Play any board with no stars or par time. Every board can always be solved.</p><div class="lays">${LEVELS.map(L=>[L.k,LAYOUTS[L.k]]).map(([k,l])=>`<button class="lay${mode==='free'&&k===layoutKey?' on':''}" data-k="${k}">${mini(l)}<span>${l.name}</span><small>${l.note}</small></button>`).join('')}</div>`;
- showOv(`<h2>${tab==='levels'?'Levels':'Free play'}</h2><div class="tabs"><button class="tb${tab==='levels'?' on':''}" id="tLv">Levels · ${allStars}/72 ★</button><button class="tb${tab==='free'?' on':''}" id="tFr">Free play</button></div>
+ const dr=window.SVPass?SVPass.dailyResult('mahjong'):null;
+ const dailyBtn=window.SVPass?`<button class="daily" id="dly"><span class="ic">📅</span><span><b>Daily challenge</b><small><span>${LAYOUTS[dailyLevel().k].name}</span> · <span>${dr?`best ${fmt(dr.best)} ✓`:'same board for everyone today'}</span></small></span><span class="st">${SVPass.streak().now} 🔥</span></button>`:'';
+ showOv(`<h2>${tab==='levels'?'Levels':'Free play'}</h2>${dailyBtn}<div class="tabs"><button class="tb${tab==='levels'?' on':''}" id="tLv">Levels · ${allStars}/72 ★</button><button class="tb${tab==='free'?' on':''}" id="tFr">Free play</button></div>
  ${inGame?'<p class="warn">Starting another board ends your current game.</p>':''}
  <div class="scrollbox">${tab==='levels'?lvHTML:frHTML}</div>
  <button class="btn ghost" id="closeOv">${st.over?'Close':'Keep playing'}</button>`);
- $('tLv').onclick=()=>chooser('levels');$('tFr').onclick=()=>chooser('free');
+ $('tLv').onclick=()=>chooser('levels');const db=$('dly');if(db)db.onclick=()=>{if(mode==='daily'&&!st.over){closeOv();return}mode='daily';if(!resume())newGame()};$('tFr').onclick=()=>chooser('free');
  document.querySelectorAll('.lv:not(.locked)').forEach(b=>b.onclick=()=>{mode='level';lvl=+b.dataset.i;newGame()});
  document.querySelectorAll('.lay').forEach(b=>b.onclick=()=>{mode='free';layoutKey=b.dataset.k;store.set('dm_layout',layoutKey);newGame()});
  const cur=document.querySelector('.lv.on');if(cur)cur.scrollIntoView({block:'center'});}
@@ -539,10 +560,10 @@ $('sndBtn').onclick=()=>{sfx.toggle();sndIcon()};sndIcon();
 $('layChip').onclick=()=>chooser();
 $('ov').addEventListener('click',e=>{if(e.target.id==='ov'&&!st.over)closeOv()});
 addEventListener('resize',()=>{measure();for(const t of st.tiles)place(t)});
+if(DAILY_PARAM){mode='daily'}
 if(!resume())newGame();
 </script>
 
-<script src="../holder.js"></script>
 <script src="holder.js"></script>
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('../sw.js').catch(()=>{}))}</script>
 <script src="../i18n.js"></script>
