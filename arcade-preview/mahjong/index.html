@@ -159,6 +159,9 @@ header{flex-direction:column;align-items:stretch;gap:8px}
 .card{box-sizing:border-box;max-height:calc(100% - 8px);overflow:auto}
 a.logo{text-decoration:none;display:block}
 a.logo:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:6px}
+.hud{flex-wrap:wrap;row-gap:8px}
+.hud>.chip{margin-top:0;white-space:nowrap;flex:none;margin-left:auto}
+.hud>.bars{flex:1 1 100%;order:3}
 </style>
 </head>
 <body>
@@ -169,7 +172,6 @@ a.logo:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-rad
     <div class="hrow">
       <a class="logo home" href="../" aria-label="Back to the Arcade"><small class="eyebrow">‹ Arcade</small>MAHJONG</a>
       <div class="hbtns">
-        <button class="chip" id="layChip" aria-label="Change layout"><span id="layName">Pyramid</span></button>
         <button class="icon-btn" id="sndBtn" aria-label="Mute sound"></button>
         <button class="icon-btn" id="helpBtn" aria-label="How to play">?</button>
       </div>
@@ -184,6 +186,7 @@ a.logo:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-rad
         <div class="prog" role="progressbar" aria-label="Board cleared" aria-valuemin="0" aria-valuemax="100" id="prog"><i id="progBar"></i></div>
         <div class="combo-bar" aria-hidden="true"><i id="comboBar"></i></div>
       </div>
+      <button class="chip" id="layChip" aria-label="Change layout"><span id="layName">Pyramid</span></button>
     </div>
   </header>
   <div id="boardWrap">
@@ -475,6 +478,8 @@ addEventListener('resize',()=>{measure();for(const t of st.tiles)place(t)});
 if(!resume())newGame();
 </script>
 
+<script src="wallet.bundle.js"></script>
+<script src="holder.js"></script>
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('../sw.js').catch(()=>{}))}</script>
 <script src="../i18n.js"></script>
 </body>
