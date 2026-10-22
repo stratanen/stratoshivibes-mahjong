@@ -10,14 +10,12 @@
 <style>
 @font-face{font-family:"SVDisplay";src:url(../fonts/bungee-latin-400-normal.woff2) format("woff2");font-display:swap}
 @font-face{font-family:"SVDisplay";src:url(../fonts/commissioner-greek-800-normal.woff2) format("woff2");unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
-@font-face{font-family:"Commissioner";src:url(../fonts/commissioner-greek-400-normal.woff2) format("woff2");font-weight:400;unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
-@font-face{font-family:"Commissioner";src:url(../fonts/commissioner-greek-600-normal.woff2) format("woff2");font-weight:600;unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
-@font-face{font-family:"Commissioner";src:url(../fonts/commissioner-greek-800-normal.woff2) format("woff2");font-weight:800;unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
-
-@font-face{font-family:"Bungee";src:url(../fonts/bungee-latin-400-normal.woff2) format("woff2");font-display:swap}
 @font-face{font-family:"Commissioner";src:url(../fonts/commissioner-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
 @font-face{font-family:"Commissioner";src:url(../fonts/commissioner-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
 @font-face{font-family:"Commissioner";src:url(../fonts/commissioner-latin-800-normal.woff2) format("woff2");font-weight:800;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(../fonts/commissioner-greek-400-normal.woff2) format("woff2");font-weight:400;unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(../fonts/commissioner-greek-600-normal.woff2) format("woff2");font-weight:600;unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(../fonts/commissioner-greek-800-normal.woff2) format("woff2");font-weight:800;unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 a.logo{text-decoration:none;display:block}
 a.logo:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:6px}
@@ -118,6 +116,23 @@ h2{margin:0;font:400 18px var(--f-display);color:var(--gold);text-wrap:balance}
 .fx.big{font:400 22px var(--f-display);color:var(--gold)}
 .fx.ab{font:400 14px var(--f-display);color:var(--gold);animation-duration:1.3s}
 .fx.heal{color:var(--you)}.fx.miss{color:var(--muted);font-size:14px}
+.fx.sp{font:400 15px var(--f-display);color:#fff;text-shadow:0 0 12px var(--gold),0 2px 0 #000;animation-duration:1.4s}
+.spb{position:relative;width:100%;max-width:120px;height:34px;margin-top:2px;border-radius:10px;border:1px solid #e3b54a66;background:#ffffff10;color:var(--muted);font:800 10px var(--f-body);letter-spacing:.02em;overflow:hidden;cursor:pointer;padding:0 4px}
+.spb i{position:absolute;left:0;top:0;bottom:0;width:0;background:#e3b54a40;transition:width .2s linear}
+.spb span{position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.spb.ready{background:var(--gold);color:#1a1405;border-color:#fff3c4;animation:ready .8s ease-in-out infinite alternate}
+.spb.ready i{display:none}
+.spb:disabled{opacity:.35}
+.spb:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@keyframes ready{to{box-shadow:0 0 16px #e3b54acc;transform:translateY(-2px)}}
+.enb{width:100%;max-width:120px;height:4px;border-radius:9px;background:#ffffff14;overflow:hidden}.enb i{display:block;height:100%;width:0;background:#e2574c99}
+.u.foe{cursor:pointer}
+.u .aim{position:absolute;inset:0;display:none;place-items:center;font-size:56px;color:var(--gold);text-shadow:0 0 10px #000;z-index:3;pointer-events:none}
+.u.focus .aim{display:grid}
+.u.focus .pic{border-color:var(--gold);box-shadow:0 0 0 3px #e3b54a66,0 8px 16px #0008}
+.u.flare .pic{animation:flare .6s ease-out}
+@keyframes flare{0%{box-shadow:0 0 0 0 #e3b54a}40%{box-shadow:0 0 0 10px #e3b54a88}100%{box-shadow:0 0 0 0 #e3b54a00}}
+@media (prefers-reduced-motion:reduce){.spb.ready{animation:none}}
 @keyframes rise{to{transform:translate(-50%,-170%);opacity:0}}
 .log{height:22px;font-size:12px;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ctrl{display:flex;gap:8px}
@@ -203,19 +218,19 @@ h2{margin:0;font:400 18px var(--f-display);color:var(--gold);text-wrap:balance}
 // Works in the browser (global BG) and in Node (module.exports) for balance simulation.
 (function(root){
 const ROSTER={
- bull:      {name:'Bull',          rar:'Rare',      hp:108,atk:13,def:3, spd:.80,ab:'Momentum',      txt:'First hit deals double. Gains +4% attack after every hit.'},
- bear:      {name:'Bear',          rar:'Rare',      hp:128,atk:12,def:4, spd:.74,ab:'Dump',          txt:'Each hit lowers the target\'s attack by 10% (stacks 2x).'},
- whale:     {name:'Whale',         rar:'Epic',      hp:128,atk:15,def:4, spd:.50,ab:'Market Order',  txt:'Every 3rd hit deals 2.6x damage and splashes 20% to the rest of the team.'},
- diamond:   {name:'Diamond Hands', rar:'Epic',      hp:182,atk:10,def:7, spd:.62,ab:'Unbreakable',   txt:'No single hit can take more than 12% of his max HP.'},
- rugpuller: {name:'Rugpuller',     rar:'Legendary', hp:118,atk:12,def:2, spd:.80,ab:'Pull the Rug',  txt:'Once, below 50% HP: wipes all enemy buffs and hits every enemy for 22% of their max HP. Costs 15% of his own max HP.'},
- maxi:      {name:'Bitcoin Maxi',  rar:'Rare',      hp:140,atk:10,def:9, spd:.66,ab:'Never Selling', txt:'Highest defense. Survives the first lethal hit with 1 HP.'},
- degen:     {name:'Degen',         rar:'Rare',      hp:98, atk:15,def:1, spd:.92,ab:'Full Send',     txt:'Every hit rolls between 0.2x and 2.6x damage, and may hit a random enemy instead of the front.'},
- shiller:   {name:'Serial Shiller',rar:'Common',    hp:126,atk:9, def:2, spd:.86,ab:'Pump It',       txt:'Every 3rd hit also pumps the weakest ally: +50% attack for 4 hits.'},
- fudster:   {name:'Serial FUDster',rar:'Common',    hp:100,atk:10,def:2, spd:.86,ab:'Spread FUD',    txt:'Hits make the target panic: its next attack has a 60% chance to miss.'},
- crab:      {name:'Crab',          rar:'Common',    hp:150,atk:9, def:6, spd:.60,ab:'Sideways',      txt:'Reflects 35% of damage taken back to the attacker.'},
- shrimp:    {name:'Shrimp',        rar:'Common',    hp:86, atk:7, def:1, spd:1.10,ab:'Stack Sats',   txt:'Tiny but fast. Gains +0.6 attack with every hit, no limit.'},
- paperhands:{name:'Paper Hands',   rar:'Common',    hp:100,atk:15,def:1, spd:1.00,ab:'Panic Sell',   txt:'Fast and dodges 25% of hits. Below 35% HP, each hit taken has a 20% chance he flees the battle.'},
- nocoiner:  {name:'Nocoiner',      rar:'Common',    hp:116,atk:13,def:3, spd:.76,ab:'Told You So',   txt:'Deals +75% damage to enemies below 50% HP.'}
+ bull:      {name:'Bull',          rar:'Rare',      hp:108,atk:13,def:3, spd:.80,ab:'Momentum',      txt:'First hit deals double. Gains +4% attack after every hit.',sp:'Stampede',sptxt:'Your next 4 hits deal double damage.'},
+ bear:      {name:'Bear',          rar:'Rare',      hp:128,atk:12,def:4, spd:.74,ab:'Dump',          txt:'Each hit lowers the target\'s attack by 10% (stacks 2x).',sp:'Bear Raid',sptxt:'All enemies lose 30% attack for 6 seconds.'},
+ whale:     {name:'Whale',         rar:'Epic',      hp:128,atk:15,def:4, spd:.50,ab:'Market Order',  txt:'Every 3rd hit deals 2.6x damage and splashes 20% to the rest of the team.',sp:'Big Market Order',sptxt:'A 3x hit on the target that also hits everyone else for half.'},
+ diamond:   {name:'Diamond Hands', rar:'Epic',      hp:182,atk:10,def:7, spd:.62,ab:'Unbreakable',   txt:'No single hit can take more than 12% of his max HP.',sp:'HODL',sptxt:'Your whole team takes half damage for 5 seconds.'},
+ rugpuller: {name:'Rugpuller',     rar:'Legendary', hp:104,atk:12,def:2, spd:.80,ab:'Pull the Rug',  txt:'Once, below 50% HP: wipes all enemy buffs and hits every enemy for 14% of their max HP. Costs 15% of his own max HP.',sp:'Rug Pull',sptxt:'Every enemy loses 12% of max HP and all their buffs.'},
+ maxi:      {name:'Bitcoin Maxi',  rar:'Rare',      hp:140,atk:10,def:9, spd:.66,ab:'Never Selling', txt:'Highest defense. Survives the first lethal hit with 1 HP.',sp:'Laser Eyes',sptxt:'Two 2x hits that ignore defense.'},
+ degen:     {name:'Degen',         rar:'Rare',      hp:98, atk:15,def:1, spd:.92,ab:'Full Send',     txt:'Every hit rolls between 0.2x and 2.6x damage, and may hit a random enemy instead of the front.',sp:'100x Long',sptxt:'60% chance of a 4.5x hit. Otherwise he loses 8% of his own HP.'},
+ shiller:   {name:'Serial Shiller',rar:'Common',    hp:126,atk:9, def:2, spd:.86,ab:'Pump It',       txt:'Every 3rd hit also pumps the weakest ally: +50% attack for 4 hits.',sp:'Shill Thread',sptxt:'Your whole team gets +50% attack for 6 seconds.'},
+ fudster:   {name:'Serial FUDster',rar:'Common',    hp:100,atk:10,def:2, spd:.86,ab:'Spread FUD',    txt:'Hits make the target panic: its next attack has a 60% chance to miss.',sp:'FUD Storm',sptxt:'Enemy attacks miss half the time for 5 seconds.'},
+ crab:      {name:'Crab',          rar:'Common',    hp:150,atk:9, def:6, spd:.60,ab:'Sideways',      txt:'Reflects 35% of damage taken back to the attacker.',sp:'Shell Up',sptxt:'Takes half damage and reflects all of it for 4 seconds.'},
+ shrimp:    {name:'Shrimp',        rar:'Common',    hp:86, atk:7, def:1, spd:1.10,ab:'Stack Sats',   txt:'Tiny but fast. Gains +0.6 attack with every hit, no limit.',sp:'Stack Harder',sptxt:'+6 attack for the rest of the battle and heals 15%.'},
+ paperhands:{name:'Paper Hands',   rar:'Common',    hp:100,atk:15,def:1, spd:1.00,ab:'Panic Sell',   txt:'Fast and dodges 25% of hits. Below 35% HP, each hit taken has a 20% chance he flees the battle.',sp:'Panic Buy',sptxt:'Dodges everything for 2 seconds and heals 15%.'},
+ nocoiner:  {name:'Nocoiner',      rar:'Common',    hp:116,atk:13,def:3, spd:.76,ab:'Told You So',   txt:'Deals +75% damage to enemies below 50% HP.',sp:'Told You So',sptxt:'Finishes off a target below 35% HP. Otherwise a 2.6x hit that ignores defense.'}
 };
 const HP_SCALE=2.8;
 const FRONT_FOCUS=0.6;        // chance an attack goes to the front unit            // global pacing knob: battles of roughly 30-60 seconds
@@ -223,7 +238,8 @@ function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5
 
 function makeUnit(id,side,slot,mult=1){const b=ROSTER[id];const hp=Math.round(b.hp*HP_SCALE*mult);
  return{id,side,slot,name:b.name,maxHp:hp,hp,atk:b.atk*mult,def:b.def,spd:b.spd,t:0.35+slot*0.18,
-  hits:0,actions:0,firstHit:true,momentum:1,dumped:0,pump:0,panic:false,saved:false,rugged:false,stack:0,alive:true,fled:false,dmgDone:0,dmgTaken:0};}
+  hits:0,actions:0,firstHit:true,momentum:1,dumped:0,pump:0,panic:false,saved:false,rugged:false,stack:0,alive:true,fled:false,dmgDone:0,dmgTaken:0,
+  en:0,fx:{},dbl:0,wait:-1,specials:0};}
 
 function Battle(teamA,teamB,opts={}){
  const r=rng(opts.seed||Date.now());
@@ -234,25 +250,33 @@ function Battle(teamA,teamB,opts={}){
  const foes=u=>(u.side==='A'?B:A).filter(x=>x.alive);
  const mates=u=>(u.side==='A'?A:B).filter(x=>x.alive);
  const emit=(type,o)=>ev.push({type,time,...o});
- const effAtk=u=>u.atk*u.momentum*(u.pump>0?1.5:1)*Math.pow(0.90,u.dumped)+u.stack;
+ // timed effects from specials: {key:{v,until}}
+ const fxv=(u,k,d)=>{const e=u.fx[k];return e&&e.until>time?e.v:d};
+ const setfx=(u,k,v,dur)=>{u.fx[k]={v,until:time+dur}};
+ const effAtk=u=>u.atk*u.momentum*(u.pump>0?1.5:1)*Math.pow(0.90,u.dumped)*fxv(u,'atk',1)+u.stack;
+ const gain=(u,n)=>{if(u.alive)u.en=Math.min(100,u.en+n)};
+ let focus=null;
 
  function damage(src,tgt,raw,kind){
   if(!tgt.alive)return 0;
   if(tgt.id==='paperhands'&&kind!=='aoe'&&r()<0.25){emit('dodge',{u:tgt});return 0}
-  let d=Math.max(1,raw-tgt.def);
+  if(kind!=='aoe'&&kind!=='special'&&fxv(tgt,'dodge',0)){emit('dodge',{u:tgt});return 0}
+  let d=Math.max(1,raw-(kind==='pierce'?0:tgt.def));
+  d*=fxv(tgt,'taken',1);
   if(tgt.id==='diamond')d=Math.min(d,tgt.maxHp*0.12);
   if(time>40)d*=1+(time-40)*0.10;  // Liquidation cascade: damage ramps up after 40s
   d=Math.round(d);
   if(tgt.id==='maxi'&&!tgt.saved&&d>=tgt.hp){tgt.saved=true;d=tgt.hp-1;emit('ability',{u:tgt,text:'Never Selling!'})}
   tgt.hp-=d;tgt.dmgTaken+=d;if(src)src.dmgDone+=d;emit('hit',{src,u:tgt,d,kind});
-  if(tgt.id==='crab'&&src&&src.alive&&kind!=='reflect'){const back=Math.max(1,Math.round(d*0.35));src.hp-=back;emit('hit',{src:tgt,u:src,d:back,kind:'reflect'});checkDeath(src)}
+  if(kind==='hit'){gain(tgt,6);if(src)gain(src,9)}
+  if(tgt.id==='crab'&&src&&src.alive&&kind!=='reflect'){const back=Math.max(1,Math.round(d*fxv(tgt,'reflect',0.35)));src.hp-=back;emit('hit',{src:tgt,u:src,d:back,kind:'reflect'});checkDeath(src)}
   if(tgt.id==='paperhands'&&tgt.hp>0&&tgt.hp<tgt.maxHp*0.35&&r()<0.20){tgt.alive=false;tgt.fled=true;emit('flee',{u:tgt})}
   checkDeath(tgt);
   if(tgt.id==='rugpuller'&&tgt.alive&&!tgt.rugged&&tgt.hp<tgt.maxHp*0.5)rugpull(tgt);
   return d;}
  function checkDeath(u){if(u.alive&&u.hp<=0){u.hp=0;u.alive=false;emit('ko',{u})}}
  function rugpull(u){u.rugged=true;emit('ability',{u,text:'Pull the Rug!'});
-  for(const f of foes(u)){f.momentum=1;f.pump=0;f.stack=0;damage(u,f,f.maxHp*0.22+f.def,'aoe')}
+  for(const f of foes(u)){f.momentum=1;f.pump=0;f.stack=0;damage(u,f,f.maxHp*0.14+f.def,'aoe')}
   u.hp=Math.max(1,Math.round(u.hp-u.maxHp*0.15));emit('cost',{u})}
 
  function act(u){
@@ -261,14 +285,17 @@ function Battle(teamA,teamB,opts={}){
   const fs=foes(u);if(!fs.length)return;
   // Targeting: usually the front, sometimes anyone. Damage spreads, but the front still takes the most.
   let tgt=r()<FRONT_FOCUS?fs[0]:fs[Math.floor(r()*fs.length)];
+  if(u.side==='A'&&focus&&focus.alive)tgt=focus;
   if(u.id==='degen'&&r()<0.35)tgt=fs[Math.floor(r()*fs.length)];
   if(u.panic){u.panic=false;if(r()<0.6){emit('miss',{u});return}}
+  if(r()<fxv(u,'miss',0)){emit('miss',{u});return}
   let mult=1;u.hits++;
   if(u.id==='bull'&&u.firstHit){mult=2;u.firstHit=false;emit('ability',{u,text:'Charge!'})}
   if(u.id==='degen'){mult=0.2+r()*2.4;if(mult>2)emit('ability',{u,text:'Full send!'})}
   if(u.id==='nocoiner'&&tgt.hp<tgt.maxHp*0.5)mult*=1.75;
   const whaleBig=u.id==='whale'&&u.hits%3===0;
   if(whaleBig){mult*=2.6;emit('ability',{u,text:'Market Order!'})}
+  if(u.dbl>0){u.dbl--;mult*=2}
   let crit=false;if(r()<0.10){crit=true;mult*=1.5}
   const raw=effAtk(u)*mult*(0.85+r()*0.3);  // ±15% spread on every hit
   if(crit)emit('crit',{u:tgt,src:u});
@@ -280,8 +307,34 @@ function Battle(teamA,teamB,opts={}){
   if(u.id==='bear'&&tgt.alive&&tgt.dumped<2){tgt.dumped++;emit('debuff',{u:tgt,text:'Dumped'})}
   if(u.id==='fudster'&&tgt.alive){tgt.panic=true;emit('debuff',{u:tgt,text:'FUD'})}
  }
- return{A,B,all,events:ev,get time(){return time},get done(){return done},
+
+ // ---- specials: charged by fighting, fired by the player (side A) or automatically (AI)
+ function pickTarget(u){const fs=foes(u);if(!fs.length)return null;return (u.side==='A'&&focus&&focus.alive)?focus:fs[0]}
+ function special(u){if(!u.alive||u.en<100||done)return false;u.en=0;u.specials++;const sp=ROSTER[u.id].sp;emit('special',{u,text:sp});
+  const t=pickTarget(u),fs=foes(u),ms=mates(u),A0=effAtk(u);
+  switch(u.id){
+   case 'bull':u.dbl=4;break;
+   case 'bear':for(const f of fs)setfx(f,'atk',0.7,6);break;
+   case 'whale':if(t){damage(u,t,A0*3,'special');for(const o of foes(u))if(o!==t)damage(u,o,A0*1.5,'aoe')}break;
+   case 'diamond':for(const m of ms)setfx(m,'taken',0.5,5);break;
+   case 'rugpuller':for(const f of fs){f.momentum=1;f.pump=0;f.stack=0;f.dbl=0;delete f.fx.atk;delete f.fx.taken;damage(u,f,f.maxHp*0.12,'special')}break;
+   case 'maxi':if(t){damage(u,t,A0*2,'pierce');if(t.alive)damage(u,t,A0*2,'pierce')}break;
+   case 'degen':if(r()<0.6){if(t)damage(u,t,A0*4.5,'special')}else{u.hp=Math.max(1,Math.round(u.hp-u.maxHp*0.08));emit('cost',{u})}break;
+   case 'shiller':for(const m of ms)setfx(m,'atk',1.5,6);break;
+   case 'fudster':for(const f of fs)setfx(f,'miss',0.5,5);break;
+   case 'crab':setfx(u,'taken',0.5,4);setfx(u,'reflect',1,4);break;
+   case 'shrimp':u.stack+=6;u.hp=Math.min(u.maxHp,u.hp+Math.round(u.maxHp*0.15));break;
+   case 'paperhands':setfx(u,'dodge',1,2);u.hp=Math.min(u.maxHp,u.hp+Math.round(u.maxHp*0.15));break;
+   case 'nocoiner':if(t){if(t.hp<t.maxHp*0.35)damage(u,t,t.hp+t.def+99,'pierce');else damage(u,t,A0*2.6,'pierce')}break;
+  }
+  const a=A.some(x=>x.alive),b=B.some(x=>x.alive);if(!a||!b){done=a?'A':b?'B':'draw';emit('end',{winner:done})}
+  return true}
+ return{A,B,all,events:ev,get time(){return time},get done(){return done},special,
+  setFocus(u){focus=u&&u.alive&&u.side==='B'?u:null},get focus(){return focus},
   step(dt){ if(done)return; time+=dt;
+   for(const u of all){if(!u.alive)continue;gain(u,dt*(time>40?8:4));
+    // AI side (and side A when autoA is on) fires its special after a short, human-like pause
+    if(u.en>=100&&(u.side==='B'||opts.autoA)){if(u.wait<0)u.wait=0.3+r()*1.2;u.wait-=dt;if(u.wait<=0){u.wait=-1;special(u);if(done)return}}}
    for(const u of all){if(!u.alive)continue;u.t-=dt*u.spd;if(u.t<=0){u.t+=1;act(u);if(done)break}
     const a=A.some(x=>x.alive),b=B.some(x=>x.alive);
     if(!a||!b){done=a?'A':b?'B':'draw';emit('end',{winner:done});break}}
@@ -291,14 +344,14 @@ function Battle(teamA,teamB,opts={}){
 }
 // Campaign: AI teams, front to back. mult scales enemy HP and attack.
 const CAMPAIGN=[
- {name:'Group Chat',      team:['crab','shrimp','nocoiner'],      mult:0.76, intro:'A few small fish testing the waters.'},
- {name:'Telegram Raid',   team:['paperhands','shiller','fudster'],mult:0.95, intro:'Loud, fast, and easily scared.'},
- {name:'Bear Season',     team:['bear','crab','fudster'],         mult:0.94, intro:'Everything is going down. Hold the line.'},
- {name:'Leverage Night',  team:['bull','shiller','degen'],        mult:0.91, intro:'Pumped up and over-leveraged.'},
- {name:'Cold Storage',    team:['maxi','diamond','shrimp'],       mult:0.89, intro:'They never sell. Can you break them?'},
- {name:'Liquidity Crunch',team:['whale','bear','fudster'],        mult:0.99, intro:'A whale moves the market.'},
- {name:'Exit Scam',       team:['diamond','rugpuller','shiller'], mult:0.96, intro:'Watch the rug.'},
- {name:'The Market Maker',team:['whale','maxi','rugpuller'],      mult:1.09, intro:'Final boss. Everyone is exit liquidity.', boss:true}
+ {name:'Group Chat',      team:['crab','shrimp','nocoiner'],      mult:0.69, intro:'A few small fish testing the waters.'},
+ {name:'Telegram Raid',   team:['paperhands','shiller','fudster'],mult:0.80, intro:'Loud, fast, and easily scared.'},
+ {name:'Bear Season',     team:['bear','crab','fudster'],         mult:1.01, intro:'Everything is going down. Hold the line.'},
+ {name:'Leverage Night',  team:['bull','shiller','degen'],        mult:0.95, intro:'Pumped up and over-leveraged.'},
+ {name:'Cold Storage',    team:['maxi','diamond','shrimp'],       mult:0.77, intro:'They never sell. Can you break them?'},
+ {name:'Liquidity Crunch',team:['whale','bear','fudster'],        mult:1.03, intro:'A whale moves the market.'},
+ {name:'Exit Scam',       team:['diamond','rugpuller','shiller'], mult:0.85, intro:'Watch the rug.'},
+ {name:'The Market Maker',team:['whale','maxi','rugpuller'],      mult:0.99, intro:'Final boss. Everyone is exit liquidity.', boss:true}
 ];
 const api={ROSTER,CAMPAIGN,Battle,HP_SCALE};
 if(typeof module!=='undefined')module.exports=api;else root.BG=api;
@@ -324,6 +377,7 @@ const sfx=(()=>{let ctx=null,on=store.get('bg_sound')!=='0';
  return{get on(){return on},toggle(){on=!on;store.set('bg_sound',on?'1':'0');return on},
   tap(){tone(880,{d:.05,type:'triangle',v:.08})},hit(){tone(180,{d:.07,v:.05,f2:90})},big(){tone(120,{d:.18,type:'sawtooth',v:.08,f2:60})},
   ability(){tone(660,{d:.08,type:'triangle',v:.08});tone(990,{t:.07,d:.12,type:'triangle',v:.08})},ko(){tone(300,{d:.3,type:'triangle',v:.09,f2:80})},
+  special(){tone(440,{d:.08,type:'square',v:.06});tone(880,{t:.06,d:.12,type:'square',v:.06});tone(1320,{t:.12,d:.2,type:'triangle',v:.07})},
   win(){[523,659,784,1047].forEach((f,k)=>tone(f,{t:k*.1,d:.25,type:'triangle',v:.1}))},lose(){[392,330,262].forEach((f,k)=>tone(f,{t:k*.16,d:.3,type:'triangle',v:.09}))}}})();
 $('sndBtn').onclick=()=>{$('sndBtn').textContent=sfx.toggle()?'♪':'×';$('sndBtn').setAttribute('aria-label',sfx.on?'Mute sound':'Turn sound on')};
 $('sndBtn').textContent=sfx.on?'♪':'×';
@@ -365,20 +419,23 @@ function renderTeam(){
 function charInfo(id){const r=ROSTER[id];
  showOv(`<img class="big" src="${IMG[id]}" alt=""><h2 style="text-align:center">${r.name}</h2>
  <div class="stats3"><div><b>${r.hp}</b><span>HP</span></div><div><b>${r.atk}</b><span>Attack</span></div><div><b>${r.def}</b><span>Defense</span></div><div><b>${r.spd.toFixed(2)}</b><span>Speed</span></div></div>
- <div class="abbox"><span>${r.ab}</span>${r.txt}</div><p class="sub">Rarity in the Vol.1 collection: ${r.rar}. In the game every character is free to use.</p>
+ <div class="abbox"><span>${r.ab} · passive</span>${r.txt}</div><div class="abbox"><span>${r.sp} · special</span>${r.sptxt}</div><p class="sub">Rarity in the Vol.1 collection: ${r.rar}. In the game every character is free to use.</p>
  <button class="btn ghost" id="cl">Close</button>`);$('cl').onclick=closeOv;}
 $('backMap').onclick=()=>{sfx.tap();renderMap()};
 $('fight').onclick=()=>{sfx.tap();startBattle()};
 
 // ---- arena
 let bt=null,raf=0,last=0,seen=0,uEl=new Map(),cascadeShown=false,skipping=false;
-function unitHTML(u){return `<div class="u ${u.side==='B'?'foe':''}" id="u${u.side}${u.slot}">
- <div class="pic"><span class="tags"></span><img src="${IMG[u.id]}" alt=""></div>
- <div class="nm">${u.name}</div><div class="hp"><i style="width:100%"></i></div><div class="hpn">${u.hp}</div></div>`}
+function unitHTML(u){const foe=u.side==='B';return `<div class="u ${foe?'foe':''}" id="u${u.side}${u.slot}" ${foe?`role="button" tabindex="0" aria-label="Focus ${u.name}"`:''}>
+ <div class="pic"><span class="tags"></span><span class="aim" aria-hidden="true">◎</span><img src="${IMG[u.id]}" alt=""></div>
+ <div class="nm">${u.name}</div><div class="hp"><i style="width:100%"></i></div><div class="hpn">${u.hp}</div>
+ ${foe?'<div class="enb"><i></i></div>':`<button class="spb" data-slot="${u.slot}" aria-label="${ROSTER[u.id].sp}: ${ROSTER[u.id].sptxt}"><i></i><span>${ROSTER[u.id].sp}</span></button>`}</div>`}
 function startBattle(){const s=CAMPAIGN[stageIdx];
  bt=Battle(team.slice(),s.team,{seed:(Date.now()^stageIdx*7919)>>>0,multB:s.mult});
  $('sideA').innerHTML=bt.A.map(unitHTML).join('');$('sideB').innerHTML=bt.B.map(unitHTML).join('');
  uEl=new Map(bt.all.map(u=>[u,$('u'+u.side+u.slot)]));
+ document.querySelectorAll('#sideA .spb').forEach(b=>b.onclick=()=>{const u=bt.A[+b.dataset.slot];if(bt.special(u)){sfx.special()}});
+ for(const u of bt.B){const el=uEl.get(u);const f=()=>{if(!u.alive)return;bt.setFocus(bt.focus===u?null:u);sfx.tap();paint();log(bt.focus?`Your team focuses ${u.name}`:'Focus cleared')};el.onclick=f;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();f()}}}
  $('foeName').textContent=s.name;$('cascade').hidden=true;cascadeShown=false;seen=0;skipping=false;$('log').textContent='Fight!';
  $('spd').textContent='Speed '+speed+'x';show('scArena');banner('FIGHT!','var(--gold)');
  cancelAnimationFrame(raf);last=performance.now();raf=requestAnimationFrame(loop);}
@@ -391,7 +448,12 @@ function paint(){for(const u of bt.all){const el=uEl.get(u);if(!el)continue;
   el.querySelector('.hp i').style.width=Math.max(0,100*u.hp/u.maxHp)+'%';el.querySelector('.hpn').textContent=Math.max(0,Math.round(u.hp));
   const tags=[];if(u.pump>0)tags.push('<i class="p">PUMP</i>');if(u.dumped)tags.push(`<i class="d">-${u.dumped*10}%</i>`);if(u.panic)tags.push('<i class="d">FUD</i>');
   if(u.momentum>1.15)tags.push('<i class="p">+'+Math.round((u.momentum-1)*100)+'%</i>');if(u.stack>=3)tags.push('<i class="p">+'+Math.floor(u.stack)+'</i>');
-  el.querySelector('.tags').innerHTML=tags.join('')}
+  const on=k=>u.fx[k]&&u.fx[k].until>bt.time;
+  if(on('taken'))tags.push('<i class="p">HODL</i>');if(on('atk'))tags.push(u.fx.atk.v>1?'<i class="p">ATK+</i>':'<i class="d">ATK−</i>');if(on('miss'))tags.push('<i class="d">FUD</i>');if(on('dodge'))tags.push('<i class="p">DODGE</i>');if(u.dbl>0)tags.push('<i class="p">x2 ×'+u.dbl+'</i>');
+  const tg=tags.join('');if(el._tags!==tg){el.querySelector('.tags').innerHTML=tg;el._tags=tg}
+  const sb=el.querySelector('.spb');if(sb){sb.querySelector('i').style.width=u.en+'%';sb.classList.toggle('ready',u.alive&&u.en>=100);sb.disabled=!u.alive}
+  const eb=el.querySelector('.enb i');if(eb)eb.style.width=u.en+'%';
+  el.classList.toggle('focus',bt.focus===u)}
  const t=Math.floor(bt.time);$('clock').textContent=Math.floor(t/60)+':'+String(t%60).padStart(2,'0');
  if(bt.time>40&&!cascadeShown){cascadeShown=true;$('cascade').hidden=false;banner('LIQUIDATION CASCADE','var(--foe)')}}
 function center(u){const el=uEl.get(u).querySelector('.pic'),a=$('arena').getBoundingClientRect(),r=el.getBoundingClientRect();return{x:r.left-a.left+r.width/2,y:r.top-a.top+r.height/2}}
@@ -403,6 +465,7 @@ function drain(){const ev=bt.events;for(;seen<ev.length;seen++){const e=ev[seen]
     if(e.src&&e.kind==='hit'){const s=uEl.get(e.src);const c=e.src.side==='A'?'lunge-up':'lunge-down';s.classList.add(c);setTimeout(()=>s.classList.remove(c),140)}
     big?sfx.big():sfx.hit();break}
    case 'ability':fx(e.u,e.text,'ab');log(`${nm(e.u)}: ${e.text}`);sfx.ability();break;
+   case 'special':fx(e.u,e.text+'!','sp');log(`${nm(e.u)}: ${e.text}!`);if(e.u.side==='B')sfx.ability();{const el=uEl.get(e.u);el.classList.remove('flare');void el.offsetWidth;el.classList.add('flare')}break;
    case 'buff':fx(e.u,e.text,'heal');log(`${nm(e.src)} pumps ${e.u.name}`);break;
    case 'debuff':break;
    case 'crit':fx(e.u,'CRIT','ab');break;
@@ -415,7 +478,7 @@ function log(t){$('log').textContent=t}
 const nm=u=>(u.side==='B'?'Enemy ':'')+u.name;
 function banner(t,c){const b=$('banner');b.textContent=t;b.style.color=c;b.classList.remove('on');void b.offsetWidth;b.classList.add('on')}
 $('spd').onclick=()=>{speed=speed===1?2:speed===2?4:1;store.set('bg_speed',speed);$('spd').textContent='Speed '+speed+'x'};
-$('skip').onclick=()=>{if(!bt||bt.done)return;skipping=true;while(!bt.done)bt.step(0.05);drain();paint()};
+$('skip').onclick=()=>{if(!bt||bt.done)return;skipping=true;while(!bt.done){for(const u of bt.A)if(u.en>=100)bt.special(u);bt.step(0.05)}drain();paint()};  // skipping fires your specials for you
 
 function endBattle(){cancelAnimationFrame(raf);const won=bt.done==='A';const s=CAMPAIGN[stageIdx];
  if(won&&stageIdx===progress){progress=Math.min(CAMPAIGN.length,progress+1);store.set('bg_progress',progress)}
@@ -444,7 +507,9 @@ function tip(s){const t=s.team;
  return 'Order matters: the front takes the hits. Put a tank in front and your damage dealers behind.';}
 
 function help(){showOv(`<h2>How to play</h2>
- <p>Pick 3 Degens and line them up. Battles play out on their own and every Degen uses its special ability automatically.</p>
+ <p>Pick 3 Degens and line them up. They attack on their own, and their passive abilities kick in automatically.</p>
+ <p><b>SPECIAL:</b> each of your Degens has a button that fills up as it fights. Tap it when it glows to fire that Degen's special move. Timing is everything.</p>
+ <p><b>Focus:</b> tap an enemy to make your whole team attack it. Tap again to cancel.</p>
  <p><b>Front</b> takes most of the hits, so put a tank there. <b>Middle</b> and <b>Back</b> get hit less, which suits damage dealers.</p>
  <p>Every battle has some luck: who strikes first, critical hits, and damage spread. A rematch can go differently, but a smart lineup wins more often.</p>
  <p>After 40 seconds the <b>Liquidation cascade</b> starts and all damage keeps rising, so every battle ends.</p>
