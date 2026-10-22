@@ -32,6 +32,7 @@ const api={
   get address(){return st.addr||null},
   get total(){return st.total||0},
   get skr(){return st.skr||0},
+  rpc:CFG.rpc,
   get loading(){return loading},
   get status(){return st.status||''},
   owned(){return Object.assign({},st.owned)},
@@ -139,11 +140,11 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeOv()});
 
 function openPicker(){const ws=window.SVWallet?SVWallet.list():[];
   const o=ov(`<h2>Connect wallet</h2>
-  <p>Degens holders see their characters in gold in every game, with a +10% bonus. The game only reads your public address. It never asks you to sign or send anything.</p>
+  <p>Degens holders see their characters in gold in every game, with a +10% bonus. Connecting shares only your public address. The game asks your wallet to approve something only when you buy an item in the Shop.</p>
   ${ws.length?`<div class="svh-list">${ws.map((w,i)=>`<button class="svh-item" data-i="${i}"><img src="${esc(w.icon)}" alt="">
     <span>${w.mwa?'Seeker / Android wallet':esc(w.name)}<small>${w.mwa?'Seed Vault, Phantom, Solflare and more':'Browser wallet'}</small></span></button>`).join('')}</div>`
   :`<p>No wallet found. On Seeker, open the game from the dApp Store. On other phones, install a Solana wallet such as Phantom or Solflare.</p>`}
-  <p class="note">Tip: always check that a wallet request matches what you expect. This game will never request a transaction.</p>
+  <p class="note">Tip: always check that a wallet request matches what you expect. Outside the Shop, this game never asks for a transaction.</p>
   <div class="svh-btns"><button class="svh-b" data-x>Not now</button></div>`);
   o.querySelector('[data-x]').onclick=closeOv;
   o.querySelectorAll('.svh-item').forEach(b=>b.onclick=async()=>{const w=ws[+b.dataset.i];

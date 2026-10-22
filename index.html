@@ -80,6 +80,10 @@ h1{margin:0;font:400 40px/0.95 var(--f-display);color:var(--gold);text-shadow:0 
 .pass .xp{display:block;height:5px;border-radius:99px;background:#ffffff14;margin-top:6px;overflow:hidden}.pass .xp i{display:block;height:100%;background:var(--gold)}
 .pass .ps{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font:800 13px var(--f-body);flex:none}
 .pass:focus-visible,.dly:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.pass.sup{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 22px #e3b54a44}
+.shopbtn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:#ffffff08;color:var(--ink);text-align:left;cursor:pointer;font:800 14px var(--f-body)}
+.shopbtn .ic{font-size:22px}.shopbtn small{display:block;font-weight:400;font-size:11px;color:var(--muted)}.shopbtn .go{margin-left:auto;font-size:22px;color:var(--gold)}
+.shopbtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .dailies{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .dly{display:flex;align-items:center;gap:8px;padding:10px;border-radius:14px;border:1px solid var(--line);background:#ffffff08;color:var(--ink);text-decoration:none;font:800 13px var(--f-body);min-width:0}
 .dly .ic{font-size:20px;flex:none}.dly small{display:block;font-weight:400;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -99,10 +103,11 @@ footer .links{display:flex;gap:14px}
     <div class="langrow"><span class="eyebrow">StratoshiVibes</span>
       <div class="hright" data-svh-slot><div class="lang" role="group" aria-label="Language"><button id="lgEn" lang="en">EN</button><button id="lgEl" lang="el">ΕΛ</button></div></div></div>
     <h1>ARCADE</h1>
-    <p class="tag">Games starring the Vol.1 Degens. Free to play, no ads, no purchases, no tokens.</p>
+    <p class="tag">Games starring the Vol.1 Degens. Free to play, no ads. Optional extras in the Arcade Shop.</p>
     <button class="holder" id="holder" hidden></button>
     <button class="pass" id="pass" aria-label="Open your Degen Passport"></button>
     <div class="dailies" id="dailies"></div>
+    <button class="shopbtn" id="shopBtn"><span class="ic" aria-hidden="true">🛒</span><span>Arcade Shop<small>Seeker Season and the Supporter Pack</small></span><span class="go">›</span></button>
   </header>
 
   <nav class="games" aria-label="Games">
@@ -193,6 +198,7 @@ footer .links{display:flex;gap:14px}
 </script>
 <script src="holder.js"></script>
 <script src="passport.js"></script>
+<script src="shop.js"></script>
 <script>
 (function(){const H=window.SVHolder,el=document.getElementById('holder');if(!H)return;
 function paintHolder(){const ids=Object.keys(H.owned());
@@ -207,7 +213,8 @@ el.onclick=()=>H.openAccount();H.onChange(paintHolder);paintHolder();})();
   const dm=P.dailyResult('mahjong'),dr=P.dailyResult('rug');
   de.innerHTML=`<a class="dly${dm?' done':''}" href="mahjong/?daily"><span class="ic">📅</span><span>Daily Mahjong<small>${dm?`Done · best ${f(dm.best)}`:'New board today'}</small></span></a>
    <a class="dly${dr?' done':''}" href="rug/?daily"><span class="ic">📅</span><span>Daily Escape<small>${dr?`Done · ${dr.best>12?'escaped':'room '+dr.best}`:'New run today'}</small></span></a>`;}
- pe.onclick=()=>P.open();P.onChange(paint);paint();})();
+ pe.onclick=()=>P.open();P.onChange(paint);paint();
+ const sync=()=>pe.classList.toggle('sup',P.supporter);sync();if(window.SVShop){SVShop.onChange(()=>{sync();paint()});document.getElementById('shopBtn').onclick=()=>SVShop.open();if(/[?&]shop\b/.test(location.search))setTimeout(()=>SVShop.open(),300)}})();
 addEventListener('pageshow',e=>{if(e.persisted)location.reload()});
 </script>
 </body>

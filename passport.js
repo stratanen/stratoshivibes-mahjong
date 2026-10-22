@@ -58,7 +58,8 @@ const BADGES=[
  ['streak30','🗿','Never Selling','Daily streak of 30 days',()=>P.streak.best>=30],
  ['all4','🕹️','Arcade Regular','Win at least once in all 4 games',(s,c)=>(c.mj_clears>=1||s.mjCleared>=1)&&(c.bg_wins>=1||s.bg>=1)&&(c.rp_wins>=1||s.rp>=1)&&(c.rug_bosses>=1||s.erWins>=1)],
  ['holder','✨','Vol.1 Holder','Hold a StratoshiVibes Vol.1 Degen',()=>{const h=H();return !!(h&&h.total>0)}],
- ['skr','📱','Seeker','Hold SKR in your connected wallet',()=>!!skrTier()]];
+ ['skr','📱','Seeker','Hold SKR in your connected wallet',()=>!!skrTier()],
+ ['supporter','💛','Supporter','Back the Arcade with the Supporter Pack',()=>!!(window.SVShop&&SVShop.has('supporter'))]];
 
 const queue=[];let showing=false;
 function check(silent){const s=stats();let gained=0;
@@ -119,7 +120,7 @@ const api={
   badges:()=>BADGES.map(([id,ic,name,txt])=>({id,ic,name,txt,got:P.b[id]||null})),
   skrTier,record,check:()=>{if(check(true)){save();emit()}},
   today,dailyDone,dailyResult,finishDaily,rng,withSeed,img:id=>BASE+'arcade-art/tile_'+id+'.webp',
-  onChange(f){subs.add(f);return()=>subs.delete(f)}};
+  get supporter(){return sup()},onChange(f){subs.add(f);return()=>subs.delete(f)}};
 window.SVPass=api;
 // ---------- the Passport screen (opened from the Arcade lobby) ----------
 const T=t=>{const I=window.SVI18N;return I&&I.lang==='el'&&I.tr(t)||t};
@@ -153,6 +154,7 @@ function records(){const s=stats(),c=P.c,dm=dailyResult('mahjong'),dr=dailyResul
   ['Escape the Rug: furthest room',`${Math.min(s.erBest,12)}/12`],['Escapes',s.erWins],['Bosses defeated',c.rug_bosses||0],
   ['Daily challenges finished',c.dailies||0],['Best streak',`${P.streak.best||0} 🔥`],
   ['Daily Mahjong today',dm?f(dm.best):'–'],['Daily run today',dr?(dr.best>12?'escaped':`room ${dr.best}`):'–']];}
+const sup=()=>!!(window.SVShop&&SVShop.has('supporter'));
 function openPassport(){
  const l=levelOf(P.xp),r=rankOf(l),lo=xpFor(l),hi=xpFor(l+1),pct=Math.round(100*(P.xp-lo)/(hi-lo));
  const h=H(),tier=skrTier(),bs=api.badges(),got=bs.filter(b=>b.got).length;
@@ -163,7 +165,7 @@ function openPassport(){
   <div class="nm"><span id="svpName">${esc(api.name)}</span><button id="svpEdit" aria-label="Edit name">✎</button></div>
   <div class="rk">Level ${l} · ${r.name}</div><div class="svp-xp"><i style="width:${pct}%"></i></div><small>${P.xp} / ${hi} XP</small></div></div>
  <div class="svp-chips"><span class="g">${streakNow()} 🔥 day streak</span><span>🏅 ${got}/${bs.length} badges</span><span>${stats().mjStars} ★</span>
-  ${h&&h.total?`<span class="g">✨ Vol.1 Holder · ${h.total}</span>`:''}${tier?`<span class="g">📱 SKR ${tier}</span>`:''}</div>
+  ${h&&h.total?`<span class="g">✨ Vol.1 Holder · ${h.total}</span>`:''}${tier?`<span class="g">📱 SKR ${tier}</span>`:''}${sup()?'<span class="g">💛 Supporter</span>':''}</div>
  ${h&&h.address?'':'<p class="note" style="margin-top:-4px">Connect a wallet on the Arcade screen to show your Vol.1 Degens and your SKR badge.</p>'}
  ${tier?'<p class="note" style="margin-top:-4px">The SKR badge counts SKR in your wallet. SKR staked with a Guardian is not counted.</p>':''}
  <div class="svp-h">Badges</div><div class="svp-badges">${bs.map(b=>`<div class="svp-badge ${b.got?'on':'off'}"><div class="i">${b.ic}</div><b>${b.name}</b><small>${b.txt}</small></div>`).join('')}</div>
@@ -190,7 +192,7 @@ async function cardImage(){const W=1080,Hh=1350,c=document.createElement('canvas
  try{await document.fonts.load('80px Bungee');await document.fonts.load('800 40px Commissioner')}catch(e){}
  const l=levelOf(P.xp),r=rankOf(l),lo=xpFor(l),hi=xpFor(l+1);const h=H(),tier=skrTier(),bs=api.badges().filter(b=>b.got),st=stats();
  const bg=g.createRadialGradient(W/2,300,50,W/2,500,1100);bg.addColorStop(0,'#26315a');bg.addColorStop(1,'#0b0f1b');g.fillStyle=bg;g.fillRect(0,0,W,Hh);
- g.strokeStyle='#e3b54a';g.lineWidth=6;g.strokeRect(30,30,W-60,Hh-60);
+ g.strokeStyle='#e3b54a';g.lineWidth=sup()?16:6;g.strokeRect(30,30,W-60,Hh-60);
  g.textAlign='center';g.fillStyle='#aeb6d1';g.font='800 30px Commissioner, sans-serif';g.fillText('STRATOSHIVIBES ARCADE',W/2,110);
  g.fillStyle='#e3b54a';g.font='86px Bungee, Impact, sans-serif';g.fillText(T('DEGEN PASSPORT').toUpperCase(),W/2,205);
  try{const im=await loadImg(api.img(r.id));g.save();g.beginPath();g.roundRect?g.roundRect(W/2-150,260,300,300,40):g.rect(W/2-150,260,300,300);g.clip();g.fillStyle='#f4ecd8';g.fillRect(W/2-150,260,300,300);g.drawImage(im,W/2-150,260,300,300);g.restore();
@@ -201,7 +203,7 @@ async function cardImage(){const W=1080,Hh=1350,c=document.createElement('canvas
  const box=(x,y,big,small)=>{g.fillStyle='#ffffff10';g.fillRect(x,y,300,150);g.fillStyle='#fff';g.font='800 56px Commissioner, sans-serif';g.fillText(big,x+150,y+75);g.fillStyle='#9aa3c0';g.font='600 26px Commissioner, sans-serif';g.fillText(T(small),x+150,y+120)};
  box(75,790,`${streakNow()} 🔥`,'day streak');box(390,790,`${bs.length}/${BADGES.length}`,'badges');box(705,790,`${st.mjStars} ★`,'Mahjong stars');
  g.font='54px sans-serif';const icons=bs.slice(0,10).map(b=>b.ic);icons.forEach((ic,i)=>g.fillText(ic,W/2+(i-(icons.length-1)/2)*84,1040));
- const tags=[];if(h&&h.total)tags.push('Vol.1 Holder');if(tier)tags.push('SKR '+tier);
+ const tags=[];if(sup())tags.push('Supporter');if(h&&h.total)tags.push('Vol.1 Holder');if(tier)tags.push('SKR '+tier);
  if(tags.length){g.fillStyle='#e3b54a';g.font='800 36px Commissioner, sans-serif';g.fillText(tags.join('  ·  '),W/2,1130)}
  g.fillStyle='#aeb6d1';g.font='600 30px Commissioner, sans-serif';g.fillText(T('Play free on Solana Seeker'),W/2,1250);
  return await new Promise(res=>c.toBlob(res,'image/png'));}
