@@ -403,10 +403,10 @@ function openTeam(i){stageIdx=i;const s=CAMPAIGN[i];
  $('vs').innerHTML=`<span class="foes">${s.team.map(id=>`<img src="${IMG[id]}" alt="">`).join('')}</span><span><b>vs ${s.name}</b><span>${s.team.map(id=>ROSTER[id].name).join(' · ')}</span></span>`;
  renderTeam();show('scTeam');}
 function renderTeam(){
- $('slots').innerHTML=[0,1,2].map(k=>{const id=team[k];return id?`<button class="slot filled" data-k="${k}" aria-label="Remove ${ROSTER[id].name} from ${POS[k]}"><img src="${IMG[id]}" alt=""><span class="pos">${POS[k]}</span><span class="lab">${ROSTER[id].name}</span></button>`
+ $('slots').innerHTML=[0,1,2].map(k=>{const id=team[k];return id?`<button class="slot filled" data-k="${k}" data-hid="${id}" aria-label="Remove ${ROSTER[id].name} from ${POS[k]}"><img src="${IMG[id]}" alt=""><span class="pos">${POS[k]}</span><span class="lab">${ROSTER[id].name}</span></button>`
   :`<button class="slot" data-k="${k}" disabled><span class="pos">${POS[k]}</span><span class="lab" style="background:none;color:var(--muted)">Empty</span></button>`}).join('');
  $('roster').innerHTML=IDS.map(id=>{const r=ROSTER[id],k=team.indexOf(id);
-  return `<button class="rc${k>=0?' picked':''}" data-id="${id}" data-pos="${k>=0?POS[k]:''}" aria-pressed="${k>=0}">
+  return `<button class="rc${k>=0?' picked':''}" data-id="${id}" data-hid="${id}" style="--svh-t:26px" data-pos="${k>=0?POS[k]:''}" aria-pressed="${k>=0}">
    <span class="rar ${r.rar}">${r.rar}</span><img src="${IMG[id]}" alt="">
    <span class="meta"><b>${r.name}</b><span class="ab">${r.ab}</span><span class="st"><span>♥${r.hp}</span><span>⚔${r.atk}</span><span>⛨${r.def}</span></span></span>
    <span class="info" data-info="${id}" role="button" aria-label="About ${r.name}">i</span></button>`}).join('');
@@ -419,7 +419,7 @@ function renderTeam(){
 function charInfo(id){const r=ROSTER[id];
  showOv(`<img class="big" src="${IMG[id]}" alt=""><h2 style="text-align:center">${r.name}</h2>
  <div class="stats3"><div><b>${r.hp}</b><span>HP</span></div><div><b>${r.atk}</b><span>Attack</span></div><div><b>${r.def}</b><span>Defense</span></div><div><b>${r.spd.toFixed(2)}</b><span>Speed</span></div></div>
- <div class="abbox"><span>${r.ab} · passive</span>${r.txt}</div><div class="abbox"><span>${r.sp} · special</span>${r.sptxt}</div><p class="sub">Rarity in the Vol.1 collection: ${r.rar}. In the game every character is free to use.</p>
+ <div class="abbox"><span>${r.ab} · passive</span>${r.txt}</div><div class="abbox"><span>${r.sp} · special</span>${r.sptxt}</div>${window.SVHolder&&SVHolder.has(id)?'<p class="sub" style="color:var(--gold);font-weight:800">★ You hold this Degen</p>':''}<p class="sub">Rarity in the Vol.1 collection: ${r.rar}. In the game every character is free to use.</p>
  <button class="btn ghost" id="cl">Close</button>`);$('cl').onclick=closeOv;}
 $('backMap').onclick=()=>{sfx.tap();renderMap()};
 $('fight').onclick=()=>{sfx.tap();startBattle()};
@@ -427,7 +427,7 @@ $('fight').onclick=()=>{sfx.tap();startBattle()};
 // ---- arena
 let bt=null,raf=0,last=0,seen=0,uEl=new Map(),cascadeShown=false,skipping=false;
 function unitHTML(u){const foe=u.side==='B';return `<div class="u ${foe?'foe':''}" id="u${u.side}${u.slot}" ${foe?`role="button" tabindex="0" aria-label="Focus ${u.name}"`:''}>
- <div class="pic"><span class="tags"></span><span class="aim" aria-hidden="true">◎</span><img src="${IMG[u.id]}" alt=""></div>
+ <div class="pic"${foe?'':` data-hid="${u.id}"`}><span class="tags"></span><span class="aim" aria-hidden="true">◎</span><img src="${IMG[u.id]}" alt=""></div>
  <div class="nm">${u.name}</div><div class="hp"><i style="width:100%"></i></div><div class="hpn">${u.hp}</div>
  ${foe?'<div class="enb"><i></i></div>':`<button class="spb" data-slot="${u.slot}" aria-label="${ROSTER[u.id].sp}: ${ROSTER[u.id].sptxt}"><i></i><span>${ROSTER[u.id].sp}</span></button>`}</div>`}
 function startBattle(){const s=CAMPAIGN[stageIdx];
@@ -522,6 +522,7 @@ if(!store.get('bg_seen_help')){store.set('bg_seen_help','1');help()}
 </script>
 
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('../sw.js').catch(()=>{}))}</script>
+<script src="../holder.js"></script>
 <script src="../i18n.js"></script>
 </body>
 </html>

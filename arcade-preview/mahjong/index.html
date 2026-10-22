@@ -171,7 +171,7 @@ a.logo:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-rad
   <header>
     <div class="hrow">
       <a class="logo home" href="../" aria-label="Back to the Arcade"><small class="eyebrow">‹ Arcade</small>MAHJONG</a>
-      <div class="hbtns">
+      <div class="hbtns" data-svh-slot>
         <button class="icon-btn" id="sndBtn" aria-label="Mute sound"></button>
         <button class="icon-btn" id="helpBtn" aria-label="How to play">?</button>
       </div>
@@ -478,7 +478,7 @@ addEventListener('resize',()=>{measure();for(const t of st.tiles)place(t)});
 if(!resume())newGame();
 </script>
 
-<script src="wallet.bundle.js"></script>
+<script src="../holder.js"></script>
 <script src="holder.js"></script>
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('../sw.js').catch(()=>{}))}</script>
 <script src="../i18n.js"></script>
