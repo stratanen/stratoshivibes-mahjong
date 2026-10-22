@@ -1,6 +1,6 @@
 // Offline support: keeps a copy of the game on the device after the first online launch.
 // Pages load network-first (players get updates when online), everything falls back to the cache offline.
-const CACHE = 'sv-arcade-v5';
+const CACHE = 'sv-arcade-v6';
 const CORE = [
   './', './index.html', './manifest.webmanifest', './privacy.html', './terms.html',
   './mahjong/', './mahjong/index.html', './mahjong/wallet.bundle.js', './mahjong/holder.js', './battlegrounds/', './battlegrounds/index.html', './poker/', './poker/index.html', './rug/', './rug/index.html',
@@ -23,7 +23,7 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
   const isPage = req.mode === 'navigate' || req.destination === 'document';
   if (isPage) {
-    e.respondWith(fetch(req).then(res => {
+    e.respondWith(fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }).then(res => {
       const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); return res;
     }).catch(() => caches.match(req, { ignoreSearch: true }).then(r => r || caches.match('./index.html'))));
     return;
