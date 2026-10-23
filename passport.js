@@ -58,7 +58,7 @@ const BADGES=[
  ['streak30','🗿','Never Selling','Daily streak of 30 days',()=>P.streak.best>=30],
  ['all4','🕹️','Arcade Regular','Win at least once in all 4 games',(s,c)=>(c.mj_clears>=1||s.mjCleared>=1)&&(c.bg_wins>=1||s.bg>=1)&&(c.rp_wins>=1||s.rp>=1)&&(c.rug_bosses>=1||s.erWins>=1)],
  ['holder','✨','Vol.1 Holder','Hold a StratoshiVibes Vol.1 Degen',()=>{const h=H();return !!(h&&h.total>0)}],
- ['skr','📱','Seeker','Hold SKR in your connected wallet',()=>!!skrTier()],
+ ['skr','📱','SKR Holder','Hold SKR in your connected wallet',()=>!!skrTier()],
  ['supporter','💛','Supporter','Back the Arcade with the Supporter Pack',()=>!!(window.SVShop&&SVShop.has('supporter'))]];
 
 const queue=[];let showing=false;
