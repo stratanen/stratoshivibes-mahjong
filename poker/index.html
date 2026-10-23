@@ -85,6 +85,18 @@ h2{margin:0;font:400 18px var(--f-display);color:var(--gold);text-wrap:balance}
 .card.empty{background:transparent;border:2px dashed #ffffff40;box-shadow:none}
 .card.sm{--w:54px}
 .card.pick{cursor:pointer}
+.learn{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border-radius:14px;border:1px solid #e3b54a88;background:linear-gradient(90deg,#e3b54a22,#e3b54a08);color:var(--ink);text-align:left;cursor:pointer;font:800 14px var(--f-body);margin:4px 0 10px}
+.learn .ic{font-size:24px}.learn small{display:block;font-weight:400;font-size:11px;color:var(--muted)}.learn .go{margin-left:auto;color:var(--gold);font-size:22px}
+.coach{position:fixed;left:10px;right:10px;top:calc(8px + env(safe-area-inset-top,0px));z-index:40;display:flex;gap:10px;align-items:flex-start;max-width:540px;margin:0 auto;padding:10px 12px;border-radius:16px;
+ background:linear-gradient(160deg,#2a2412f2,#171d31f2);border:1px solid var(--gold);box-shadow:0 10px 30px #000b;animation:coachIn .35s ease-out}
+.coach img{width:42px;height:42px;border-radius:12px;border:2px solid var(--gold);background:var(--ivory,#f4ecd8);object-fit:cover;flex:none}
+.coach small{display:block;font:800 10px var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.coach p{margin:2px 0 0;font-size:13.5px;line-height:1.4;color:#fff}
+.coach .st{margin-left:auto;font:800 11px var(--f-body);color:var(--muted);flex:none}
+@keyframes coachIn{from{transform:translateY(-14px);opacity:0}}
+.tut-hl{animation:tutPulse 1.1s ease-in-out infinite;position:relative;z-index:2}
+@keyframes tutPulse{0%,100%{box-shadow:0 0 0 2px var(--gold),0 0 0 0 #e3b54a88}50%{box-shadow:0 0 0 2px var(--gold),0 0 0 9px #e3b54a00}}
+.bar .btn.tut-off,.card.tut-off{opacity:.35;pointer-events:none}
 .card.pick:hover{transform:translateY(-4px)}
 .card.sel{outline:3px solid var(--gold);transform:translateY(-6px)}
 .card.dim{opacity:.35}
@@ -124,6 +136,7 @@ h2{margin:0;font:400 18px var(--f-display);color:var(--gold);text-wrap:balance}
 
   <section class="screen" id="scLadder">
     <div><h2>Choose your rival</h2><p class="sub">Beat each rival to unlock the next. Points only, no money.</p></div>
+    <button class="learn" id="learnBtn"><span class="ic" aria-hidden="true">🎓</span><span><b>Learn in one hand</b><small>A coach walks you through a hand, step by step</small></span><span class="go">›</span></button>
     <div class="ladder" id="ladder"></div>
     <div class="rules"><b>Quick rules</b>
       <ol><li>Pick 1 of your 3 Degens as your hidden <b>bag</b>. Higher power wins.</li>
@@ -300,7 +313,37 @@ const ORDER=Object.keys(PERSONAS);
 const $=id=>document.getElementById(id);
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 let beaten=+(store.get('rp_beaten')||0);
-let G=null,persona=null,pick=null,busy=false;
+let G=null,persona=null,pick=null,busy=false,tut=null;
+// ---- guided first hand: a coach explains each step, the cards are fixed so the lesson always works
+// the coach's lines are written in both languages here, so the Greek reads naturally
+const TUTX={en:{
+ s1:'Each hand you get 3 Degens. The big number is their <b>power</b>. Pick your <b>bag</b>: the Degen you play this hand, hidden from your rival. Tap the <b>Whale (12)</b>, your strongest.',
+ s2:"Your bag is strong and Degen Dan can't see it. <b>Bet</b> to grow the pot. Your rival can call, raise or fold.",
+ s3:"Between the bets you may play one more Degen as a <b>trick</b>. The <b>Bear</b> lets you <b>peek</b> at your rival's bag. Tap the Bear.",
+ s4:'You saw his bag: <b>Crab (5)</b>. Your Whale (12) wins. Bet again, the final bet is <b>4</b>.',
+ s5:'<b>Showdown.</b> Both bags are shown and the higher power takes the pot. You won this one.',
+ h:"You've got it",p1:"That's a whole hand: pick a <b>bag</b>, bet, play a <b>trick</b>, bet again, showdown.",
+ p2:"Real rivals don't show their cards. Bet big with a weak bag to make them fold (a bluff), and fold when their bets look too strong."},
+el:{
+ s1:'Σε κάθε χέρι παίρνεις 3 Degens. Ο μεγάλος αριθμός είναι η <b>δύναμή</b> τους. Διάλεξε το <b>bag</b> σου: τον Degen που παίζεις σε αυτό το χέρι, κρυφό από τον αντίπαλο. Πάτα τη <b>Whale (12)</b>, τον πιο δυνατό σου.',
+ s2:'Το bag σου είναι δυνατό και ο Degen Dan δεν το βλέπει. Κάνε <b>Bet</b> για να μεγαλώσει το pot. Ο αντίπαλος μπορεί να κάνει call, raise ή fold.',
+ s3:'Ανάμεσα στα πονταρίσματα μπορείς να παίξεις έναν ακόμα Degen ως <b>trick</b>. Ο <b>Bear</b> σού επιτρέπει να <b>κρυφοκοιτάξεις</b> το bag του αντιπάλου. Πάτα τον Bear.',
+ s4:'Είδες το bag του: <b>Crab (5)</b>. Η Whale σου (12) κερδίζει. Πόνταρε ξανά, το τελικό bet είναι <b>4</b>.',
+ s5:'<b>Showdown.</b> Φαίνονται και τα δύο bags και η μεγαλύτερη δύναμη παίρνει το pot. Αυτό το κέρδισες.',
+ h:'Το έπιασες',p1:'Αυτό είναι ένα ολόκληρο χέρι: διαλέγεις <b>bag</b>, ποντάρεις, παίζεις <b>trick</b>, ποντάρεις ξανά, showdown.',
+ p2:'Οι αληθινοί αντίπαλοι δεν δείχνουν τα φύλλα τους. Πόνταρε μεγάλα με αδύναμο bag για να κάνουν fold (μπλόφα), και κάνε fold όταν τα bets τους μοιάζουν πολύ δυνατά.'}};
+const TLANG=(()=>{try{const l=localStorage.getItem('sv_lang');if(l==='el'||l==='en')return l}catch(e){}return(navigator.language||'').toLowerCase().startsWith('el')?'el':'en'})();
+const TT=k=>(TLANG==='el'?TUTX.el:TUTX.en)[k];
+const TUT={me:['whale','bear','shrimp'],ai:['crab','paperhands','shiller'],aiBag:'crab'};
+function coach(step,txt){let c=document.getElementById('coach');if(!c){c=document.createElement('div');c.id='coach';c.className='coach';c.setAttribute('role','status');document.body.appendChild(c)}
+ c.innerHTML=`<img src="${IMG.maxi}" alt=""><div><small>Coach · Bitcoin Maxi</small><p>${txt}</p></div><span class="st">${step}/5</span>`;}
+function endCoach(){const c=document.getElementById('coach');if(c)c.remove()}
+function startTutorial(){tut={step:1};persona='degen';G=Game({seed:12345});$('oppAv').src=IMG[PERSONAS.degen.card];$('oppName').textContent=PERSONAS.degen.name;$('myAv').src=IMG.maxi;show('scTable');nextHand();}
+function tutFinish(){tut=null;endCoach();store.set('rp_tut_done','1');
+ showOv(`<h2>${TT('h')}</h2><p>${TT('p1')}</p>
+ <p>${TT('p2')}</p>
+ <div class="btns"><button class="btn" id="tGo">Play Degen Dan</button><button class="btn ghost" id="tRules">All tricks</button></div>`);
+ $('tGo').onclick=()=>{closeOv();startMatch('degen')};$('tRules').onclick=help;}
 const ME=0,AI=1;
 const TRICK_LABEL={whale:'Whale Move',rug:'Pull the Rug',protect:'Hold',pump:'Pump',reveal:'Peek',wild:'Full Send',escape:'Panic Sell'};
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
@@ -349,7 +392,8 @@ function renderTable(reveal=false){const s=G.s;
  const mTrick=s.trick[ME]?cardHTML(s.trick[ME],'sm'):'';
  $('myZone').innerHTML=slot(mBag,'Your bag')+(mTrick?slot(mTrick,'Your trick'):'');
  const inHand=s.cards[ME].filter((c,i)=>{const bi=s.cards[ME].indexOf(s.bag[ME]);return i!==bi&&c!==s.trick[ME]});
- $('hand').innerHTML=s.phase==='done'?'':(s.bag[ME]?inHand:s.cards[ME]).map(id=>cardHTML(id,(s.phase==='bag'||(s.phase==='trick'&&!s._myTrickDone))?'pick':'dim')).join('');
+ const want=tut?(s.phase==='bag'?'whale':s.phase==='trick'&&!s._myTrickDone?'bear':null):null;
+ $('hand').innerHTML=s.phase==='done'?'':(s.bag[ME]?inHand:s.cards[ME]).map(id=>cardHTML(id,(s.phase==='bag'||(s.phase==='trick'&&!s._myTrickDone))?(want?(id===want?'pick tut-hl':'dim tut-off'):'pick'):'dim')).join('');
 }
 
 // ---- match flow
@@ -357,7 +401,8 @@ function startMatch(k){persona=k;const P=PERSONAS[k];G=Game({seed:(Date.now()^(k
  $('oppAv').src=IMG[P.card];$('oppName').textContent=P.name;$('myAv').src=IMG.maxi;
  show('scTable');nextHand();}
 async function nextHand(){closeOv();$('calc').innerHTML='';G.newHand();G.s._myTrickDone=false;sfx.card();
- G.setBag(AI,aiChooseBag(G,AI,persona));
+ if(tut){G.s.cards=[TUT.me.slice(),TUT.ai.slice()];G.setBag(AI,TUT.aiBag);coach(1,TT('s1'))}
+ else G.setBag(AI,aiChooseBag(G,AI,persona));
  renderTable();phase('Pick your bag: the Degen you play for this hand');
  bar([]);bindPick('bag');}
 function bindPick(kind){document.querySelectorAll('#hand .card.pick').forEach(el=>el.onclick=()=>{
@@ -371,7 +416,7 @@ async function bettingRound(k){G.startRound(k);busy=true;renderTable();
  const size=RULES.bet[k];phase(k===0?`Betting round 1 · bets are ${size}`:`Final betting · bets are ${size}`);
  while(G.s.phase==='bet'){
   const p=G.s.toAct;
-  if(p===AI){await wait(700);const a=aiAct(G,AI,persona);G.act(AI,a);say(AI,label(a,AI));if(a!=='check'&&a!=='fold')sfx.chip();renderTable();if(a==='fold')break;continue}
+  if(p===AI){await wait(700);const a=tut?(G.legal(AI).includes('check')?'check':'call'):aiAct(G,AI,persona);G.act(AI,a);say(AI,label(a,AI));if(a!=='check'&&a!=='fold')sfx.chip();renderTable();if(a==='fold')break;continue}
   const a=await myAction();G.act(ME,a);say(ME,label(a,ME));if(a!=='check'&&a!=='fold')sfx.chip();renderTable();if(a==='fold')break;
  }
  bar([]);busy=false;
@@ -380,12 +425,14 @@ function label(a,p){const s=G.s;return{check:'Check',bet:'Bet '+RULES.bet[s.roun
 function myAction(){return new Promise(res=>{const L=G.legal(ME);const owe=G.s.toCall[ME];const sz=RULES.bet[G.s.round];
  const map={check:{t:'Check'},bet:{t:'Bet '+sz},call:{t:'Call '+owe},raise:{t:'Raise to '+(owe+sz)},fold:{t:'Fold',cls:'ghost'}};
  phase(owe?`${PERSONAS[persona].name} bets. Call ${owe}, raise, or fold?`:'Your move: check or bet?');
- bar(L.map(a=>({a,t:map[a].t,cls:map[a].cls||(a==='check'?'ghost':''),fn:()=>res(a)})));})}
+ if(tut){const r=G.s.round;coach(r===0?2:4,TT(r===0?'s2':'s4'))}
+ bar(L.map(a=>({a,t:map[a].t,cls:(map[a].cls||(a==='check'?'ghost':''))+(tut?(a==='bet'?' tut-hl':' tut-off'):''),fn:()=>res(a)})));})}
 
 function trickPhase(){renderTable();phase('Play a trick? Pick one of your other Degens, or skip.');
- bar([{a:'skip',t:'No trick',cls:'ghost',fn:()=>chooseTrick(null)}]);bindPick('trick');}
+ if(tut)coach(3,TT('s3'));
+ bar([{a:'skip',t:'No trick',cls:'ghost'+(tut?' tut-off':''),fn:()=>chooseTrick(null)}]);bindPick('trick');}
 async function chooseTrick(id){G.setTrick(ME,id);G.s._myTrickDone=true;bar([]);
- const at=aiChooseTrick(G,AI,persona);G.setTrick(AI,at);
+ const at=tut?null:aiChooseTrick(G,AI,persona);G.setTrick(AI,at);
  renderTable();
  if(id&&CARDS[id].trick==='reveal'){sfx.reveal();phase(`You peeked: their bag is ${CARDS[G.s.bag[AI]].name} (power ${CARDS[G.s.bag[AI]].pow})`);await wait(1300)}
  if(at){say(AI,'Plays a trick');await wait(700)}
@@ -404,6 +451,7 @@ async function endHand(){const s=G.s,h=s.handResult;
  phase(tie?'Split pot':youWon?`You win ${h.gain[ME]} Hype`:h.folded===ME?'You folded':`${PERSONAS[persona].name} wins ${h.gain[AI]}`);
  youWon?sfx.win():tie?0:sfx.lose();
  renderTable(h.folded<0);$('oppChips').textContent=s.chips[AI];$('myChips').textContent=s.chips[ME];$('pot').textContent=0;
+ if(tut){coach(5,TT('s5'));bar([{a:'n',t:'Continue',fn:tutFinish}]);return}
  if(s.over){await wait(1200);return endMatch()}
  bar([{a:'n',t:'Next hand',fn:nextHand}]);}
 function calcText(sd){const n=k=>CARDS[sd.finalBag[k]].name;
@@ -445,8 +493,10 @@ function help(){showOv(`<h2>How to play</h2>
  <p>Everyone starts with 30 Hype. The match ends after 12 hands or when someone runs out. Hype is just points, not money.</p>
  <button class="btn ghost" id="cl">Got it</button>`);$('cl').onclick=closeOv;}
 $('helpBtn').onclick=help;
+$('learnBtn').onclick=startTutorial;
 renderLadder();
-if(!store.get('rp_seen_help')){store.set('rp_seen_help','1');help()}
+if(!store.get('rp_tut_done')&&!store.get('rp_beaten')){store.set('rp_seen_help','1');startTutorial()}
+else if(!store.get('rp_seen_help')){store.set('rp_seen_help','1');help()}
 </script>
 
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('../sw.js').catch(()=>{}))}</script>
