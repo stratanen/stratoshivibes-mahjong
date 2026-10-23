@@ -186,6 +186,43 @@ a.logo:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-rad
 .hud{flex-wrap:wrap;row-gap:8px}
 .hud>.chip{margin-top:0;white-space:nowrap;flex:none;margin-left:auto}
 .hud>.bars{flex:1 1 100%;order:3}
+
+/* ===== Neon theme: glowing HUD, tiles lit in their group colour, illustrated power-ups, animated market backdrop ===== */
+:root{--neo:#29c6ff;--neo-2:#1b7dff;--deep:#060b1d}
+body{background:radial-gradient(90% 60% at 50% 38%,#0e2150 0%,#081333 45%,var(--deep) 100%);background-color:var(--deep)}
+.bgfx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bgfx svg{position:absolute;inset:0;width:100%;height:100%}
+.app{position:relative;z-index:1}
+.coin{position:absolute;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff2b0 0%,#f6c744 30%,#d99a12 62%,#8a5a06 100%);box-shadow:0 0 18px #f6c74466,inset -3px -4px 0 #00000033,inset 3px 3px 0 #ffffff55;display:grid;place-items:center;color:#7a4b00;font:900 var(--cs,20px)/1 system-ui,sans-serif;animation:coinbob 7s ease-in-out infinite alternate}
+.coin::after{content:"₿";transform:rotate(-12deg);text-shadow:0 1px 0 #ffe9a6}
+@keyframes coinbob{from{transform:translateY(0) rotate(-8deg)}to{transform:translateY(-14px) rotate(10deg)}}
+/* logo */
+a.logo.home{font-size:26px;letter-spacing:.01em;background:linear-gradient(180deg,#fff6c9 0%,#ffd45c 38%,#f0a316 70%,#b86d00 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 #4a2a00) drop-shadow(0 0 10px #ffb42a66);display:flex;flex-direction:column}
+a.logo.home .eyebrow{-webkit-text-fill-color:#cfe9ff;color:#cfe9ff;filter:none}
+.logo .tag{display:block;font:800 9.5px var(--f-body);letter-spacing:.22em;-webkit-text-fill-color:var(--neo);color:var(--neo);margin-top:5px;text-shadow:0 0 8px #29c6ff99}
+/* HUD */
+.hud-top{border:1.5px solid var(--neo);border-radius:4px 16px 4px 16px;padding:6px 14px;background:linear-gradient(160deg,#0c1d45cc,#071233cc);box-shadow:0 0 14px #29c6ff55,inset 0 0 16px #29c6ff22}
+.stat b{font-size:20px;color:#fff;text-shadow:0 0 10px #29c6ff88}
+.stat span{color:#bfe8ff}
+.icon-btn,.chip,.svh-btn{border:1.5px solid #29c6ffaa!important;background:#0b1a40cc!important;box-shadow:0 0 10px #29c6ff44,inset 0 0 8px #29c6ff22;color:#eaf6ff}
+.chip::after{color:var(--neo)}
+.prog{background:#ffffff12}.prog i{background:linear-gradient(90deg,#1b7dff,#29c6ff,#7dffb2);box-shadow:0 0 10px #29c6ff}
+/* tiles lit in their group colour */
+.tile{box-shadow:1px 1px 0 var(--edge),2px 2px 0 var(--edge),3px 3px 0 var(--edge-2),4px 4px 0 var(--edge-2),5px 6px 8px #000000a0,0 0 12px color-mix(in srgb,color-mix(in srgb,var(--gc,#e3b54a) 60%,#fff) 60%,transparent)}
+.tile::before{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--gc,#e3b54a) 75%,#fff 10%);pointer-events:none;z-index:1}
+.tile.sel{box-shadow:0 0 0 3px #7fe3ff,0 0 0 5px #1b7dff99,0 0 24px 6px #29c6ffcc,6px 12px 16px #000000a0}
+.dim .tile.blocked{filter:brightness(.55) saturate(.65)}
+/* illustrated power-ups */
+.dock{gap:8px}
+.pw{--pc:#3fbf7a;position:relative;overflow:hidden;min-height:92px;justify-content:flex-end;padding:44px 4px 7px;border-radius:12px;border:1.5px solid var(--pc);background:linear-gradient(180deg,color-mix(in srgb,var(--pc) 16%,#081333) 0%,#070f2b 70%);box-shadow:0 0 14px color-mix(in srgb,var(--pc) 45%,transparent),inset 0 0 18px color-mix(in srgb,var(--pc) 25%,transparent);color:#fff}
+.pw b{font-size:12.5px;color:var(--pc);text-shadow:0 0 8px color-mix(in srgb,var(--pc) 80%,transparent)}
+.pw .n{color:#cfd6ea}
+.pw .art{position:absolute;left:50%;top:4px;transform:translateX(-50%);height:44px;width:auto;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--pc) 70%,transparent));pointer-events:none}
+.pw svg.art{width:40px;height:40px;top:5px}
+#pHint{--pc:#5dff7a}#pShuf{--pc:#ff5a48}#pUndo{--pc:#38b6ff}#pNew{--pc:#ffc531}
+.pw:disabled{opacity:.45}
+@media (max-height:700px){.pw{min-height:78px;padding-top:36px}.pw .art{height:34px}.pw svg.art{width:32px;height:32px}}
+@media (prefers-reduced-motion:reduce){.coin{animation:none}}
 </style>
 <script src="../holder.js"></script>
 <script src="../passport.js"></script>
@@ -194,10 +231,11 @@ a.logo:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-rad
 <body>
 
 
+<div class="bgfx" id="bgfx" aria-hidden="true"></div>
 <div class="app" id="app">
   <header>
     <div class="hrow">
-      <a class="logo home" href="../" aria-label="Back to the Arcade"><small class="eyebrow">‹ Arcade</small>MAHJONG</a>
+      <a class="logo home" href="../" aria-label="Back to the Arcade"><small class="eyebrow">‹ Arcade · StratoshiVibes</small>MAHJONG<small class="tag">PLAY · LEARN · HODL</small></a>
       <div class="hbtns" data-svh-slot>
         <button class="icon-btn" id="sndBtn" aria-label="Mute sound"></button>
         <button class="icon-btn" id="helpBtn" aria-label="How to play">?</button>
@@ -223,10 +261,10 @@ a.logo:focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-rad
     <div class="toast" id="toast" role="status"></div>
   </div>
   <div class="dock">
-    <button class="pw" id="pHint"><b>BULL RUN</b>Hint<span class="n">−50 pts</span></button>
-    <button class="pw" id="pShuf"><b>BEAR MKT</b>Shuffle<span class="n" id="nShuf"></span></button>
-    <button class="pw" id="pUndo"><b>SEC NEWS</b>Undo<span class="n">−25 pts</span></button>
-    <button class="pw" id="pNew"><b>RESTART</b>New game<span class="n" id="nLay"></span></button>
+    <button class="pw" id="pHint"><img class="art" src="../arcade-art/sp_bull.webp" alt=""><b>BULL RUN</b>Hint<span class="n">−50 pts</span></button>
+    <button class="pw" id="pShuf"><img class="art" src="../arcade-art/sp_bear.webp" alt=""><b>BEAR MKT</b>Shuffle<span class="n" id="nShuf"></span></button>
+    <button class="pw" id="pUndo"><svg class="art" viewBox="0 0 40 40" aria-hidden="true"><rect x="6" y="6" width="26" height="30" rx="3" fill="#0b2a52" stroke="#38b6ff" stroke-width="2"/><rect x="11" y="11" width="16" height="7" rx="1" fill="#38b6ff"/><path d="M11 23h16M11 27h16M11 31h10" stroke="#9fdcff" stroke-width="2" stroke-linecap="round"/><path d="M32 12h3v20a4 4 0 0 1-4 4" fill="none" stroke="#38b6ff" stroke-width="2"/></svg><b>SEC NEWS</b>Undo<span class="n">−25 pts</span></button>
+    <button class="pw" id="pNew"><svg class="art" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="15" fill="#3a2600" stroke="#ffc531" stroke-width="2.5"/><path d="M27 15a9 9 0 1 0 1.5 8" fill="none" stroke="#ffe08a" stroke-width="3" stroke-linecap="round"/><path d="M28.5 9.5v6.5h-6.5" fill="none" stroke="#ffe08a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><b>RESTART</b>New game<span class="n" id="nLay"></span></button>
   </div>
 </div>
 
@@ -363,7 +401,7 @@ function faceHTML(t){const g=GROUPS[t.g];
 function tname(t){const g=GROUPS[t.g];return g.kind==='event'?EVENTS[t.v].name+' · matches any event':g.name}
 function render(){measure();const b=$('board');b.innerHTML='';
  for(const t of st.tiles){const el=document.createElement('div');t.el=el;
-  el.className='tile'+(GROUPS[t.g].kind==='event'?' event':'')+(t.gone?' gone':'');el.innerHTML=faceHTML(t);
+  el.className='tile'+(GROUPS[t.g].kind==='event'?' event':'')+(t.gone?' gone':'');el.style.setProperty('--gc',GROUPS[t.g].c||'#e3b54a');el.innerHTML=faceHTML(t);
   el.setAttribute('role','button');el.setAttribute('aria-label',tname(t));
   place(t);el.addEventListener('click',()=>tap(t));b.appendChild(el);}
  refresh();}
@@ -569,6 +607,23 @@ $('sndBtn').onclick=()=>{sfx.toggle();sndIcon()};sndIcon();
 $('layChip').onclick=()=>chooser();
 $('ov').addEventListener('click',e=>{if(e.target.id==='ov'&&!st.over)closeOv()});
 addEventListener('resize',()=>{measure();for(const t of st.tiles)place(t)});
+// market backdrop: blockchain cubes on the left, a rising candle chart on the right, a globe grid, floating coins
+(function(){const B=document.getElementById('bgfx');if(!B)return;const W=400,H=800;let s='';
+ const pt=(cx,cy,r,i)=>{const a=Math.PI/3*i-Math.PI/2;return[cx+r*Math.cos(a),cy+r*Math.sin(a)]};
+ const cube=(cx,cy,r,o)=>{const v=[0,1,2,3,4,5].map(i=>pt(cx,cy,r,i));const d='M'+v.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L')+'Z'+[1,3,5].map(i=>`M${cx} ${cy}L${v[i][0].toFixed(1)} ${v[i][1].toFixed(1)}`).join('');
+  return `<path d="${d}" fill="none" stroke="#29c6ff" stroke-opacity="${o*.35}" stroke-width="5"/><path d="${d}" fill="#29c6ff" fill-opacity="${o*.05}" stroke="#7fe3ff" stroke-opacity="${o}" stroke-width="1.4"/>`};
+ const cubes=[[18,330,26,.9],[58,352,26,.8],[38,388,26,.7],[8,430,22,.55],[60,452,20,.5],[30,500,18,.4]];
+ s+=`<g>${cubes.map(c=>cube(...c)).join('')}<path d="M18 330L58 352L38 388L8 430M38 388L60 452L30 500" fill="none" stroke="#29c6ff" stroke-opacity=".35" stroke-width="1"/></g>`;
+ let y=640,c='';for(let i=0;i<12;i++){const x=300+i*8.5,up=i%4!==2,h=10+(i*7)%16;y-=up?16+(i%3)*4:-8;const top=Math.min(y,y+(up?h:-h)),hh=Math.max(4,h);const col=up?'#3dff7a':'#ff4d5e';
+  c+=`<line x1="${x+2.5}" x2="${x+2.5}" y1="${top-6}" y2="${top+hh+6}" stroke="${col}" stroke-opacity=".7" stroke-width="1"/><rect x="${x}" y="${top}" width="5" height="${hh}" rx="1" fill="${col}" fill-opacity=".75"/><rect x="${x-2}" y="${top-2}" width="9" height="${hh+4}" rx="2" fill="${col}" fill-opacity=".12"/>`}
+ s+=`<g>${c}</g>`;
+ let g='';for(let k=-3;k<=3;k++){g+=`<ellipse cx="350" cy="720" rx="${Math.abs(k)*16+2}" ry="95" fill="none" stroke="#29c6ff" stroke-opacity=".22"/>`}
+ for(let k=-3;k<=3;k++){const yy=720+k*28,rx=Math.sqrt(Math.max(0,95*95-(k*28)**2))*1.05;g+=`<ellipse cx="350" cy="${yy}" rx="${rx.toFixed(1)}" ry="${(rx*.12).toFixed(1)}" fill="none" stroke="#29c6ff" stroke-opacity=".18"/>`}
+ s+=`<g>${g}<circle cx="350" cy="720" r="96" fill="none" stroke="#29c6ff" stroke-opacity=".35"/></g>`;
+ let dots='';for(let i=0;i<40;i++){const x=(i*97)%400,yy=(i*173)%800,r=(i%3)*.5+.6;dots+=`<circle cx="${x}" cy="${yy}" r="${r}" fill="#9fdcff" fill-opacity="${.15+(i%4)*.08}"/>`}
+ s+=dots;
+ B.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">${s}</svg>`+
+  [[ -2,22,64,0],[86,46,30,-2],[4,74,34,-4],[88,82,26,-1]].map(([x,yy,sz,dl])=>`<div class="coin" style="left:${x}%;top:${yy}%;width:${sz}px;height:${sz}px;--cs:${Math.round(sz*.55)}px;animation-delay:${dl}s"></div>`).join('');})();
 if(DAILY_PARAM){mode='daily'}
 if(!resume())newGame();
 </script>
