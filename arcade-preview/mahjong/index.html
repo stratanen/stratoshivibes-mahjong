@@ -213,15 +213,16 @@ a.logo.home .eyebrow{-webkit-text-fill-color:#cfe9ff;color:#cfe9ff;filter:none}
 .tile.sel{box-shadow:0 0 0 3px #7fe3ff,0 0 0 5px #1b7dff99,0 0 24px 6px #29c6ffcc,6px 12px 16px #000000a0}
 .dim .tile.blocked{filter:brightness(.55) saturate(.65)}
 /* illustrated power-ups */
-.dock{gap:8px}
-.pw{--pc:#3fbf7a;position:relative;overflow:hidden;min-height:92px;justify-content:flex-end;padding:44px 4px 7px;border-radius:12px;border:1.5px solid var(--pc);background:linear-gradient(180deg,color-mix(in srgb,var(--pc) 16%,#081333) 0%,#070f2b 70%);box-shadow:0 0 14px color-mix(in srgb,var(--pc) 45%,transparent),inset 0 0 18px color-mix(in srgb,var(--pc) 25%,transparent);color:#fff}
-.pw b{font-size:12.5px;color:var(--pc);text-shadow:0 0 8px color-mix(in srgb,var(--pc) 80%,transparent)}
-.pw .n{color:#cfd6ea}
-.pw .art{position:absolute;left:50%;top:4px;transform:translateX(-50%);height:44px;width:auto;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--pc) 70%,transparent));pointer-events:none}
-.pw svg.art{width:40px;height:40px;top:5px}
+.dock{gap:6px}
+.pw{--pc:#3fbf7a;display:block;text-align:center;line-height:1.25;padding:5px 3px 6px;min-height:0;border-radius:11px;border:1.5px solid var(--pc);background:linear-gradient(180deg,color-mix(in srgb,var(--pc) 18%,#081333) 0%,#070f2b 80%);box-shadow:0 0 10px color-mix(in srgb,var(--pc) 40%,transparent),inset 0 0 12px color-mix(in srgb,var(--pc) 22%,transparent);color:#e8eefc;font-size:10.5px}
+.pw .art{display:inline-block;height:22px;width:auto;vertical-align:middle;margin-right:3px;filter:drop-shadow(0 0 4px color-mix(in srgb,var(--pc) 70%,transparent));pointer-events:none}
+.pw svg.art{width:20px;height:20px}
+.pw b{display:inline;vertical-align:middle;font-size:10.5px;color:var(--pc);text-shadow:0 0 7px color-mix(in srgb,var(--pc) 80%,transparent);white-space:nowrap}
+.pw b::after{content:"\A";white-space:pre}
+.pw .n{display:inline;color:#aeb8d4;font-size:10px}.pw .n::before{content:" · "}
 #pHint{--pc:#5dff7a}#pShuf{--pc:#ff5a48}#pUndo{--pc:#38b6ff}#pNew{--pc:#ffc531}
 .pw:disabled{opacity:.45}
-@media (max-height:700px){.pw{min-height:78px;padding-top:36px}.pw .art{height:34px}.pw svg.art{width:32px;height:32px}}
+.coin{opacity:.85}
 @media (prefers-reduced-motion:reduce){.coin{animation:none}}
 </style>
 <script src="../holder.js"></script>
@@ -235,7 +236,7 @@ a.logo.home .eyebrow{-webkit-text-fill-color:#cfe9ff;color:#cfe9ff;filter:none}
 <div class="app" id="app">
   <header>
     <div class="hrow">
-      <a class="logo home" href="../" aria-label="Back to the Arcade"><small class="eyebrow">‹ Arcade · StratoshiVibes</small>MAHJONG<small class="tag">PLAY · LEARN · HODL</small></a>
+      <a class="logo home" href="../" aria-label="Back to the Arcade"><small class="eyebrow">‹ Arcade</small>MAHJONG<small class="tag">PLAY · LEARN · HODL</small></a>
       <div class="hbtns" data-svh-slot>
         <button class="icon-btn" id="sndBtn" aria-label="Mute sound"></button>
         <button class="icon-btn" id="helpBtn" aria-label="How to play">?</button>
@@ -607,23 +608,48 @@ $('sndBtn').onclick=()=>{sfx.toggle();sndIcon()};sndIcon();
 $('layChip').onclick=()=>chooser();
 $('ov').addEventListener('click',e=>{if(e.target.id==='ov'&&!st.over)closeOv()});
 addEventListener('resize',()=>{measure();for(const t of st.tiles)place(t)});
-// market backdrop: blockchain cubes on the left, a rising candle chart on the right, a globe grid, floating coins
-(function(){const B=document.getElementById('bgfx');if(!B)return;const W=400,H=800;let s='';
- const pt=(cx,cy,r,i)=>{const a=Math.PI/3*i-Math.PI/2;return[cx+r*Math.cos(a),cy+r*Math.sin(a)]};
- const cube=(cx,cy,r,o)=>{const v=[0,1,2,3,4,5].map(i=>pt(cx,cy,r,i));const d='M'+v.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L')+'Z'+[1,3,5].map(i=>`M${cx} ${cy}L${v[i][0].toFixed(1)} ${v[i][1].toFixed(1)}`).join('');
-  return `<path d="${d}" fill="none" stroke="#29c6ff" stroke-opacity="${o*.35}" stroke-width="5"/><path d="${d}" fill="#29c6ff" fill-opacity="${o*.05}" stroke="#7fe3ff" stroke-opacity="${o}" stroke-width="1.4"/>`};
- const cubes=[[18,330,26,.9],[58,352,26,.8],[38,388,26,.7],[8,430,22,.55],[60,452,20,.5],[30,500,18,.4]];
- s+=`<g>${cubes.map(c=>cube(...c)).join('')}<path d="M18 330L58 352L38 388L8 430M38 388L60 452L30 500" fill="none" stroke="#29c6ff" stroke-opacity=".35" stroke-width="1"/></g>`;
- let y=640,c='';for(let i=0;i<12;i++){const x=300+i*8.5,up=i%4!==2,h=10+(i*7)%16;y-=up?16+(i%3)*4:-8;const top=Math.min(y,y+(up?h:-h)),hh=Math.max(4,h);const col=up?'#3dff7a':'#ff4d5e';
-  c+=`<line x1="${x+2.5}" x2="${x+2.5}" y1="${top-6}" y2="${top+hh+6}" stroke="${col}" stroke-opacity=".7" stroke-width="1"/><rect x="${x}" y="${top}" width="5" height="${hh}" rx="1" fill="${col}" fill-opacity=".75"/><rect x="${x-2}" y="${top-2}" width="9" height="${hh+4}" rx="2" fill="${col}" fill-opacity=".12"/>`}
- s+=`<g>${c}</g>`;
- let g='';for(let k=-3;k<=3;k++){g+=`<ellipse cx="350" cy="720" rx="${Math.abs(k)*16+2}" ry="95" fill="none" stroke="#29c6ff" stroke-opacity=".22"/>`}
- for(let k=-3;k<=3;k++){const yy=720+k*28,rx=Math.sqrt(Math.max(0,95*95-(k*28)**2))*1.05;g+=`<ellipse cx="350" cy="${yy}" rx="${rx.toFixed(1)}" ry="${(rx*.12).toFixed(1)}" fill="none" stroke="#29c6ff" stroke-opacity=".18"/>`}
- s+=`<g>${g}<circle cx="350" cy="720" r="96" fill="none" stroke="#29c6ff" stroke-opacity=".35"/></g>`;
- let dots='';for(let i=0;i<40;i++){const x=(i*97)%400,yy=(i*173)%800,r=(i%3)*.5+.6;dots+=`<circle cx="${x}" cy="${yy}" r="${r}" fill="#9fdcff" fill-opacity="${.15+(i%4)*.08}"/>`}
- s+=dots;
+// re-fit the board once images and fonts have loaded (the dock height can change)
+addEventListener('load',()=>{measure();for(const t of st.tiles)place(t)});
+// market backdrop: glowing blockchain cubes, a rising chart with an arrow, a globe, a Solana mark and floating coins
+(function(){const B=document.getElementById('bgfx');if(!B)return;const W=400,H=800;
+ const f=n=>n.toFixed(1);
+ const cube=(cx,cy,r,o)=>{const h=r*.866;
+  const T=[[cx,cy-r],[cx+h,cy-r/2],[cx,cy],[cx-h,cy-r/2]],Lf=[[cx-h,cy-r/2],[cx,cy],[cx,cy+r],[cx-h,cy+r/2]],Rf=[[cx,cy],[cx+h,cy-r/2],[cx+h,cy+r/2],[cx,cy+r]];
+  const P=a=>a.map(q=>f(q[0])+','+f(q[1])).join(' ');
+  return `<g opacity="${o}" filter="url(#glow)"><polygon points="${P(T)}" fill="url(#cTop)" stroke="#9ff0ff" stroke-width="1.2"/><polygon points="${P(Lf)}" fill="url(#cL)" stroke="#5fd8ff" stroke-width="1.2"/><polygon points="${P(Rf)}" fill="url(#cR)" stroke="#3fb8ff" stroke-width="1.2"/></g>`};
+ const C=[[34,300,24,.95],[86,330,20,.85],[30,372,18,.75],[76,398,22,.8],[22,452,16,.6],[64,480,14,.5],[110,276,12,.55]];
+ let s=`<defs>
+  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+  <linearGradient id="cTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fe8ff" stop-opacity=".55"/><stop offset="1" stop-color="#1b7dff" stop-opacity=".25"/></linearGradient>
+  <linearGradient id="cL" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1b7dff" stop-opacity=".45"/><stop offset="1" stop-color="#0a2a6b" stop-opacity=".35"/></linearGradient>
+  <linearGradient id="cR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0d3c8f" stop-opacity=".5"/><stop offset="1" stop-color="#061a45" stop-opacity=".4"/></linearGradient>
+  <linearGradient id="sol" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#9945FF"/><stop offset=".5" stop-color="#5f8bff"/><stop offset="1" stop-color="#14F195"/></linearGradient>
+  <linearGradient id="arw" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#1fae5a" stop-opacity="0"/><stop offset=".35" stop-color="#3dff7a" stop-opacity=".55"/><stop offset="1" stop-color="#b6ffcf"/></linearGradient>
+  <radialGradient id="halo"><stop offset="0" stop-color="#2a6bff" stop-opacity=".35"/><stop offset="1" stop-color="#2a6bff" stop-opacity="0"/></radialGradient>
+ </defs>`;
+ // soft light pools
+ s+=`<ellipse cx="200" cy="400" rx="210" ry="260" fill="url(#halo)"/><circle cx="40" cy="380" r="70" fill="#29c6ff" opacity=".10" filter="url(#soft)"/><circle cx="360" cy="560" r="80" fill="#3dff7a" opacity=".08" filter="url(#soft)"/><circle cx="330" cy="170" r="70" fill="#9945FF" opacity=".12" filter="url(#soft)"/>`;
+ // cube network
+ const lk=[[0,1],[0,2],[1,3],[2,3],[2,4],[3,5],[4,5],[1,6],[0,6]];
+ s+=`<g stroke="#5fd8ff" stroke-opacity=".45" stroke-width="1" fill="none">${lk.map(([a,b])=>`<line x1="${C[a][0]}" y1="${C[a][1]}" x2="${C[b][0]}" y2="${C[b][1]}"/>`).join('')}</g>`;
+ s+=C.map(c=>`<circle cx="${c[0]}" cy="${c[1]}" r="2" fill="#bff4ff"/>`).join('')+C.map(c=>cube(...c)).join('');
+ // rising candle chart and arrow
+ let y=650,cs='',pts=[];for(let i=0;i<13;i++){const x=292+i*8,up=i%4!==2,h=12+(i*7)%14;y-=up?15+(i%3)*4:-9;const top=y-(up?h:0),col=up?'#3dff7a':'#ff4d5e';pts.push([x+2.5,top]);
+  cs+=`<line x1="${x+2.5}" x2="${x+2.5}" y1="${top-6}" y2="${top+h+6}" stroke="${col}" stroke-opacity=".8"/><rect x="${x}" y="${top}" width="5" height="${h}" rx="1" fill="${col}" opacity=".85"/>`}
+ s+=`<g filter="url(#glow)">${cs}</g>`;
+ s+=`<path d="M262 660 C 296 640, 316 600, 338 570 S 362 500, 374 474" fill="none" stroke="url(#arw)" stroke-width="7" stroke-linecap="round" filter="url(#glow)"/><path d="M362 474 L382 452 L386 486 Z" fill="#b6ffcf" filter="url(#glow)"/>`;
+ // globe
+ let g='';for(let k=1;k<=4;k++)g+=`<ellipse cx="352" cy="740" rx="${k*22}" ry="96" fill="none"/>`;
+ for(let k=-3;k<=3;k++){const yy=740+k*28,rx=Math.sqrt(Math.max(0,96*96-(k*28)**2));g+=`<ellipse cx="352" cy="${yy}" rx="${f(rx)}" ry="${f(rx*.14)}" fill="none"/>`}
+ s+=`<g stroke="#29c6ff" stroke-opacity=".3" filter="url(#glow)">${g}<circle cx="352" cy="740" r="96" fill="#29c6ff" fill-opacity=".05" stroke-opacity=".55"/></g>`;
+ // Solana mark (three slanted bars), top right behind the level button
+ const bar=(y0,dir)=>dir>0?`M${f(0)} ${y0+14}L${12} ${y0}H${60}L${48} ${y0+14}Z`:`M0 ${y0}H48L60 ${y0+14}H12Z`;
+ s+=`<g transform="translate(318 214) scale(.9)" filter="url(#glow)" opacity=".9"><path d="${bar(0,1)}" fill="url(#sol)"/><path d="${bar(22,-1)}" fill="url(#sol)"/><path d="${bar(44,1)}" fill="url(#sol)"/></g>`;
+ // sparkles
+ for(let i=0;i<46;i++){const x=(i*97+13)%400,yy=(i*173+29)%800,r=(i%3)*.5+.6;s+=`<circle cx="${x}" cy="${yy}" r="${r}" fill="#bfe8ff" opacity="${.18+(i%4)*.1}"/>`}
  B.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">${s}</svg>`+
-  [[ -2,22,64,0],[86,46,30,-2],[4,74,34,-4],[88,82,26,-1]].map(([x,yy,sz,dl])=>`<div class="coin" style="left:${x}%;top:${yy}%;width:${sz}px;height:${sz}px;--cs:${Math.round(sz*.55)}px;animation-delay:${dl}s"></div>`).join('');})();
+  [[2,58,40,0],[86,44,30,-2],[4,82,28,-4],[90,68,22,-1],[74,92,18,-3]].map(([x,yy,sz,dl])=>`<div class="coin" style="left:${x}%;top:${yy}%;width:${sz}px;height:${sz}px;--cs:${Math.round(sz*.55)}px;animation-delay:${dl}s"></div>`).join('');})();
 if(DAILY_PARAM){mode='daily'}
 if(!resume())newGame();
 </script>
