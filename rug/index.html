@@ -429,7 +429,11 @@ function step(dt){
  // pickups
  for(const p of props){if(p.gone)continue;const d=dist(p,lead);
   if(p.reset&&d>90){p.reset=false;p.used=false}   // you can talk to them again after walking away
-  if(p.t==='coin'&&d<24){p.gone=true;run.hype+=2;sfx.coin();float(p.x,p.y-10,'+2','#e3b54a');renderHud()}
+  if(p.t==='coin'){
+   // coins fly to the party: from close by at any time, and from anywhere once the room is clear
+   const near=alive(party).reduce((m,u)=>Math.min(m,dist(p,u)),1e9);
+   if(near<95||roomCleared){p.v=Math.min(520,(p.v||120)+900*dt);const dx=lead.x-p.x,dy=(lead.y-6)-p.y,dd=Math.hypot(dx,dy)||1;const st=Math.min(dd,p.v*dt);p.x+=dx/dd*st;p.y+=dy/dd*st}
+   if(dist(p,lead)<32||near<22){p.gone=true;run.hype+=2;sfx.coin();float(p.x,p.y-10,'+2','#e3b54a');renderHud()}}
   if((p.t==='chest'||p.t==='npc')&&d<40&&!p.used){p.used=true;target=null;pdown=false;p.shop?openShop(p):openEvent(p)}
   if(p.t==='shrine'&&d<36&&!p.used){p.used=true;healParty();p.gone=true}
   if(p.t==='cage'&&d<40&&!p.used){p.used=true;target=null;pdown=false;openRecruit(p)}}
