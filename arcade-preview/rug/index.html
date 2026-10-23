@@ -85,6 +85,13 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 <script src="../holder.js"></script>
 <script src="../passport.js"></script>
 <script src="../shop.js"></script>
+<link rel="stylesheet" href="../neon-games.css">
+<style>/* neon theme: game-specific */
+.pick,.up{border:1.5px solid #00e5ff55!important;background:#0b1a40d9!important}
+.pick.on{border-color:#B6FF3B!important;box-shadow:0 0 14px #b6ff3b66}
+.pump{box-shadow:0 0 18px #ffc53177,0 6px 18px #000a}
+#stage{border-radius:14px;box-shadow:0 0 0 1.5px #00e5ff66,0 0 18px #00e5ff33}
+</style>
 </head>
 <body>
 
@@ -656,6 +663,8 @@ if(!store.get('er2_seen_help')){store.set('er2_seen_help','1');setTimeout(()=>{h
 </script>
 
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('../sw.js').catch(()=>{}))}</script>
+<script src="../neon.js"></script>
+<script>SVNeon.backdrop({sol:[26,690,.6],coins:[],opacity:.45})</script>
 <script src="../i18n.js"></script>
 </body>
 </html>
