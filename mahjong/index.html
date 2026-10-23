@@ -239,6 +239,18 @@ a.logo.home .eyebrow{-webkit-text-fill-color:#cfe9ff;color:#cfe9ff;filter:none}
 @keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
 #tTime.warn,.stat.warn b{color:#FF9F43;text-shadow:0 0 10px #ff9f4388}
 @media (prefers-reduced-motion:reduce){.pwfx,.coinrain,.ring{display:none}}
+
+/* evaluation pass 2: free tiles pop, blocked tiles recede, a real progress bar, quieter backdrop */
+.dim .tile.blocked{filter:brightness(.5) saturate(.6)}
+.dim .tile.blocked::before{box-shadow:none}
+.dim .tile:not(.blocked):not(.gone){filter:brightness(1.07) saturate(1.08)}
+.dim .tile:not(.blocked):not(.gone)::before{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--gc,#e3b54a) 80%,#fff 20%),inset 0 0 10px color-mix(in srgb,var(--gc,#e3b54a) 35%,transparent)}
+.dim .tile:not(.blocked):not(.gone):not(.sel){box-shadow:1px 1px 0 var(--edge),2px 2px 0 var(--edge),3px 3px 0 var(--edge-2),4px 4px 0 var(--edge-2),5px 6px 8px #000000a0,0 0 14px color-mix(in srgb,color-mix(in srgb,var(--gc,#e3b54a) 60%,#fff) 75%,transparent)}
+.prog{height:8px;background:#0b1a40;border:1px solid #00e5ff44;box-shadow:inset 0 0 6px #000}
+.prog i{background:linear-gradient(90deg,#00E5FF,#9B5CFF);box-shadow:0 0 10px #00e5ffaa}
+.combo-bar{background:transparent}.combo-bar i{background:linear-gradient(90deg,#B6FF3B,#5dff7a);box-shadow:0 0 8px #b6ff3b}
+.bgfx svg{opacity:.55}.bgfx .coin{opacity:.6;box-shadow:0 0 8px #f6c74433,inset -3px -4px 0 #00000033,inset 3px 3px 0 #ffffff55}
+.pw:disabled{opacity:.38;filter:grayscale(.7);box-shadow:none}
 @media (prefers-reduced-motion:reduce){.coin{animation:none}}
 </style>
 <script src="../holder.js"></script>
