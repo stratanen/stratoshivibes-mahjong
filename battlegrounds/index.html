@@ -191,6 +191,21 @@ h2{margin:0;font:400 18px var(--f-display);color:var(--gold);text-wrap:balance}
 <script src="../holder.js"></script>
 <script src="../passport.js"></script>
 <script src="../shop.js"></script>
+<link rel="stylesheet" href="../neon-games.css">
+<style>/* neon theme: game-specific */
+.card{background:linear-gradient(170deg,#0e2150f2,#070f2bf2)!important;border:1.5px solid #00e5ffaa!important;box-shadow:0 0 24px #00e5ff33,0 20px 50px #000a!important}
+.stage{border:1.5px solid #00e5ff55;background:#0b1a40e6;box-shadow:0 0 10px #00e5ff1f}
+.stage.next{border-color:#ffc531;background:linear-gradient(90deg,#3a2a00aa,#0b1a40b3);box-shadow:0 0 16px #ffc53155}
+.stage.boss{border-color:#ff5a48aa;box-shadow:0 0 14px #ff5a4844}
+.rc,.slot{border:1.5px solid #00e5ff55!important;background:#0b1a40d9!important}
+.rc.picked{border-color:#B6FF3B!important;box-shadow:0 0 14px #b6ff3b66}
+.dcard{background:linear-gradient(170deg,#10265ae6,#081333f0);box-shadow:0 0 18px #3dff7a55,0 10px 24px #0009}
+.dside.foe .dcard{box-shadow:0 0 18px #ff5a4855,0 10px 24px #0009}
+.mv{border:1.5px solid #00e5ff77;background:linear-gradient(180deg,#0e2150d9,#070f2bd9);box-shadow:0 0 10px #00e5ff2a}
+.mv.sp{border-color:#b98cff;box-shadow:0 0 12px #9b5cff55}.mv.sp b{color:#d4b8ff}
+.evbar{border:1.5px solid #00e5ff66;background:#0b1a40cc;box-shadow:0 0 12px #00e5ff26}
+.swi{border-color:#00e5ff55!important}
+</style>
 </head>
 <body>
 
@@ -715,6 +730,8 @@ if(!store.get('bg_seen_help')){store.set('bg_seen_help','1');help()}
 </script>
 
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('../sw.js').catch(()=>{}))}</script>
+<script src="../neon.js"></script>
+<script>SVNeon.backdrop({sol:[26,690,.6],coins:[[88,40,24,-2],[3,70,22,-4]],opacity:.5})</script>
 <script src="../i18n.js"></script>
 </body>
 </html>

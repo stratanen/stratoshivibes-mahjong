@@ -94,6 +94,35 @@ footer a{color:var(--muted)}
 footer .links{display:flex;gap:14px}
 @media (prefers-reduced-motion:no-preference){.cab:not(.soon) .art{animation:float 4s ease-in-out infinite}.cab:nth-child(2) .art{animation-delay:-2s}}
 @keyframes float{50%{transform:translateY(-3px)}}
+/* ===== Neon theme (matches Mahjong): navy + gold + cyan, each game cabinet lit in its own colour ===== */
+:root{--neo:#00E5FF;--deep:#060b1d}
+body{background:radial-gradient(90% 60% at 50% 30%,#0e2150 0%,#081333 45%,var(--deep) 100%);background-color:var(--deep)}
+.wrap{position:relative;z-index:1}
+h1{font-size:46px;background:linear-gradient(180deg,#fff6c9 0%,#ffd45c 38%,#f0a316 70%,#b86d00 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 3px 0 #4a2a00) drop-shadow(0 0 14px #ffb42a66)}
+.motto{font:800 10.5px var(--f-body);letter-spacing:.24em;color:var(--neo);text-shadow:0 0 8px #00e5ff99;margin-top:-2px}
+.eyebrow{color:#cfe9ff}
+.tag{color:#b9c4e0}
+.lang{border:1.5px solid #00e5ff88;box-shadow:0 0 10px #00e5ff33}
+.lang button[aria-pressed="true"]{background:var(--neo);color:#03202a}
+.svh-btn{border:1.5px solid #00e5ffaa!important;background:#0b1a40cc!important;box-shadow:0 0 10px #00e5ff44;color:#eaf6ff!important}
+.pass{border:1.5px solid #00e5ffaa;background:linear-gradient(150deg,#0e2150cc,#071233cc);box-shadow:0 0 16px #00e5ff33,inset 0 0 18px #00e5ff14}
+.pass small{color:var(--neo);text-shadow:0 0 6px #00e5ff88}
+.pass img{border-color:var(--neo)}
+.pass .xp i{background:linear-gradient(90deg,#1b7dff,#00E5FF,#B6FF3B);box-shadow:0 0 8px #00e5ff}
+.pass.sup{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 22px #e3b54a55}
+.dly{border:1.5px solid #9B5CFF88;background:linear-gradient(160deg,#1c1450cc,#0a1033cc);box-shadow:0 0 12px #9b5cff33}
+.dly.done{border-color:#B6FF3B99;box-shadow:0 0 12px #b6ff3b33}.dly.done small{color:#B6FF3B}
+.shopbtn{border:1.5px solid #ffc531aa;background:linear-gradient(90deg,#3a2a0099,#0a1033cc);box-shadow:0 0 14px #ffc53133}
+.shopbtn .go{color:#ffc531;text-shadow:0 0 8px #ffc531}
+.holder{border:1.5px solid #ffc531aa;box-shadow:0 0 12px #ffc53133}
+.cab{--cc:#ffc531;border:1.5px solid var(--cc);background:linear-gradient(160deg,color-mix(in srgb,var(--cc) 14%,#0c1a42cc) 0%,#070f2bcc 75%);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);box-shadow:0 0 16px color-mix(in srgb,var(--cc) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--cc) 14%,transparent)}
+.cab h2{color:var(--cc);text-shadow:0 0 10px color-mix(in srgb,var(--cc) 70%,transparent)}
+.cab .play{background:var(--cc);color:#08101f;box-shadow:0 0 12px color-mix(in srgb,var(--cc) 70%,transparent)}
+.cab .status{color:#B6FF3B}
+.cab:nth-child(1){--cc:#ffc531}.cab:nth-child(2){--cc:#ff5a48}.cab:nth-child(3){--cc:#b98cff}.cab:nth-child(4){--cc:#5dff7a}
+.t{box-shadow:1px 1px 0 var(--edge),2px 2px 0 var(--edge),3px 3px 0 var(--edge-2),4px 5px 10px #0009,0 0 12px #00e5ff44}
+.card{border-color:#b98cff;color:#b98cff;box-shadow:0 0 12px #9b5cff66;background:linear-gradient(150deg,#2a1d60,#120f30)}
+footer{position:relative;z-index:1}
 </style>
 </head>
 <body>
@@ -104,6 +133,7 @@ footer .links{display:flex;gap:14px}
     <div class="langrow"><span class="eyebrow">StratoshiVibes</span>
       <div class="hright" data-svh-slot><div class="lang" role="group" aria-label="Language"><button id="lgEn" lang="en">EN</button><button id="lgEl" lang="el">ΕΛ</button></div></div></div>
     <h1>ARCADE</h1>
+    <div class="motto">PLAY · LEARN · HODL</div>
     <p class="tag">Games starring the Vol.1 Degens. Free to play, no ads. Optional extras in the Arcade Shop.</p>
     <button class="holder" id="holder" hidden></button>
     <button class="pass" id="pass" aria-label="Open your Degen Passport"></button>
@@ -191,6 +221,8 @@ footer .links{display:flex;gap:14px}
 </script>
 
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}</script>
+<script src="neon.js"></script>
+<script>SVNeon.backdrop({sol:[300,72,.75],coins:[[88,30,30,-2],[2,52,26,-4],[90,74,22,-1],[6,90,20,-3]],opacity:.6})</script>
 <script src="i18n.js"></script>
 <script>
 (function(){const en=document.getElementById('lgEn'),el=document.getElementById('lgEl');
