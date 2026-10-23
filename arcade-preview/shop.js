@@ -11,8 +11,8 @@ const CFG={
   mints:{SOL:'So11111111111111111111111111111111111111112',SKR:'SKRbvo6Gf7GondiT3BbTfuRDPqLWei4j2Qy2NPGZhW3',USDC:'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'}
 };
 const PRODUCTS=[
-  {id:'season',ic:'🀄',name:'Seeker Season',usd:1.99,txt:'Mahjong chapter 5: six bigger boards, up to 84 tiles and four layers high.',gives:['season']},
-  {id:'supporter',ic:'💛',name:'Supporter Pack',usd:4.99,txt:'Seeker Season, gold Mahjong tiles, a Supporter badge and a gold Passport frame. Thank you for backing the Arcade.',gives:['season','gold_tiles','supporter']}
+  {id:'season',ic:'🀄',name:'Moon Season',usd:1.99,txt:'Mahjong chapter 5: six bigger boards, up to 84 tiles and four layers high.',gives:['season']},
+  {id:'supporter',ic:'💛',name:'Supporter Pack',usd:4.99,txt:'Moon Season, gold Mahjong tiles, a Supporter badge and a gold Passport frame. Thank you for backing the Arcade.',gives:['season','gold_tiles','supporter']}
 ];
 const KEY='sv_shop';
 const BASE=(document.currentScript&&document.currentScript.src||location.href).replace(/[^/]*$/,'');
