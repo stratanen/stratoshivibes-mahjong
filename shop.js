@@ -73,10 +73,13 @@ function ov(html){document.querySelectorAll('.svh-ov.sh').forEach(o=>o.remove())
   o.innerHTML=`<div class="svh-box" role="dialog" aria-modal="true" aria-label="Shop">${html}</div>`;o.addEventListener('click',e=>{if(e.target===o&&!o.dataset.busy)o.remove()});document.body.appendChild(o);return o}
 const close=()=>document.querySelectorAll('.svh-ov.sh').forEach(o=>o.remove());
 
+// Wallets flag transfers requested from *.github.io as a scam site, so payments run only on the Arcade's own domain.
+const PAY_OK=/^(arcade\.stratoshivibes\.com|localhost|127\.0\.0\.1)$/.test(location.hostname);
 function openShop(){const o=ov(`<h2>Arcade Shop</h2>
   <p>Optional extras. The games stay free. Paid with SKR, SOL or USDC, straight to the creator's wallet.</p>
   ${PRODUCTS.map(p=>`<div class="sh-item"><span class="ic" aria-hidden="true">${p.ic}</span><div style="flex:1;min-width:0"><b>${p.name}</b><p>${p.txt}</p>
-   <div class="row"><span class="pr">${usd(p.usd)}</span>${owns(p.id)?'<span class="sh-own">✓ Owned</span>':p.gives.every(g=>has(g))?'<span class="sh-own">✓ Included in your purchases</span>':`<button class="sh-buy" data-id="${p.id}">Buy</button>`}</div></div></div>`).join('')}
+   <div class="row"><span class="pr">${usd(p.usd)}</span>${owns(p.id)?'<span class="sh-own">✓ Owned</span>':p.gives.every(g=>has(g))?'<span class="sh-own">✓ Included in your purchases</span>':PAY_OK?`<button class="sh-buy" data-id="${p.id}">Buy</button>`:'<span class="sh-own">Available after the app update</span>'}</div></div></div>`).join('')}
+  ${PAY_OK?'':'<p class="note">Purchases open in the next app update. Restore purchases works already.</p>'}
   <p class="note">Pay with SKR and get ${Math.round(CFG.skrDiscount*100)}% off. Your wallet will ask you to approve one transfer to ${short(CFG.treasury)} and nothing else.</p>
   <div class="svh-btns"><button class="svh-b" id="shRestore">Restore purchases</button><button class="svh-b" id="shClose">Close</button></div>`);
   o.querySelector('#shClose').onclick=close;o.querySelector('#shRestore').onclick=()=>restore(true);
@@ -85,7 +88,7 @@ function openShop(){const o=ov(`<h2>Arcade Shop</h2>
 async function needWallet(){const H=window.SVHolder;if(H&&H.address)return H.address;
   close();if(H){H.openPicker();}return null;}
 
-async function checkout(prod){const addr=await needWallet();if(!addr)return;
+async function checkout(prod){if(!PAY_OK)return openShop();const addr=await needWallet();if(!addr)return;
   let o=ov(`<h2>${esc(prod.name)}</h2><div class="sh-spin" aria-label="Loading"></div><p style="text-align:center">Getting today's prices…</p>`);
   await getPrices();let sym=prices.SKR?'SKR':prices.SOL?'SOL':'USDC';
   const draw=()=>{const q=quote(prod,sym);
