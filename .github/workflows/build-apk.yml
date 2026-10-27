@@ -49,7 +49,7 @@ jobs:
           SOLANA_MOBILE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           SOLANA_MOBILE_KEY_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
-          PAGES_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          PAGES_URL="https://arcade.stratoshivibes.com/"   # own domain (served by stratanen/stratoshivibes-arcade); wallets block payments from github.io
           npx --yes solana-mobile@0.5.0 webshell init android \
             --url "$PAGES_URL" \
             --manifest "${PAGES_URL}manifest.webmanifest" \
