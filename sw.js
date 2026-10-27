@@ -1,6 +1,6 @@
 // Offline support: keeps a copy of the game on the device after the first online launch.
 // Pages load network-first (players get updates when online), everything falls back to the cache offline.
-const CACHE = 'sv-arcade-v15';
+const CACHE = 'sv-arcade-v16';
 const CORE = [
   './', './index.html', './manifest.webmanifest', './privacy.html', './terms.html',
   './mahjong/', './mahjong/index.html', './mahjong/holder.js', './holder.js', './neon.js', './neon-games.css', './arcade-art/sp_bull.webp', './arcade-art/sp_bear.webp', './passport.js', './shop.js', './pay.bundle.js', './wallet.bundle.js', './battlegrounds/', './battlegrounds/index.html', './poker/', './poker/index.html', './rug/', './rug/index.html',
