@@ -1,1 +1,254 @@
-<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=../"><title>StratoshiVibes Arcade</title><a href="../">StratoshiVibes Arcade</a>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>StratoshiVibes Arcade</title>
+<meta name="description" content="Free games starring the StratoshiVibes Vol.1 Degens.">
+<meta name="theme-color" content="#141a2b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<style>
+@font-face{font-family:"SVDisplay";src:url(fonts/bungee-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"SVDisplay";src:url(fonts/commissioner-greek-800-normal.woff2) format("woff2");unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(fonts/commissioner-greek-400-normal.woff2) format("woff2");font-weight:400;unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(fonts/commissioner-greek-600-normal.woff2) format("woff2");font-weight:600;unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(fonts/commissioner-greek-800-normal.woff2) format("woff2");font-weight:800;unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF,U+1F00-1FFF;font-display:swap}
+
+@font-face{font-family:"Bungee";src:url(fonts/bungee-latin-400-normal.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"Commissioner";src:url(fonts/commissioner-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(fonts/commissioner-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Commissioner";src:url(fonts/commissioner-latin-800-normal.woff2) format("woff2");font-weight:800;font-display:swap}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+</style>
+<style>
+/* Layout: arcade lobby. One column of game "cabinets"; each cabinet = art strip + title + live status from the player's saves. Same night-desk palette and type as the games. */
+:root{
+  --table:#141a2b; --table-2:#1d2540; --panel:#1b2238; --ink:#eef0f7; --muted:#9aa3c0; --line:#ffffff1c;
+  --gold:#e3b54a; --gold-2:#b98a24; --ivory:#f4ecd8; --edge:#cdb68a; --edge-2:#8c7346; --you:#3fbf7a; --foe:#e2574c;
+  --f-display:"SVDisplay","Bungee","Arial Black",system-ui,sans-serif;
+  --f-body:"Commissioner",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;min-height:100%;background:radial-gradient(120% 70% at 50% 0%,var(--table-2),var(--table) 70%);background-color:var(--table);color:var(--ink);font-family:var(--f-body);-webkit-tap-highlight-color:transparent}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 28px;display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-direction:column;gap:6px}
+.eyebrow{font:600 11px var(--f-body);letter-spacing:.22em;text-transform:uppercase;color:var(--ink)}
+h1{margin:0;font:400 40px/0.95 var(--f-display);color:var(--gold);text-shadow:0 3px 0 #5a3d06,0 0 30px #e3b54a33}
+.tag{margin:0;color:var(--muted);font-size:14px;line-height:1.45}
+.games{display:flex;flex-direction:column;gap:12px}
+.cab{position:relative;display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center;padding:12px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(160deg,#232c4a,#171d31);color:var(--ink);text-decoration:none;box-shadow:0 10px 24px #0006;overflow:hidden}
+.cab:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.cab:active{transform:scale(.99)}
+.cab .art{position:relative;height:110px}
+.cab h2{margin:0;font:400 18px var(--f-display);color:var(--gold)}
+.cab .genre{font:800 10px var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.cab p{margin:6px 0 0;font-size:13px;line-height:1.4;color:#d6dae8}
+.cab .status{margin-top:8px;display:inline-flex;align-items:center;gap:6px;font:700 12px var(--f-body);color:var(--you)}
+.cab .status::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.cab .foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.cab .foot .status{margin-top:0}
+.cab .play{flex:none;font:800 11px var(--f-body);letter-spacing:.1em;text-transform:uppercase;background:var(--gold);color:#1a1405;border-radius:99px;padding:5px 10px}
+.cab.soon{opacity:.6;box-shadow:none;background:#ffffff08}
+.cab.soon .play{background:#ffffff18;color:var(--muted)}
+.cab.soon .status{color:var(--muted)}
+/* mini tiles */
+.t{position:absolute;width:62px;height:80px;border-radius:8px;background:var(--ivory);overflow:hidden;box-shadow:1px 1px 0 var(--edge),2px 2px 0 var(--edge),3px 3px 0 var(--edge-2),4px 5px 10px #0009}
+.t i{position:absolute;inset:0 0 auto;height:6px}
+.t img{position:absolute;left:4%;bottom:3%;width:92%}
+.p{position:absolute;width:62px;height:62px;border-radius:14px;overflow:hidden;background:var(--ivory)}
+.p img{width:100%;height:100%;object-fit:cover}
+.vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:400 16px var(--f-display);color:#fff;text-shadow:0 2px 0 #000,0 0 12px var(--foe)}
+.card{position:absolute;width:56px;height:78px;border-radius:7px;background:linear-gradient(150deg,#2a3560,#151b30);border:2px solid var(--gold-2);display:grid;place-items:center;font:400 22px var(--f-display);color:var(--gold)}
+.langrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lang{display:flex;border:1px solid #ffffff2a;border-radius:99px;overflow:hidden}
+.lang button{border:0;background:transparent;color:var(--muted);font:800 12px var(--f-body);padding:6px 12px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--gold);color:#1a1405}
+.lang button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.hright{display:flex;align-items:center;gap:8px}
+.holder[hidden]{display:none}
+.holder{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:14px;border:1px solid #e3b54a66;background:linear-gradient(90deg,#e3b54a22,#e3b54a08);color:var(--ink);font:700 13px var(--f-body);text-align:left;cursor:pointer}
+.holder .av{display:flex;flex:none}
+.holder .av img{width:30px;height:30px;border-radius:50%;border:2px solid var(--gold);background:var(--ivory);object-fit:cover;margin-left:-8px}
+.holder .av img:first-child{margin-left:0}
+.holder small{display:block;font-weight:400;color:var(--muted);font-size:11px}
+.holder:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.pass{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:16px;border:1px solid #e3b54a88;background:linear-gradient(150deg,#2b2a40,#171d31);color:var(--ink);text-align:left;cursor:pointer;font-family:var(--f-body)}
+.pass img{width:54px;height:54px;border-radius:14px;border:2px solid var(--gold);background:var(--ivory);object-fit:cover;flex:none}
+.pass .pm{flex:1;min-width:0}.pass small{display:block;font:800 10px var(--f-body);letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.pass b{display:block;font:800 15px var(--f-body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pass .rk{font-size:12px;color:var(--muted)}
+.pass .xp{display:block;height:5px;border-radius:99px;background:#ffffff14;margin-top:6px;overflow:hidden}.pass .xp i{display:block;height:100%;background:var(--gold)}
+.pass .ps{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font:800 13px var(--f-body);flex:none}
+.pass:focus-visible,.dly:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.pass.sup{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 22px #e3b54a44}
+.shopbtn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:#ffffff08;color:var(--ink);text-align:left;cursor:pointer;font:800 14px var(--f-body)}
+.shopbtn .ic{font-size:22px}.shopbtn small{display:block;font-weight:400;font-size:11px;color:var(--muted)}.shopbtn .go{margin-left:auto;font-size:22px;color:var(--gold)}
+.shopbtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.dailies{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dly{display:flex;align-items:center;gap:8px;padding:10px;border-radius:14px;border:1px solid var(--line);background:#ffffff08;color:var(--ink);text-decoration:none;font:800 13px var(--f-body);min-width:0}
+.dly .ic{font-size:20px;flex:none}.dly small{display:block;font-weight:400;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dly.done{border-color:#3fbf7a88}.dly.done small{color:var(--you)}
+footer{display:flex;flex-direction:column;gap:6px;align-items:center;color:var(--muted);font-size:12px;text-align:center;padding-top:6px}
+footer a{color:var(--muted)}
+footer .links{display:flex;gap:14px}
+@media (prefers-reduced-motion:no-preference){.cab:not(.soon) .art{animation:float 4s ease-in-out infinite}.cab:nth-child(2) .art{animation-delay:-2s}}
+@keyframes float{50%{transform:translateY(-3px)}}
+/* ===== Neon theme (matches Mahjong): navy + gold + cyan, each game cabinet lit in its own colour ===== */
+:root{--neo:#00E5FF;--deep:#060b1d}
+body{background:radial-gradient(90% 60% at 50% 30%,#0e2150 0%,#081333 45%,var(--deep) 100%);background-color:var(--deep)}
+.wrap{position:relative;z-index:1}
+h1{font-size:46px;background:linear-gradient(180deg,#fff6c9 0%,#ffd45c 38%,#f0a316 70%,#b86d00 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 3px 0 #4a2a00) drop-shadow(0 0 14px #ffb42a66)}
+.motto{font:800 10.5px var(--f-body);letter-spacing:.24em;color:var(--neo);text-shadow:0 0 8px #00e5ff99;margin-top:-2px}
+.eyebrow{color:#cfe9ff}
+.tag{color:#b9c4e0}
+.lang{border:1.5px solid #00e5ff88;box-shadow:0 0 10px #00e5ff33}
+.lang button[aria-pressed="true"]{background:var(--neo);color:#03202a}
+.svh-btn{border:1.5px solid #00e5ffaa!important;background:#0b1a40cc!important;box-shadow:0 0 10px #00e5ff44;color:#eaf6ff!important}
+.pass{border:1.5px solid #00e5ffaa;background:linear-gradient(150deg,#0e2150cc,#071233cc);box-shadow:0 0 16px #00e5ff33,inset 0 0 18px #00e5ff14}
+.pass small{color:var(--neo);text-shadow:0 0 6px #00e5ff88}
+.pass img{border-color:var(--neo)}
+.pass .xp i{background:linear-gradient(90deg,#1b7dff,#00E5FF,#B6FF3B);box-shadow:0 0 8px #00e5ff}
+.pass.sup{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 22px #e3b54a55}
+.dly{border:1.5px solid #9B5CFF88;background:linear-gradient(160deg,#1c1450cc,#0a1033cc);box-shadow:0 0 12px #9b5cff33}
+.dly.done{border-color:#B6FF3B99;box-shadow:0 0 12px #b6ff3b33}.dly.done small{color:#B6FF3B}
+.shopbtn{border:1.5px solid #ffc531aa;background:linear-gradient(90deg,#3a2a0099,#0a1033cc);box-shadow:0 0 14px #ffc53133}
+.shopbtn .go{color:#ffc531;text-shadow:0 0 8px #ffc531}
+.holder{border:1.5px solid #ffc531aa;box-shadow:0 0 12px #ffc53133}
+.cab{--cc:#ffc531;border:1.5px solid var(--cc);background:linear-gradient(160deg,color-mix(in srgb,var(--cc) 14%,#0c1a42cc) 0%,#070f2bcc 75%);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);box-shadow:0 0 16px color-mix(in srgb,var(--cc) 35%,transparent),inset 0 0 22px color-mix(in srgb,var(--cc) 14%,transparent)}
+.cab h2{color:var(--cc);text-shadow:0 0 10px color-mix(in srgb,var(--cc) 70%,transparent)}
+.cab .play{background:var(--cc);color:#08101f;box-shadow:0 0 12px color-mix(in srgb,var(--cc) 70%,transparent)}
+.cab .status{color:#B6FF3B}
+.cab:nth-child(1){--cc:#ffc531}.cab:nth-child(2){--cc:#ff5a48}.cab:nth-child(3){--cc:#b98cff}.cab:nth-child(4){--cc:#5dff7a}
+.t{box-shadow:1px 1px 0 var(--edge),2px 2px 0 var(--edge),3px 3px 0 var(--edge-2),4px 5px 10px #0009,0 0 12px #00e5ff44}
+.card{border-color:#b98cff;color:#b98cff;box-shadow:0 0 12px #9b5cff66;background:linear-gradient(150deg,#2a1d60,#120f30)}
+footer{position:relative;z-index:1}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="langrow"><span class="eyebrow">StratoshiVibes</span>
+      <div class="hright" data-svh-slot><div class="lang" role="group" aria-label="Language"><button id="lgEn" lang="en">EN</button><button id="lgEl" lang="el">ΕΛ</button></div></div></div>
+    <h1>ARCADE</h1>
+    <div class="motto">PLAY · LEARN · HODL</div>
+    <p class="tag">Games starring the Vol.1 Degens. Free to play, no ads. Optional extras in the Arcade Shop.</p>
+    <button class="holder" id="holder" hidden></button>
+    <button class="pass" id="pass" aria-label="Open your Degen Passport"></button>
+    <div class="dailies" id="dailies"></div>
+    <button class="shopbtn" id="shopBtn"><span class="ic" aria-hidden="true">🛒</span><span>Arcade Shop<small>Moon Season and the Supporter Pack</small></span><span class="go">›</span></button>
+  </header>
+
+  <nav class="games" aria-label="Games">
+    <a class="cab" href="mahjong/">
+      <span class="art" aria-hidden="true">
+        <span class="t" style="left:4px;top:22px;transform:rotate(-10deg)"><i style="background:#8e2a2f"></i><img src="arcade-art/tile_bear.webp" alt=""></span>
+        <span class="t" style="left:50px;top:20px;transform:rotate(9deg)"><i style="background:#1d3f8f"></i><img src="arcade-art/tile_whale.webp" alt=""></span>
+        <span class="t" style="left:26px;top:10px"><i style="background:#2f7d3a"></i><img src="arcade-art/tile_bull.webp" alt=""></span>
+      </span>
+      <span>
+        <h2>Mahjong</h2><div class="genre">Puzzle · Solo</div>
+        <p>Match the Degens tile by tile. 24 levels in 4 chapters, earn up to 3 stars on each.</p>
+        <span class="foot"><span class="status" id="stMahjong">New</span><span class="play">Play</span></span>
+      </span>
+    </a>
+
+    <a class="cab" href="battlegrounds/">
+      <span class="art" aria-hidden="true">
+        <span class="p" style="left:0;top:8px;border:3px solid var(--you)"><img src="arcade-art/tile_maxi.webp" alt=""></span>
+        <span class="p" style="left:56px;top:40px;border:3px solid var(--foe)"><img src="arcade-art/tile_rugpuller.webp" alt=""></span>
+        <span class="vs">VS</span>
+      </span>
+      <span>
+        <h2>Battlegrounds</h2><div class="genre">Turn-based · Campaign</div>
+        <p>Choose every move: attack, special, HODL or switch. Use type advantage and beat 8 teams up to the Market Maker.</p>
+        <span class="foot"><span class="status" id="stBattle">New</span><span class="play">Play</span></span>
+      </span>
+    </a>
+
+    <a class="cab" href="poker/">
+      <span class="art" aria-hidden="true">
+        <span class="card" style="left:6px;top:18px;transform:rotate(-12deg)">?</span>
+        <span class="p" style="left:50px;top:24px;width:56px;height:76px;border-radius:7px;border:2px solid var(--gold-2);transform:rotate(9deg)"><img src="arcade-art/tile_rugpuller.webp" alt=""></span>
+      </span>
+      <span>
+        <h2>Rugpull Poker</h2><div class="genre">Bluff · Strategy</div>
+        <p>Hidden Degens, bluffs and tricks. Read your rival before they pull the rug.</p>
+        <span class="foot"><span class="status" id="stPoker">New</span><span class="play">Play</span></span>
+      </span>
+    </a>
+
+    <a class="cab" href="rug/">
+      <span class="art" aria-hidden="true">
+        <span class="p" style="left:6px;top:30px;border:3px solid var(--you)"><img src="arcade-art/tile_bull.webp" alt=""></span>
+        <span class="p" style="left:52px;top:6px;border:3px solid var(--foe);width:54px;height:54px"><img src="arcade-art/tile_rugpuller.webp" alt=""></span>
+      </span>
+      <span>
+        <h2>Escape the Rug</h2><div class="genre">Action · Roguelike</div>
+        <p>Walk your Degens through 3 floors of rooms. Dodge the bosses, skip the scams.</p>
+        <span class="foot"><span class="status" id="stRug">New</span><span class="play">Play</span></span>
+      </span>
+    </a>
+  </nav>
+
+  <footer>
+    <div class="links"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div>
+    <div>Made by StratoshiVibes · crypto education since 2017</div>
+  </footer>
+</div>
+
+<script>
+(function(){
+ const get=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+ const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+ // Mahjong: resume a saved game, or show the best result
+ const m=document.getElementById('stMahjong');
+ if(get('dm_save_v1')){m.textContent='Game in progress · tap to resume'}
+ else if(get('dm_lv')&&get('dm_lv')!=='{}'){let lv={};try{lv=JSON.parse(get('dm_lv'))}catch(e){}const n=Object.keys(lv).length,st=Object.values(lv).reduce((a,b)=>a+b,0);m.textContent=`Level ${Math.min(24,n+1)} of 24 · ${st} ★`}
+ else{let best=null;for(const k of ['pyramid','bull','vault']){try{const b=JSON.parse(get('dm_best_'+k)||'null');if(b&&b.score&&(!best||b.score>best.score))best=b}catch(e){}}
+  if(best)m.textContent='Best '+best.score.toLocaleString('en-US')+' pts · '+fmt(best.time)}
+ // Battlegrounds: campaign progress
+ const p=+(get('bg_progress')||0),b=document.getElementById('stBattle');
+ if(p>=8)b.textContent='Campaign cleared';else if(p>0)b.textContent='Stage '+(p+1)+' of 8';
+ const rp=+(get('rp_beaten')||0),pk=document.getElementById('stPoker');
+ if(rp>=3)pk.textContent='All rivals beaten';else if(rp>0)pk.textContent=rp+' of 3 rivals beaten';
+ const eb=+(get('er_best')||0),ew=+(get('er_wins')||0),er=document.getElementById('stRug');
+ if(ew)er.textContent='Escaped '+ew+'x';else if(eb)er.textContent='Best: room '+eb+' of 12';
+ if(get('er2_run'))er.textContent='Run in progress · tap to resume';
+})();
+</script>
+
+<script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}</script>
+<script src="neon.js"></script>
+<script>SVNeon.backdrop({sol:[300,72,.75],coins:[[88,30,30,-2],[2,52,26,-4],[90,74,22,-1],[6,90,20,-3]],opacity:.6})</script>
+<script src="i18n.js"></script>
+<script>
+(function(){const en=document.getElementById('lgEn'),el=document.getElementById('lgEl');
+ const cur=window.SVI18N?SVI18N.lang:'en';en.setAttribute('aria-pressed',cur==='en');el.setAttribute('aria-pressed',cur==='el');
+ en.onclick=()=>{if(cur!=='en')SVI18N.set('en')};el.onclick=()=>{if(cur!=='el')SVI18N.set('el')};})();
+</script>
+<script src="holder.js"></script>
+<script src="passport.js"></script>
+<script src="shop.js"></script>
+<script>
+(function(){const H=window.SVHolder,el=document.getElementById('holder');if(!H)return;
+function paintHolder(){const ids=Object.keys(H.owned());
+ if(!H.address||!ids.length){el.hidden=true;return}
+ el.hidden=false;el.innerHTML=`<span class="av">${ids.slice(0,5).map(id=>`<img src="${H.img(id)}" alt="">`).join('')}</span><span>Holder: ${H.total} Degens<small>Gold in every game. +10% in Mahjong, Battlegrounds and Escape the Rug.</small></span>`;}
+el.onclick=()=>H.openAccount();H.onChange(paintHolder);paintHolder();})();
+(function(){const P=window.SVPass;if(!P)return;const pe=document.getElementById('pass'),de=document.getElementById('dailies');
+ const f=x=>Math.floor(x/60)+':'+String(x%60).padStart(2,'0');
+ function paint(){const l=P.level,r=P.rank,lo=P.xpFor(l),hi=P.xpFor(l+1),got=P.badges().filter(b=>b.got).length;
+  pe.innerHTML=`<img src="${P.img(r.id)}" alt=""><span class="pm"><small>Degen Passport</small><b></b><span class="rk">Level ${l} · ${r.name}</span><span class="xp"><i style="width:${Math.round(100*(P.xp-lo)/(hi-lo))}%"></i></span></span><span class="ps"><span>${P.streak().now} 🔥</span><span>🏅 ${got}</span></span>`;
+  pe.querySelector('b').textContent=P.name;
+  const dm=P.dailyResult('mahjong'),dr=P.dailyResult('rug');
+  de.innerHTML=`<a class="dly${dm?' done':''}" href="mahjong/?daily"><span class="ic">📅</span><span>Daily Mahjong<small>${dm?`Done · best ${f(dm.best)}`:'New board today'}</small></span></a>
+   <a class="dly${dr?' done':''}" href="rug/?daily"><span class="ic">📅</span><span>Daily Escape<small>${dr?`Done · ${dr.best>12?'escaped':'room '+dr.best}`:'New run today'}</small></span></a>`;}
+ pe.onclick=()=>P.open();P.onChange(paint);paint();
+ const sync=()=>pe.classList.toggle('sup',P.supporter);sync();if(window.SVShop){SVShop.onChange(()=>{sync();paint()});document.getElementById('shopBtn').onclick=()=>SVShop.open();if(/[?&]shop\b/.test(location.search))setTimeout(()=>SVShop.open(),300)}})();
+addEventListener('pageshow',e=>{if(e.persisted)location.reload()});
+</script>
+</body>
+</html>
