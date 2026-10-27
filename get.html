@@ -1,0 +1,31 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Get StratoshiVibes Arcade</title>
+<meta property="og:title" content="StratoshiVibes Arcade"><meta property="og:description" content="4 games starring the Vol.1 Degens. Free to play, no ads. On the Solana dApp Store.">
+<style>
+@font-face{font-family:SVD;src:url(fonts/bungee-latin-400-normal.woff2)}
+@font-face{font-family:Com;font-weight:800;src:url(fonts/commissioner-latin-800-normal.woff2)}
+@font-face{font-family:Com;font-weight:400;src:url(fonts/commissioner-latin-400-normal.woff2)}
+:root{color-scheme:dark}
+body{margin:0;min-height:100vh;background:radial-gradient(90% 60% at 50% 35%,#0e2150 0%,#081333 45%,#060b1d 100%);background-color:#060b1d;color:#eaf0ff;font-family:Com,system-ui,sans-serif;display:grid;place-items:center;text-align:center}
+.w{position:relative;z-index:1;max-width:420px;padding:28px 16px}
+.k{font:800 11px Com;letter-spacing:.24em;color:#cfe9ff}
+h1{margin:6px 0 4px;font:400 52px/1 SVD,Impact,sans-serif;background:linear-gradient(180deg,#fff6c9,#ffd45c 38%,#f0a316 70%,#b86d00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 #4a2a00) drop-shadow(0 0 14px #ffb42a66)}
+.m{font:800 11px Com;letter-spacing:.24em;color:#00E5FF;text-shadow:0 0 8px #00e5ff99}
+p{color:#b9c4e0;line-height:1.5}
+a.b{display:block;margin:12px 0;padding:15px;border-radius:14px;font:800 16px Com;text-decoration:none}
+.p{background:linear-gradient(180deg,#ffd75e,#f0a316);color:#1a1000;box-shadow:0 0 16px #ffc53166}
+.g{border:1.5px solid #00e5ffaa;background:#0b1a40cc;color:#eaf6ff;box-shadow:0 0 12px #00e5ff33}
+small{color:#8a96b8}
+</style></head><body>
+<div class="w">
+<div class="k">STRATOSHIVIBES</div><h1>ARCADE</h1><div class="m">PLAY · LEARN · HODL</div>
+<p>4 games starring the Vol.1 Degens: Mahjong, Battlegrounds, Rugpull Poker and Escape the Rug. Free to play, no ads.</p>
+<a class="b p" id="store" href="solanadappstore://details?id=com.stratoshivibes.mahjong">Open in the Solana dApp Store</a>
+<a class="b g" href="./">Play in your browser</a>
+<small>On a Seeker the dApp Store opens directly. On other devices, play in the browser or search “StratoshiVibes Arcade” in the dApp Store.</small>
+</div>
+<script src="neon.js"></script>
+<script>SVNeon.backdrop({sol:[300,90,.7],coins:[[86,20,28,-2],[4,60,24,-4],[88,80,20,-1]],opacity:.5});
+// On Android try the dApp Store straight away; elsewhere just show the page
+if(/Android/i.test(navigator.userAgent)){setTimeout(()=>{location.href='solanadappstore://details?id=com.stratoshivibes.mahjong'},350)}</script>
+</body></html>
