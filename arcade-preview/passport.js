@@ -59,7 +59,6 @@ const BADGES=[
  ['all4','🕹️','Arcade Regular','Win at least once in all 4 games',(s,c)=>(c.mj_clears>=1||s.mjCleared>=1)&&(c.bg_wins>=1||s.bg>=1)&&(c.rp_wins>=1||s.rp>=1)&&(c.rug_bosses>=1||s.erWins>=1)],
  ['holder','✨','Vol.1 Holder','Hold a StratoshiVibes Vol.1 Degen',()=>{const h=H();return !!(h&&h.total>0)}],
  ['skr','📱','SKR Holder','Hold SKR in your connected wallet',()=>!!skrTier()],
- ['seeker','◆','Seeker Genesis','Connect the wallet of your Solana Seeker phone',()=>{const h=H();return !!(h&&h.seeker)}],
  ['supporter','💛','Supporter','Back the Arcade with the Supporter Pack',()=>!!(window.SVShop&&SVShop.has('supporter'))]];
 
 const queue=[];let showing=false;
@@ -89,8 +88,6 @@ function finishDaily(game,res,lowerIsBetter){const t=today();const day=P.daily[t
   const best=prev?(lowerIsBetter?Math.min(prev.best,res.score):Math.max(prev.best,res.score)):res.score;
   day[game]=Object.assign({},res,{best,tries:(prev&&prev.tries||0)+1});
   if(first){P.c.dailies=(P.c.dailies||0)+1;P.xp+=50;
-    // Seeker Perk: +25 XP on the first daily of the day (points only)
-    {const h=H();if(h&&h.seeker&&Object.keys(day).length===1){P.xp+=25;notify('◆','Seeker Perk','+25 XP')}}
     const s=P.streak;if(s.last!==t){const gap=s.last?dayNo(t)-dayNo(s.last):99;s.n=gap===1?s.n+1:1;s.last=t;s.best=Math.max(s.best||0,s.n)}}
   // keep only the last 40 days
   const keys=Object.keys(P.daily).sort();while(keys.length>40)delete P.daily[keys.shift()];
