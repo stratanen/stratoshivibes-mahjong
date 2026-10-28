@@ -24,6 +24,41 @@ let st=load();
 if(!valid(st.addr)){st={};try{const a=localStorage.getItem('dm_addr');if(valid(a))st.addr=a}catch(e){}}   // earlier Mahjong-only versions
 st.owned=st.owned||{};
 let loading=false;
+// Seeker Genesis Token check, ported from @solana-mobile/skr-genesis-token (Apache-2.0) without dependencies.
+// An SGT is a Token-2022 mint whose TokenGroupMember extension points at the SGT group and whose MetadataPointer points at the same address.
+const SGT_GROUP = 'GT22s89nU4iWFkNXj1Bw6uYhJJWDRPpShHt4Bk8f99Te', TOKEN_2022 = 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb';
+const B58A = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+function b58enc(bytes){ let n = 0n; for (const x of bytes) n = n * 256n + BigInt(x); let s = ''; while (n > 0n) { s = B58A[Number(n % 58n)] + s; n /= 58n; } for (const x of bytes) { if (x === 0) s = '1' + s; else break; } return s; }
+function b64bytes(str){ const bin = atob(str); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+function isSgtMint(d){
+  if (d.length < 166 || d[165] !== 1) return false;
+  let off = 166, group = null, meta = null, member = false;
+  while (off + 4 <= d.length) {
+    const type = d[off] | (d[off + 1] << 8), len = d[off + 2] | (d[off + 3] << 8), s = off + 4, e = s + len;
+    if (type === 0 || e > d.length) break;
+    if (type === 18 && len === 64) meta = b58enc(d.subarray(s + 32, s + 64));
+    else if (type === 23 && len === 72) { group = b58enc(d.subarray(s + 32, s + 64)); member = true; }
+    off = e;
+  }
+  return member && group === SGT_GROUP && meta === SGT_GROUP;
+}
+async function sgtMints(rpcUrl, owner, timeoutMs){
+  const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null, to = ctl && setTimeout(() => ctl.abort(), timeoutMs || 8000);
+  const call = (method, params) => fetch(rpcUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }), signal: ctl && ctl.signal })
+    .then(r => r.json()).then(j => { if (j.error) throw new Error(j.error.message || 'rpc error'); return j.result; });
+  try {
+    const ta = await call('getTokenAccountsByOwner', [owner, { programId: TOKEN_2022 }, { encoding: 'jsonParsed', commitment: 'confirmed' }]);
+    const mints = [...new Set((ta.value || []).filter(a => a.account.data.parsed.info.tokenAmount.amount !== '0').map(a => a.account.data.parsed.info.mint))];
+    const out = [];
+    for (let i = 0; i < mints.length; i += 100) {
+      const batch = mints.slice(i, i + 100), r = await call('getMultipleAccounts', [batch, { encoding: 'base64', commitment: 'confirmed' }]);
+      (r.value || []).forEach((acc, k) => { if (acc && acc.owner === TOKEN_2022 && isSgtMint(b64bytes(acc.data[0]))) out.push(batch[k]); });
+    }
+    return out;
+  } finally { if (to) clearTimeout(to); }
+}
+const GKEY='sv_genesis';
+let genesisOn=(()=>{try{return localStorage.getItem(GKEY)!=='0'}catch(e){return true}})();
 const subs=new Set();
 const short=a=>a.slice(0,4)+'…'+a.slice(-4);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -32,6 +67,9 @@ const api={
   get address(){return st.addr||null},
   get total(){return st.total||0},
   get skr(){return st.skr||0},
+  get seeker(){return !!(st.addr&&st.seeker)},
+  get genesis(){return genesisOn},
+  setGenesis(v){genesisOn=!!v;try{localStorage.setItem(GKEY,v?'1':'0')}catch(e){}emit()},
   rpc:CFG.rpc,
   get loading(){return loading},
   get status(){return st.status||''},
@@ -41,10 +79,10 @@ const api={
   name(id){return NAME[id]||id},
   img(id){return BASE+'arcade-art/tile_'+id+'.webp'},
   onChange(f){subs.add(f);return()=>subs.delete(f)},
-  refresh, openPicker, openAccount, disconnect
+  refresh, openPicker, openAccount, openPerks, disconnect
 };
 window.SVHolder=api;
-function emit(){paint();decorate(document);for(const f of subs){try{f(api)}catch(e){console.warn(e)}}}
+function emit(){paint();theme();decorate(document);for(const f of subs){try{f(api)}catch(e){console.warn(e)}}}
 addEventListener('storage',e=>{if(e.key===KEY){st=load();st.owned=st.owned||{};emit()}});
 
 async function refresh(force){
@@ -68,6 +106,8 @@ async function refresh(force){
       const j=await r.json();const acc=(j.result&&j.result.value)||[];
       st.skr=acc.reduce((a,x)=>a+(+((((x.account||{}).data||{}).parsed||{}).info||{}).tokenAmount?.uiAmount||0),0);
     }catch(e){console.warn(e)}
+    // Seeker Genesis Token: one per Seeker phone. Looks and points only, never a gameplay advantage.
+    try{st.seeker=(await sgtMints(CFG.rpc,st.addr,9000)).length>0}catch(e){console.warn(e)}
     st.status='ok';st.t=Date.now();
   }catch(e){console.warn(e);st.status='error'}
   finally{loading=false;persist();emit()}
@@ -83,10 +123,25 @@ async function disconnect(){try{window.SVWallet&&await SVWallet.disconnect()}cat
   st={owned:{}};try{localStorage.removeItem(KEY);localStorage.removeItem('dm_addr')}catch(e){}emit();toast('Wallet disconnected');}
 
 // ---------- look ----------
+function theme(){const b=document.body;if(!b)return;const on=api.seeker;
+  b.classList.toggle('sv-seeker',on);b.classList.toggle('sv-genesis',on&&genesisOn);}
 const css=document.createElement('style');css.textContent=`
 .svh-btn{display:inline-flex;align-items:center;gap:6px;height:34px;border-radius:99px;border:1px solid #ffffff2a;background:#ffffff0d;color:#eef0f7;font:700 12px "Commissioner",system-ui,sans-serif;padding:0 11px;cursor:pointer;white-space:nowrap}
 .svh-btn svg{flex:none}
 .svh-btn.on{border-color:#e3b54a88}
+.svh-btn .sk{color:#61f5c4;font-size:11px;text-shadow:0 0 8px #61f5c4}
+.svh-btn.seek{border-color:#61f5c488}
+body.sv-genesis .bgfx{filter:hue-rotate(118deg) saturate(1.15)}
+body.sv-genesis{--edge:#2aa385;--edge-2:#12584f}
+.svh-sk{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:10px 12px;border-radius:12px;border:1px solid #61f5c466;background:linear-gradient(90deg,#61f5c41c,#61f5c405);font-size:13px;line-height:1.4}
+.svh-sk b{color:#61f5c4}
+.svh-perks{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px}
+.svh-perks li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.4;color:#d6dae8}
+.svh-perks li span{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:#61f5c41f;color:#61f5c4;font-weight:800}
+.svh-tg{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:#ffffff0a;font-size:14px}
+.svh-tg button{min-width:64px;height:34px;border-radius:99px;border:1px solid #ffffff2a;background:#ffffff10;color:#eef0f7;font:800 13px "Commissioner",system-ui,sans-serif;cursor:pointer}
+.svh-tg button[aria-pressed="true"]{background:#61f5c4;border-color:#61f5c4;color:#05221b}
+.svh-b.teal{background:#61f5c4;color:#05221b;border-color:#61f5c4}
 .svh-btn .dot{width:7px;height:7px;border-radius:50%;background:#e3b54a;box-shadow:0 0 8px #e3b54a}
 .svh-btn:focus-visible{outline:2px solid #e3b54a;outline-offset:2px}
 .svh-on{position:relative}
@@ -130,7 +185,8 @@ new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.nod
 const WICON='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 9h14a4 4 0 0 1 4 4"/><circle cx="16.5" cy="13" r="1.3" fill="currentColor"/></svg>';
 let btn=null;
 function paint(){if(!btn)return;const a=st.addr;btn.classList.toggle('on',!!a);
-  btn.innerHTML=a?`${st.total?'<span class="dot"></span>':WICON}${short(a)}`:`${WICON}<span>Connect</span>`;
+  btn.classList.toggle('seek',api.seeker);
+  btn.innerHTML=a?`${api.seeker?'<span class="sk" aria-hidden="true">◆</span>':''}${st.total?'<span class="dot"></span>':WICON}${short(a)}`:`${WICON}<span>Connect</span>`;
   btn.setAttribute('aria-label',a?`Wallet ${short(a)}${st.total?`, holder of ${st.total} Degens`:''}`:'Connect wallet');}
 
 function ov(html){closeOv();const o=document.createElement('div');o.className='svh-ov';o.innerHTML=`<div class="svh-box" role="dialog" aria-modal="true">${html}</div>`;
@@ -158,10 +214,30 @@ function openAccount(){const ids=Object.keys(st.owned);
     st.status==='error'?'<p>Could not check your Degens right now. Check your internet connection and try again.</p>':
     st.total?`<p>You hold ${st.total} Vol.1 Degens. They shine gold in every game and get +10% in Mahjong, Battlegrounds and Escape the Rug.</p><div class="svh-grid">${ids.map(id=>`<figure><img src="${api.img(id)}" alt=""><b>${st.owned[id]}</b><figcaption>${NAME[id]}</figcaption></figure>`).join('')}</div>`
     :'<p>No Vol.1 Degens found in this wallet yet.</p>'}
-  <div class="svh-btns">${st.status==='error'?'<button class="svh-b gold" data-r>Try again</button>':''}<button class="svh-b" data-x>Back to game</button><button class="svh-b" data-d>Disconnect</button></div>`);
+  ${!loading&&st.status!=='error'?(api.seeker?'<div class="svh-sk"><span>◆</span><span><b>Seeker Genesis Token found.</b> Seeker Perks are active.</span></div>':''):''}
+  <div class="svh-btns">${st.status==='error'?'<button class="svh-b gold" data-r>Try again</button>':''}${api.seeker?'<button class="svh-b teal" data-p>Seeker Perks</button>':''}<button class="svh-b" data-x>Back to game</button><button class="svh-b" data-d>Disconnect</button></div>`);
   o.querySelector('[data-x]').onclick=closeOv;
   o.querySelector('[data-d]').onclick=()=>{closeOv();disconnect()};
+  const pp=o.querySelector('[data-p]');if(pp)pp.onclick=openPerks;
   const r=o.querySelector('[data-r]');if(r)r.onclick=async()=>{closeOv();await setAddress(st.addr,true)};}
+
+// Seeker Perks: for owners of a Solana Seeker phone (Seeker Genesis Token in the connected wallet).
+function openPerks(){const on=api.seeker;
+  const o=ov(`<h2 style="color:#61f5c4">◆ Seeker Perks</h2>
+  <div class="svh-sk"><span>${on?'✓':'◆'}</span><span>${on?'<b>Active.</b> Your wallet holds a Seeker Genesis Token.':loading?'Checking your wallet…':st.addr?'No Seeker Genesis Token in this wallet. Connect the wallet of your Seeker phone.':'Own a Solana Seeker? Connect its wallet to unlock these perks.'}</span></div>
+  <ul class="svh-perks">
+   <li><span>◆</span>Genesis theme: teal backdrop in every game and teal Mahjong tiles.</li>
+   <li><span>+</span>+25 XP on the first daily challenge you finish each day.</li>
+   <li><span>★</span>Seeker Genesis badge in your Degen Passport.</li>
+  </ul>
+  ${on?`<div class="svh-tg"><span>Genesis theme</span><button data-g aria-pressed="${genesisOn}">${genesisOn?'On':'Off'}</button></div>`:''}
+  <p class="note">Looks and points only. Every player has the same chances in every game. The wallet stays optional and the check only reads your public address.</p>
+  <div class="svh-btns">${!st.addr?'<button class="svh-b teal" data-c>Connect wallet</button>':''}<button class="svh-b" data-x>Back to game</button></div>`);
+  o.querySelector('[data-x]').onclick=closeOv;
+  const c=o.querySelector('[data-c]');if(c)c.onclick=()=>{if(window.SVWallet)openPicker();else{addEventListener('svwallet-ready',()=>openPicker(),{once:true});ensureWallet()}};
+  const g=o.querySelector('[data-g]');if(g)g.onclick=()=>{api.setGenesis(!genesisOn);openPerks()};}
+function ensureWallet(){if(window.SVWallet||document.querySelector('script[data-svw]'))return;
+  const s=document.createElement('script');s.src=BASE+'wallet.bundle.js';s.dataset.svw='1';document.head.appendChild(s);}
 
 function init(){
   const slot=document.querySelector('[data-svh-slot]');
@@ -169,9 +245,9 @@ function init(){
     btn=document.createElement('button');btn.className='svh-btn';btn.type='button';
     btn.onclick=()=>st.addr?openAccount():openPicker();
     slot.prepend(btn);paint();
-    const s=document.createElement('script');s.src=BASE+'wallet.bundle.js';document.head.appendChild(s);
+    ensureWallet();
     addEventListener('svwallet-ready',()=>SVWallet.onChange(a=>{if(a&&a!==st.addr)setAddress(a,false)}));}
-  decorate(document);
+  theme();decorate(document);
   if(st.addr)refresh(false);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

@@ -73,6 +73,11 @@ h1{margin:0;font:400 40px/0.95 var(--f-display);color:var(--gold);text-shadow:0 
 .holder .av img{width:30px;height:30px;border-radius:50%;border:2px solid var(--gold);background:var(--ivory);object-fit:cover;margin-left:-8px}
 .holder .av img:first-child{margin-left:0}
 .holder small{display:block;font-weight:400;color:var(--muted);font-size:11px}
+.perkcard{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:14px;border:1.5px solid #61f5c477;background:linear-gradient(90deg,#61f5c422,#61f5c406);color:var(--ink);font:700 13px var(--f-body);text-align:left;cursor:pointer;box-shadow:0 0 12px #61f5c422}
+.perkcard .ic{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#61f5c42a;color:#61f5c4;font-size:15px;text-shadow:0 0 8px #61f5c4}
+.perkcard small{display:block;font-weight:400;color:var(--muted);font-size:11px}
+.perkcard .st{margin-left:auto;flex:none;font:800 10px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:#61f5c4;border:1px solid #61f5c466;border-radius:99px;padding:3px 8px}
+.perkcard:focus-visible{outline:2px solid #61f5c4;outline-offset:2px}
 .holder:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .pass{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:16px;border:1px solid #e3b54a88;background:linear-gradient(150deg,#2b2a40,#171d31);color:var(--ink);text-align:left;cursor:pointer;font-family:var(--f-body)}
 .pass img{width:54px;height:54px;border-radius:14px;border:2px solid var(--gold);background:var(--ivory);object-fit:cover;flex:none}
@@ -136,6 +141,7 @@ footer{position:relative;z-index:1}
     <div class="motto">PLAY · LEARN · HODL</div>
     <p class="tag">Games starring the Vol.1 Degens. Free to play, no ads. Optional extras in the Arcade Shop.</p>
     <button class="holder" id="holder" hidden></button>
+    <button class="perkcard" id="perkCard"></button>
     <button class="pass" id="pass" aria-label="Open your Degen Passport"></button>
     <div class="dailies" id="dailies"></div>
     <button class="shopbtn" id="shopBtn"><span class="ic" aria-hidden="true">🛒</span><span>Arcade Shop<small>Moon Season and the Supporter Pack</small></span><span class="go">›</span></button>
@@ -248,6 +254,10 @@ el.onclick=()=>H.openAccount();H.onChange(paintHolder);paintHolder();})();
    <a class="dly${dr?' done':''}" href="rug/?daily"><span class="ic">📅</span><span>Daily Escape<small>${dr?`Done · ${dr.best>12?'escaped':'room '+dr.best}`:'New run today'}</small></span></a>`;}
  pe.onclick=()=>P.open();P.onChange(paint);paint();
  const sync=()=>pe.classList.toggle('sup',P.supporter);sync();if(window.SVShop){SVShop.onChange(()=>{sync();paint()});document.getElementById('shopBtn').onclick=()=>SVShop.open();if(/[?&]shop\b/.test(location.search))setTimeout(()=>SVShop.open(),300)}})();
+(function(){const H=window.SVHolder,el=document.getElementById('perkCard');if(!H){el.hidden=true;return}
+function paintPerk(){const on=H.seeker;
+ el.innerHTML=`<span class="ic" aria-hidden="true">◆</span><span>Seeker Perks<small>${on?'Genesis theme, +25 XP daily and a Passport badge':'Own a Seeker? Connect its wallet to unlock'}</small></span>${on?'<span class="st">Active</span>':''}`;}
+el.onclick=()=>H.openPerks();H.onChange(paintPerk);paintPerk();})();
 addEventListener('pageshow',e=>{if(e.persisted)location.reload()});
 </script>
 </body>
