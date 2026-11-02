@@ -61,6 +61,9 @@ h1{margin:0;font:400 40px/0.95 var(--f-display);color:var(--gold);text-shadow:0 
 .p img{width:100%;height:100%;object-fit:cover}
 .vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:400 16px var(--f-display);color:#fff;text-shadow:0 2px 0 #000,0 0 12px var(--foe)}
 .card{position:absolute;width:56px;height:78px;border-radius:7px;background:linear-gradient(150deg,#2a3560,#151b30);border:2px solid var(--gold-2);display:grid;place-items:center;font:400 22px var(--f-display);color:var(--gold)}
+/* Blockspace mini blocks (artwork served from blockspace.stratoshivibes.com) */
+.bt{position:absolute;width:46px;height:46px;border-radius:11px;overflow:hidden;background:var(--g);box-shadow:0 0 10px color-mix(in srgb,var(--g) 60%,transparent)}
+.bt img{width:100%;height:100%;object-fit:cover;display:block}
 .langrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .lang{display:flex;border:1px solid #ffffff2a;border-radius:99px;overflow:hidden}
 .lang button{border:0;background:transparent;color:var(--muted);font:800 12px var(--f-body);padding:6px 12px;cursor:pointer}
@@ -73,11 +76,6 @@ h1{margin:0;font:400 40px/0.95 var(--f-display);color:var(--gold);text-shadow:0 
 .holder .av img{width:30px;height:30px;border-radius:50%;border:2px solid var(--gold);background:var(--ivory);object-fit:cover;margin-left:-8px}
 .holder .av img:first-child{margin-left:0}
 .holder small{display:block;font-weight:400;color:var(--muted);font-size:11px}
-.perkcard{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:14px;border:1.5px solid #61f5c477;background:linear-gradient(90deg,#61f5c422,#61f5c406);color:var(--ink);font:700 13px var(--f-body);text-align:left;cursor:pointer;box-shadow:0 0 12px #61f5c422}
-.perkcard .ic{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:#61f5c42a;color:#61f5c4;font-size:15px;text-shadow:0 0 8px #61f5c4}
-.perkcard small{display:block;font-weight:400;color:var(--muted);font-size:11px}
-.perkcard .st{margin-left:auto;flex:none;font:800 10px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:#61f5c4;border:1px solid #61f5c466;border-radius:99px;padding:3px 8px}
-.perkcard:focus-visible{outline:2px solid #61f5c4;outline-offset:2px}
 .holder:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .pass{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:16px;border:1px solid #e3b54a88;background:linear-gradient(150deg,#2b2a40,#171d31);color:var(--ink);text-align:left;cursor:pointer;font-family:var(--f-body)}
 .pass img{width:54px;height:54px;border-radius:14px;border:2px solid var(--gold);background:var(--ivory);object-fit:cover;flex:none}
@@ -124,7 +122,7 @@ h1{font-size:46px;background:linear-gradient(180deg,#fff6c9 0%,#ffd45c 38%,#f0a3
 .cab h2{color:var(--cc);text-shadow:0 0 10px color-mix(in srgb,var(--cc) 70%,transparent)}
 .cab .play{background:var(--cc);color:#08101f;box-shadow:0 0 12px color-mix(in srgb,var(--cc) 70%,transparent)}
 .cab .status{color:#B6FF3B}
-.cab:nth-child(1){--cc:#ffc531}.cab:nth-child(2){--cc:#ff5a48}.cab:nth-child(3){--cc:#b98cff}.cab:nth-child(4){--cc:#5dff7a}
+.cab:nth-child(1){--cc:#ffc531}.cab:nth-child(2){--cc:#22e4ff}.cab:nth-child(3){--cc:#ff5a48}.cab:nth-child(4){--cc:#b98cff}.cab:nth-child(5){--cc:#5dff7a}
 .t{box-shadow:1px 1px 0 var(--edge),2px 2px 0 var(--edge),3px 3px 0 var(--edge-2),4px 5px 10px #0009,0 0 12px #00e5ff44}
 .card{border-color:#b98cff;color:#b98cff;box-shadow:0 0 12px #9b5cff66;background:linear-gradient(150deg,#2a1d60,#120f30)}
 footer{position:relative;z-index:1}
@@ -141,7 +139,6 @@ footer{position:relative;z-index:1}
     <div class="motto">PLAY · LEARN · HODL</div>
     <p class="tag">Games starring the Vol.1 Degens. Free to play, no ads. Optional extras in the Arcade Shop.</p>
     <button class="holder" id="holder" hidden></button>
-    <button class="perkcard" id="perkCard"></button>
     <button class="pass" id="pass" aria-label="Open your Degen Passport"></button>
     <div class="dailies" id="dailies"></div>
     <button class="shopbtn" id="shopBtn"><span class="ic" aria-hidden="true">🛒</span><span>Arcade Shop<small>Moon Season and the Supporter Pack</small></span><span class="go">›</span></button>
@@ -158,6 +155,20 @@ footer{position:relative;z-index:1}
         <h2>Mahjong</h2><div class="genre">Puzzle · Solo</div>
         <p>Match the Degens tile by tile. 24 levels in 4 chapters, earn up to 3 stars on each.</p>
         <span class="foot"><span class="status" id="stMahjong">New</span><span class="play">Play</span></span>
+      </span>
+    </a>
+
+    <a class="cab" href="https://blockspace.stratoshivibes.com/">
+      <span class="art" aria-hidden="true">
+        <span class="bt" style="left:8px;top:10px;--g:#ffa62b"><img src="https://blockspace.stratoshivibes.com/tiles/btc.webp" alt=""></span>
+        <span class="bt" style="left:58px;top:10px;--g:#3aa8ff"><img src="https://blockspace.stratoshivibes.com/tiles/diamond.webp" alt=""></span>
+        <span class="bt" style="left:8px;top:60px;--g:#6b6bff"><img src="https://blockspace.stratoshivibes.com/tiles/rocket.webp" alt=""></span>
+        <span class="bt" style="left:58px;top:60px;--g:#ffb02e"><img src="https://blockspace.stratoshivibes.com/tiles/king.webp" alt=""></span>
+      </span>
+      <span>
+        <h2>Blockspace</h2><div class="genre">Puzzle · Reveal</div>
+        <p>Place the blocks, clear lines and unlock StratoshiVibes artwork piece by piece. Every picture you finish goes into your gallery.</p>
+        <span class="foot"><span class="status" id="stBlocks">New</span><span class="play">Play</span></span>
       </span>
     </a>
 
@@ -223,6 +234,7 @@ footer{position:relative;z-index:1}
  const eb=+(get('er_best')||0),ew=+(get('er_wins')||0),er=document.getElementById('stRug');
  if(ew)er.textContent='Escaped '+ew+'x';else if(eb)er.textContent='Best: room '+eb+' of 12';
  if(get('er2_run'))er.textContent='Run in progress · tap to resume';
+ // Blockspace lives on its own subdomain, so its saves are not readable here: the card always shows "New".
 })();
 </script>
 
@@ -254,10 +266,6 @@ el.onclick=()=>H.openAccount();H.onChange(paintHolder);paintHolder();})();
    <a class="dly${dr?' done':''}" href="rug/?daily"><span class="ic">📅</span><span>Daily Escape<small>${dr?`Done · ${dr.best>12?'escaped':'room '+dr.best}`:'New run today'}</small></span></a>`;}
  pe.onclick=()=>P.open();P.onChange(paint);paint();
  const sync=()=>pe.classList.toggle('sup',P.supporter);sync();if(window.SVShop){SVShop.onChange(()=>{sync();paint()});document.getElementById('shopBtn').onclick=()=>SVShop.open();if(/[?&]shop\b/.test(location.search))setTimeout(()=>SVShop.open(),300)}})();
-(function(){const H=window.SVHolder,el=document.getElementById('perkCard');if(!H){el.hidden=true;return}
-function paintPerk(){const on=H.seeker;
- el.innerHTML=`<span class="ic" aria-hidden="true">◆</span><span>Seeker Perks<small>${on?'Genesis theme, +25 XP daily and a Passport badge':'Own a Seeker? Connect its wallet to unlock'}</small></span>${on?'<span class="st">Active</span>':''}`;}
-el.onclick=()=>H.openPerks();H.onChange(paintPerk);paintPerk();})();
 addEventListener('pageshow',e=>{if(e.persisted)location.reload()});
 </script>
 </body>
