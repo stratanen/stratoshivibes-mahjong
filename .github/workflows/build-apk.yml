@@ -49,10 +49,10 @@ jobs:
           SOLANA_MOBILE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           SOLANA_MOBILE_KEY_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
-          PAGES_URL="https://arcade.stratoshivibes.com/"   # own domain (served by stratanen/stratoshivibes-arcade); wallets block payments from github.io
+          PAGES_URL="https://arcade.stratoshivibes.com/"   # own domain (served by stratanen/stratoshivibes-arcade); it now forwards to github.io, so the manifest is read from there
           npx --yes solana-mobile@0.5.0 webshell init android \
             --url "$PAGES_URL" \
-            --manifest "${PAGES_URL}manifest.webmanifest" \
+            --manifest "https://stratanen.github.io/stratoshivibes-mahjong/manifest.webmanifest" \
             --app-name "StratoshiVibes Arcade" \
             --application-id "com.stratoshivibes.mahjong" \
             --version-code "${{ inputs.version_code }}" \
